@@ -3,13 +3,13 @@ plugins {
     id 'org.springframework.boot' version '2.7.16'
     id 'io.spring.dependency-management' version '1.0.15.RELEASE'
 }
-
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17) // replace 11 with your desired JDK version
+    }
+}
 group = 'com'
 version = '0.0.1-SNAPSHOT'
-
-java {
-    sourceCompatibility = '17'
-}
 
 configurations {
     compileOnly {
