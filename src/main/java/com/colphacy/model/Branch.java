@@ -21,18 +21,22 @@ public class Branch {
     @Embedded
     private Address address;
 
+    @NotNull
     @NotBlank
     @Size(max = 10)
     private String closingHour;
 
+    @NotNull
     @NotBlank
     @Size(max = 10)
     private String openingHour;
 
+    @NotNull
     @NotBlank
     @Size(min =10, max = 10)
     private String phoneNumber;
 
+    @NotNull
     @NotBlank
     @Enumerated(EnumType.STRING)
     private BranchStatus status = BranchStatus.OPEN;
