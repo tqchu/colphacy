@@ -19,6 +19,6 @@ public class Role {
     @NotNull
     @NotBlank
     @Enumerated(EnumType.STRING)
-    private RoleName roleName;
+    private RoleName name;
 }
 
