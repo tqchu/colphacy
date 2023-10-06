@@ -5,6 +5,6 @@ import lombok.Data;
 
 @Data
 public class LoginUserDto {
-    private LoginEmployeeDTO loginEmployeeDTO;
+    private LoginEmployeeDTO userProfile;
     private String accessToken;
 }

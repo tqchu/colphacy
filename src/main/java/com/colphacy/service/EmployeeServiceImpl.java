@@ -1,5 +1,6 @@
 package com.colphacy.service;
 
+import com.colphacy.dto.LoginEmployeeDTO;
 import com.colphacy.dto.LoginRequestDTO;
 import com.colphacy.dto.LoginUserDto;
 import com.colphacy.exception.InvalidFieldsException;
@@ -37,7 +38,9 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw InvalidFieldsException.fromFieldError("phone", "No user found with the provided phone number");
         } else {
             if (otp.equals("123456")) {
-                return new LoginUserDto();
+                LoginUserDto u = new LoginUserDto();
+                u.setUserProfile(new LoginEmployeeDTO());
+                return u;
             } else
                 throw InvalidFieldsException.fromFieldError("OTP", "OTP is not valid, or OTP has expired");
         }
