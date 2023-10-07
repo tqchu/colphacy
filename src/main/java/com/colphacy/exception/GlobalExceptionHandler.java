@@ -94,7 +94,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         Class<?> requiredType = exception.getRequiredType();
         if (requiredType != null) {
             String type = requiredType.getSimpleName();
-            String message = String.format("should be a valid '%s'", type);
+            String message = String.format("Sai định dạng");
             error.put(fieldName, message);
         } else {
             String message = "wrong type";
@@ -152,7 +152,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         if (ex.getCause() instanceof InvalidFormatException invalidFormatException) {
             String fieldName = invalidFormatException.getPath().get(0).getFieldName();
             String fieldType = invalidFormatException.getTargetType().getSimpleName();
-            String message = String.format("should be a valid '%s'", fieldType);
+            String message = String.format("Sai định dạng");
             error.put(fieldName, message);
         } else {
             String message = "Invalid request body format.";
@@ -169,7 +169,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({Exception.class})
     public ResponseEntity<Object> handleAllExceptions(Exception ex, WebRequest request) {
         Map<String, String> error = new HashMap<>();
-        error.put(DEFAULT_ERROR_NAME, "An internal server error occurred. Please try again later.");
+        error.put(DEFAULT_ERROR_NAME, "Có lỗi xảy ra");
         return new ResponseEntity<>(error, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -183,7 +183,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleNoHandlerFoundException(
             NoHandlerFoundException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         Map<String, String> error = new HashMap<>();
-        error.put(DEFAULT_ERROR_NAME, "Resource not found.");
+        error.put(DEFAULT_ERROR_NAME, "Không tìm thấy trang");
         return new ResponseEntity<>(error, new HttpHeaders(), HttpStatus.NOT_FOUND);
     }
 

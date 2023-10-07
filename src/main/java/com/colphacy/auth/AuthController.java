@@ -27,7 +27,7 @@ public class AuthController {
             @ApiResponse(responseCode = "400", description = "Phone number length must be 10 digits or No user found with the provided phone number}")
     })
     @PostMapping("/employee/otp/generate")
-    public String generateOTPForEmployee(@RequestParam @Pattern(regexp = "^\\d{10}$", message = "Phone number length must be 10 digits") String phone) {
+    public String generateOTPForEmployee(@RequestParam @Pattern(regexp = "^\\d{10}$", message = "SDT phải gồm 10 chữ số") String phone) {
         employeeService.generateOTP(phone);
         return "OTP sent";
     }

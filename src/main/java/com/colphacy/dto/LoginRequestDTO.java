@@ -8,10 +8,10 @@ import javax.validation.constraints.Pattern;
 @Data
 public class LoginRequestDTO {
     @NotNull
-    @Pattern(regexp = "^\\d{10}$", message = "Phone number length must be 10 digits")
+    @Pattern(regexp = "^\\d{10}$", message = "SDT phải gồm 10 chữ số")
     private String phone;
 
     @NotNull
-    @Pattern(regexp = "^\\d{6}$", message = "OTP must be 6 digits")
+    @Pattern(regexp = "^\\d{6}$", message = "Sai định dạng OTP")
     private String OTP;
 }

@@ -4,6 +4,7 @@ import com.colphacy.dto.LoginEmployeeDTO;
 import com.colphacy.dto.LoginRequestDTO;
 import com.colphacy.dto.LoginUserDto;
 import com.colphacy.exception.InvalidFieldsException;
+import com.colphacy.exception.RecordNotFoundException;
 import com.colphacy.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 //
 //        }
         if (!phone.equals("0123456789")) {
-            throw InvalidFieldsException.fromFieldError("phone", "No user found with the provided phone number");
+            throw new RecordNotFoundException("Không tìm thấy người dùng với SDT này");
         }
     }
 
@@ -35,14 +36,14 @@ public class EmployeeServiceImpl implements EmployeeService {
         String phone = loginRequestDTO.getPhone();
         String otp = loginRequestDTO.getOTP();
         if (!phone.equals("0123456789")) {
-            throw InvalidFieldsException.fromFieldError("phone", "No user found with the provided phone number");
+            throw new RecordNotFoundException("Không tìm thấy người dùng với SDT này");
         } else {
             if (otp.equals("123456")) {
                 LoginUserDto u = new LoginUserDto();
                 u.setUserProfile(new LoginEmployeeDTO());
                 return u;
             } else
-                throw InvalidFieldsException.fromFieldError("OTP", "OTP is not valid, or OTP has expired");
+                throw InvalidFieldsException.fromFieldError("OTP", "Sai OTP, hoặc OTP đã hết hạn");
         }
     }
 }
