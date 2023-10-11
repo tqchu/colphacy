@@ -3,7 +3,6 @@ package com.colphacy.model;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 import javax.persistence.Embeddable;
 import javax.validation.constraints.NotBlank;
@@ -12,7 +11,6 @@ import javax.validation.constraints.Size;
 
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
 @Embeddable
 public class Address {
@@ -35,5 +33,10 @@ public class Address {
     @NotBlank
     @Size(max = 255)
     private String province;
+
+    @Override
+    public String toString() {
+        return streetAddress + ", " + ward + ", " + district + ", " + province;
+    }
 }
 
