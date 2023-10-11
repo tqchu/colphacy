@@ -1,7 +1,7 @@
 package com.colphacy.security;
 
-import com.colphacy.model.Employee;
-import com.colphacy.service.EmployeeService;
+import com.colphacy.model.Customer;
+import com.colphacy.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -10,21 +10,22 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-@Service("employeeDetailsService")
-public class EmployeeDetailsServiceImpl implements UserDetailsService {
-    private EmployeeService employeeService;
+@Service("customerDetailsService")
+public class CustomerDetailsServiceImpl implements UserDetailsService {
+    private CustomerService customerService;
 
     @Autowired
-    public void setEmployeeService(EmployeeService employeeService) {
-        this.employeeService = employeeService;
+    public void setCustomerService(CustomerService customerService) {
+        this.customerService = customerService;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<Employee> optionalEmployee = employeeService.findByUsername(username);
-        if (optionalEmployee.isEmpty()) {
+        Optional<Customer> optionalCustomer = customerService.findByUsername(username);
+        if (optionalCustomer.isEmpty()) {
             throw new UsernameNotFoundException("Tài khoản không tồn tại");
         }
-        return optionalEmployee.get();
+
+        return optionalCustomer.get();
     }
 }
