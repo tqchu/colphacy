@@ -51,7 +51,6 @@ public class Customer implements UserDetails {
     private boolean isActive = true;
 
     @NotNull
-    @NotBlank
     @Enumerated(EnumType.STRING)
     private Gender gender;
 

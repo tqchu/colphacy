@@ -8,5 +8,9 @@ import java.util.Optional;
 public interface EmployeeService {
     Optional<Employee> findByUsername(String username);
 
-    EmployeeDetailDTO findById(Long id);
+    EmployeeDetailDTO findEmployeeDetailDTOById(Long id);
+
+    Employee findById(Long id);
+
+    EmployeeDetailDTO save(Long id, EmployeeDetailDTO employeeDetailDTO);
 }
