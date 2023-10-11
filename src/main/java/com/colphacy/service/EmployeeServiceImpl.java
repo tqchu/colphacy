@@ -52,7 +52,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw new RecordNotFoundException("Người dùng không tồn tại");
         }
         Optional<Employee> optEmployeeByUsername = employeeRepository.findByUsername(employeeDetailDTO.getUsername());
-        if (optEmployeeByUsername.isPresent() && !Objects.equals(optionalEmployee.get().getId(), id)) {
+        if (optEmployeeByUsername.isPresent() && !Objects.equals(optEmployeeByUsername.get().getId(), id)) {
             throw InvalidFieldsException.fromFieldError("username", "Tên người dùng đã được sử dụng");
         }
         Employee employee = optionalEmployee.get();
