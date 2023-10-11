@@ -18,9 +18,9 @@ public class JwtUtil {
     @Value("${app.jwt.secret}")
     private String secretKey;
 
-    public String generateAccessToken(String username) {
+    public String generateAccessToken(Long id) {
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(String.valueOf(id))
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(new Date().getTime() + expireDuration))
                 .signWith(SignatureAlgorithm.HS512, secretKey.getBytes(Charset.forName("UTF-8")))
@@ -45,7 +45,7 @@ public class JwtUtil {
         return false;
     }
 
-    public String getUsernameFromToken(String token) {
+    public String getUserIdFromAccessToken(String token) {
         return parseClaims(token).getSubject();
     }
 

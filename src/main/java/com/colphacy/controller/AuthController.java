@@ -4,6 +4,7 @@ import com.colphacy.payload.request.LoginRequest;
 import com.colphacy.payload.response.CustomerLoginResponse;
 import com.colphacy.payload.response.EmployeeLoginResponse;
 import com.colphacy.service.AuthenticationService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +17,7 @@ public class AuthController {
     @Autowired
     private AuthenticationService authenticationService;
 
+    @Operation(summary = "Employee login")
     @PostMapping("/employee/login")
     public EmployeeLoginResponse loginByEmployee(@Valid @RequestBody LoginRequest loginRequest) {
         return authenticationService.loginByEmployee(loginRequest);
