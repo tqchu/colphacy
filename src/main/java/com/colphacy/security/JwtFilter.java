@@ -1,12 +1,12 @@
 package com.colphacy.security;
 
+import com.colphacy.service.EmployeeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -23,7 +23,7 @@ import java.io.IOException;
 @Component
 public class JwtFilter extends OncePerRequestFilter {
     private JwtUtil jwtUtil;
-    private UserDetailsService employeeDetailsService;
+    private EmployeeService employeeService;
 
     @Autowired
     public void setJwtUtil(JwtUtil jwtUtil) {
@@ -31,8 +31,8 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     @Autowired
-    public void setEmployeeDetailsService(UserDetailsService employeeDetailsService) {
-        this.employeeDetailsService = employeeDetailsService;
+    public void setEmployeeDetailsService(EmployeeService employeeService) {
+        this.employeeService = employeeService;
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtFilter.class);
@@ -43,8 +43,8 @@ public class JwtFilter extends OncePerRequestFilter {
             try {
                 String token = getAccessToken(request);
                 if (token != null && jwtUtil.validateAccessToken(token)) {
-                    String username = jwtUtil.getUsernameFromToken(token);
-                    UserDetails userDetails = employeeDetailsService.loadUserByUsername(username);
+                    String id = jwtUtil.getUserIdFromAccessToken(token);
+                    UserDetails userDetails = employeeService.findById(Long.parseLong(id));
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     authentication.setDetails((new WebAuthenticationDetailsSource()).buildDetails(request));
