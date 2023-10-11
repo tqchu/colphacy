@@ -17,6 +17,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
     private AuthenticationManager authManager;
@@ -60,10 +62,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public EmployeeLoginResponse loginByEmployee(LoginRequest loginRequest) {
         try {
             authManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-            String accessToken = jwtUtil.generateAccessToken(loginRequest.getUsername());
-            Employee employee = employeeService.findByUsername(loginRequest.getUsername()).get();
-            EmployeeDetailDTO employeeDetailDTO = employeeMapper.employeeToEmployeeDetailDTO(employee);
-            return new EmployeeLoginResponse(employeeDetailDTO, accessToken);
+            Optional<Employee> optionalEmployee = employeeService.findByUsername(loginRequest.getUsername());
+            if (optionalEmployee.isEmpty()) {
+                throw new RecordNotFoundException("Tên người dùng không tồn tại");
+            } else {
+                Employee employee = optionalEmployee.get();
+                String accessToken = jwtUtil.generateAccessToken(employee.getId());
+                EmployeeDetailDTO employeeDetailDTO = employeeMapper.employeeToEmployeeDetailDTO(employee);
+                return new EmployeeLoginResponse(employeeDetailDTO, accessToken);
+            }
         } catch (AuthenticationException e) {
             throw new RecordNotFoundException("Tên tài khoản hoặc mật khẩu không đúng");
         }
@@ -73,10 +80,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public CustomerLoginResponse loginByCustomer(LoginRequest loginRequest) {
         try {
             authManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-            String accessToken = jwtUtil.generateAccessToken(loginRequest.getUsername());
-            Customer customer = customerService.findByUsername(loginRequest.getUsername()).get();
-            CustomerDetailDTO customerDetailDTO = customerMapper.customerToCustomerDetailDTO(customer);
-            return new CustomerLoginResponse(customerDetailDTO, accessToken);
+            Optional<Customer> optionalCustomer = customerService.findByUsername(loginRequest.getUsername());
+            if (optionalCustomer.isEmpty()) {
+                throw new RecordNotFoundException("Tên người dùng không tồn tại");
+            } else {
+                Customer customer = optionalCustomer.get();
+                String accessToken = jwtUtil.generateAccessToken(customer.getId());
+                CustomerDetailDTO customerDetailDTO = customerMapper.customerToCustomerDetailDTO(customer);
+                return new CustomerLoginResponse(customerDetailDTO, accessToken);
+            }
         } catch (AuthenticationException e) {
             throw new RecordNotFoundException("Tên tài khoản hoặc mật khẩu không đúng");
         }
