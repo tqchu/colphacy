@@ -2,6 +2,7 @@ package com.colphacy.config;
 
 import com.colphacy.security.JwtFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,8 +27,13 @@ import javax.servlet.http.HttpServletResponse;
         prePostEnabled = true
 )
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+    @Qualifier("employeeDetailsService")
     private UserDetailsService employeeDetailsService;
     private JwtFilter jwtFilter;
+
+    @Qualifier("customerDetailsService")
+    private UserDetailsService customerDetailsService;
+
 
     @Bean
     @Override
@@ -46,6 +52,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Autowired
+    public void setCustomerUserDetailsService(UserDetailsService customerDetailsService) {
+        this.customerDetailsService = customerDetailsService;
+    }
+
+    @Autowired
     public void setJwtFilter(JwtFilter jwtFilter) {
         this.jwtFilter = jwtFilter;
     }
@@ -53,6 +64,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(employeeDetailsService).passwordEncoder(passwordEncoder());
+        auth.userDetailsService(customerDetailsService).passwordEncoder(passwordEncoder());
     }
 
     @Override
