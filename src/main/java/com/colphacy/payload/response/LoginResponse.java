@@ -1,6 +1,6 @@
 package com.colphacy.payload.response;
 
-import com.colphacy.dto.LoginEmployeeDTO;
+import com.colphacy.dto.EmployeeDetailDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LoginResponse {
-    private LoginEmployeeDTO userProfile;
+    private EmployeeDetailDTO userProfile;
     private String accessToken;
 }

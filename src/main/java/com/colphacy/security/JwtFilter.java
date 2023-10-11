@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -21,20 +22,29 @@ import java.io.IOException;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
-    @Autowired
     private JwtUtil jwtUtil;
+    private UserDetailsService employeeDetailsService;
+
     @Autowired
-    private EmployeeUserDetailsServiceImpl myUserDetailsService;
+    public void setJwtUtil(JwtUtil jwtUtil) {
+        this.jwtUtil = jwtUtil;
+    }
+
+    @Autowired
+    public void setEmployeeDetailsService(UserDetailsService employeeDetailsService) {
+        this.employeeDetailsService = employeeDetailsService;
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtFilter.class);
     private final RequestMatcher requestMatcher = new AntPathRequestMatcher("/api/auth/employee/login");
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         if (!this.requestMatcher.matches(request)) {
             try {
-                String token = this.getAccessToken(request);
-                if (token != null && this.jwtUtil.validateAccessToken(token)) {
-                    String username = this.jwtUtil.getUsernameFromToken(token);
-                    UserDetails userDetails = this.myUserDetailsService.loadUserByUsername(username);
+                String token = getAccessToken(request);
+                if (token != null && jwtUtil.validateAccessToken(token)) {
+                    String username = jwtUtil.getUsernameFromToken(token);
+                    UserDetails userDetails = employeeDetailsService.loadUserByUsername(username);
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     authentication.setDetails((new WebAuthenticationDetailsSource()).buildDetails(request));

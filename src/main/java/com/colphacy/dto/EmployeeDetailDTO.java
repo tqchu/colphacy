@@ -1,12 +1,10 @@
 package com.colphacy.dto;
 
 import com.colphacy.model.Gender;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-@AllArgsConstructor
-public class LoginEmployeeDTO {
+public class EmployeeDetailDTO {
     private Long id;
 
     private String fullName;
@@ -20,4 +18,6 @@ public class LoginEmployeeDTO {
     private Gender gender;
 
     private String role;
+
+    private String branch;
 }
