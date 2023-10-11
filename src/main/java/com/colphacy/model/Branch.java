@@ -1,6 +1,8 @@
 package com.colphacy.model;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -44,4 +46,8 @@ public class Branch {
     @OneToMany(mappedBy = "branch", fetch = FetchType.LAZY)
     private List<Employee> employees;
 
+    @Override
+    public String toString() {
+        return address.toString();
+    }
 }

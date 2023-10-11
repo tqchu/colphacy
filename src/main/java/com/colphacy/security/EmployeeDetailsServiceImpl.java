@@ -11,15 +11,20 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
-public class EmployeeUserDetailsServiceImpl implements UserDetailsService {
-    @Autowired
+public class EmployeeDetailsServiceImpl implements UserDetailsService {
     private EmployeeService employeeService;
+
+    @Autowired
+    public void setEmployeeService(EmployeeService employeeService) {
+        this.employeeService = employeeService;
+    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<Employee> employee = employeeService.findByUsername(username);
-        if (!employee.isPresent()) {
+        Optional<Employee> optionalEmployee = employeeService.findByUsername(username);
+        if (optionalEmployee.isEmpty()) {
             throw new UsernameNotFoundException("Tài khoản không tồn tại");
         }
-        return new EmployeeUserDetails(employee.get());
+        return optionalEmployee.get();
     }
 }

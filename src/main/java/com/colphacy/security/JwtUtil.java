@@ -13,23 +13,23 @@ import java.util.Date;
 @Component
 public class JwtUtil {
     @Value("${app.jwt.expire-duration}")
-    private static long EXPIRE_DURATION;
+    private long expireDuration;
     public static final Logger LOGGER = LoggerFactory.getLogger(JwtUtil.class);
     @Value("${app.jwt.secret}")
-    private String SECRET_KEY;
+    private String secretKey;
 
     public String generateAccessToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(new Date().getTime() + EXPIRE_DURATION))
-                .signWith(SignatureAlgorithm.HS512, this.SECRET_KEY.getBytes(Charset.forName("UTF-8")))
+                .setExpiration(new Date(new Date().getTime() + expireDuration))
+                .signWith(SignatureAlgorithm.HS512, secretKey.getBytes(Charset.forName("UTF-8")))
                 .compact();
     }
 
     public boolean validateAccessToken(String authToken) {
         try {
-            Jwts.parser().setSigningKey(this.SECRET_KEY.getBytes()).parseClaimsJws(authToken);
+            Jwts.parser().setSigningKey(secretKey.getBytes()).parseClaimsJws(authToken);
             return true;
         } catch (SignatureException ex) {
             LOGGER.error("Invalid JWT signature: {}", ex.getMessage());
@@ -46,12 +46,12 @@ public class JwtUtil {
     }
 
     public String getUsernameFromToken(String token) {
-        return this.parseClaims(token).getSubject();
+        return parseClaims(token).getSubject();
     }
 
     public Claims parseClaims(String token) {
         return (Claims)Jwts.parser().
-                setSigningKey(this.SECRET_KEY.getBytes(Charset.forName("UTF-8"))).
+                setSigningKey(secretKey.getBytes(Charset.forName("UTF-8"))).
                 parseClaimsJws(token.replace("{", "").replace("}", "")).getBody();
     }
 }
