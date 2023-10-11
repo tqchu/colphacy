@@ -38,5 +38,4 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
         return employeeMapper.employeeToEmployeeDetailDTO(optionalEmployee.get());
     }
-
 }
