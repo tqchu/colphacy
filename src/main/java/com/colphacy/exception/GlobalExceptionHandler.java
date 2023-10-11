@@ -65,6 +65,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return errors;
     }
 
+    private Map<String, String> getError(String errorName, String message) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put(errorName, message);
+        return errors;
+    }
+
     /**
      * This method handles ConstraintViolationException by returning a map of errors.
      * ConstraintViolationException will be thrown when bean validation fails for request params or path variables.
@@ -215,7 +221,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex) {
-        return new ResponseEntity<>("Truy cập bị từ chối", HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>(getError(DEFAULT_ERROR_NAME, "Truy cập bị từ chối"), HttpStatus.FORBIDDEN);
     }
 
 }
