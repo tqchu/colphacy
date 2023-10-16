@@ -13,7 +13,7 @@ public interface BranchService {
 
     PageResponse<BranchListViewDTO> getBranchesInDistrict(String provinceSlug, String districtSlug, int offset, int limit);
 
-    List<BranchListViewDTO> getBranchesByKeyword(String keyword, int limit);
+    PageResponse<BranchListViewDTO> getBranchesByKeyword(String keyword, int offset, int limit);
 
     PageResponse<BranchListViewDTO> getAllProvinces(int offset, Integer limit);
 }
