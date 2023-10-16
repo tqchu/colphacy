@@ -56,7 +56,7 @@ public class BranchServiceImpl implements BranchService {
     }
 
     @Override
-    public List<BranchListViewDTO> getBranchesByKeyword(String keyword, int limit) {
+    public PageResponse<BranchListViewDTO> getBranchesByKeyword(String keyword, int offset, int limit) {
         String slugKeyword = StringUtils.slugify(keyword);
         String nonAccentKeyword = StringUtils.seperateBySpace(slugKeyword);
         String unAccentFn = "unaccent";
@@ -72,10 +72,10 @@ public class BranchServiceImpl implements BranchService {
 
             return cb.or(predicates.toArray(new Predicate[0]));
         };
-
-        Pageable pageable = PageRequest.ofSize(limit);
+        int pageNo = offset / limit;
+        Pageable pageable = PageRequest.of(pageNo, limit);
         Page<Branch> page = branchRepository.findAll(filterSpec, pageable);
-        return page.getContent().stream().map(branchMapper::branchToBranchListViewDTO).toList();
+        return getBranchListViewDTOPageResponse(offset, page);
     }
 
     @Override

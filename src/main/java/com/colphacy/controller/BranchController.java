@@ -50,10 +50,12 @@ public class BranchController {
 
     @Operation(summary = "Get all branches by keyword", security = {@SecurityRequirement(name = "bearer-key")})
     @GetMapping("/search")
-    public List<BranchListViewDTO> getBranchesByKeyword(String keyword,
+    public PageResponse<BranchListViewDTO> getBranchesByKeyword(String keyword,
+                                                                @RequestParam(required = false, defaultValue = "0")
+                                                                @Size(min = 0, message = "Số bắt đầu phải là số không âm") int offset,
                                                         @RequestParam(required = false, defaultValue = "5")
                                                         @Size(min = 1, message = "Số lượng giới hạn phải lớn hơn 0") int limit) {
-        return branchService.getBranchesByKeyword(keyword, limit);
+        return branchService.getBranchesByKeyword(keyword, offset, limit);
     }
 
     @Operation(summary = "Get all branches", security = {@SecurityRequirement(name = "bearer-key")})
