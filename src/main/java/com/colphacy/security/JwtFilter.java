@@ -1,6 +1,8 @@
 package com.colphacy.security;
 
+import com.colphacy.exception.InvalidFieldsException;
 import com.colphacy.service.EmployeeService;
+import com.colphacy.service.LoggedTokenService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,10 +26,16 @@ import java.io.IOException;
 public class JwtFilter extends OncePerRequestFilter {
     private JwtUtil jwtUtil;
     private EmployeeService employeeService;
+    private LoggedTokenService loggedTokenService;
 
     @Autowired
     public void setJwtUtil(JwtUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
+    }
+
+    @Autowired
+    public void setLoggedTokenService(LoggedTokenService loggedTokenService) {
+        this.loggedTokenService = loggedTokenService;
     }
 
     @Autowired
@@ -42,6 +50,9 @@ public class JwtFilter extends OncePerRequestFilter {
         if (!this.requestMatcher.matches(request)) {
             try {
                 String token = getAccessToken(request);
+                if (token != null && loggedTokenService.findByToken(token).isPresent()) {
+                    throw InvalidFieldsException.fromFieldError("token", "Access token không đúng");
+                }
                 if (token != null && jwtUtil.validateAccessToken(token)) {
                     String id = jwtUtil.getUserIdFromAccessToken(token);
                     UserDetails userDetails = employeeService.findById(Long.parseLong(id));

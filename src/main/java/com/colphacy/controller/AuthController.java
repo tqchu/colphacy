@@ -1,11 +1,15 @@
 package com.colphacy.controller;
 
+import com.colphacy.model.Employee;
 import com.colphacy.payload.request.LoginRequest;
+import com.colphacy.payload.request.LogoutRequest;
 import com.colphacy.payload.response.CustomerLoginResponse;
 import com.colphacy.payload.response.EmployeeLoginResponse;
+import com.colphacy.payload.response.LogoutResponse;
 import com.colphacy.service.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -26,5 +30,11 @@ public class AuthController {
     @PostMapping("/customer/login")
     public CustomerLoginResponse loginByCustomer(@Valid @RequestBody LoginRequest loginRequest) {
         return authenticationService.loginByCustomer(loginRequest);
+    }
+
+    @Operation(summary = "Employee logout")
+    @PostMapping("/employee/logout")
+    public LogoutResponse logoutByEmployee(@RequestHeader("authorization") String authorization, @AuthenticationPrincipal Employee employee) {
+        return authenticationService.logoutByEmployee(authorization, employee.getId());
     }
 }
