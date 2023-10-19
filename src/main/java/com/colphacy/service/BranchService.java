@@ -7,13 +7,11 @@ import com.colphacy.payload.response.PageResponse;
 import java.util.List;
 
 public interface BranchService {
-    List<SlugDTO> getAllProvinces();
+    List<SlugDTO> getBranches();
 
     List<SlugDTO> getAllDistricts(String provinceSlug);
 
-    PageResponse<BranchListViewDTO> getBranchesInDistrict(String provinceSlug, String districtSlug, int offset, int limit);
-
     PageResponse<BranchListViewDTO> getBranchesByKeyword(String keyword, int offset, int limit);
 
-    PageResponse<BranchListViewDTO> getAllProvinces(int offset, Integer limit);
+    PageResponse<BranchListViewDTO> getBranches(String provinceSlug, String districtSlug, int offset, Integer limit);
 }
