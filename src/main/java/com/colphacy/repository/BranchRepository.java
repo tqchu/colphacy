@@ -23,4 +23,7 @@ public interface BranchRepository extends JpaRepository<Branch, Long> {
     Page<Branch> findBranchesInDistrict(@Param("province") String provinceSlug, @Param("district") String districtSlug, Pageable pageable);
 
     Page<Branch> findAll(Specification<Branch> filterSpec, Pageable pageable);
+
+    @Query("SELECT b FROM Branch b WHERE LOWER(unaccent('unaccent', b.address.province)) LIKE :province")
+    Page<Branch> findBranchesInProvince(@Param("province") String provinceSlug, Pageable pageable);
 }

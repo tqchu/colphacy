@@ -31,7 +31,7 @@ public class BranchServiceImpl implements BranchService {
     private SlugMapper slugMapper;
 
     @Override
-    public List<SlugDTO> getAllProvinces() {
+    public List<SlugDTO> getBranches() {
         return branchRepository.findAllProvinces().stream()
                 .map(slugMapper::provinceToSlugDTO)
                 .toList();
@@ -43,16 +43,6 @@ public class BranchServiceImpl implements BranchService {
         return branchRepository.findAllDistricts(nonSlugProvince).stream()
                 .map(slugMapper::districtToSlugDTO)
                 .toList();
-    }
-
-    public PageResponse<BranchListViewDTO> getBranchesInDistrict(String provinceSlug, String districtSlug, int offset, int limit) {
-        String nonSlugProvince = StringUtils.seperateBySpace(provinceSlug);
-        String nonSlugDistrict = StringUtils.seperateBySpace(districtSlug);
-
-        int pageNo = offset / limit;
-        Pageable pageable = PageRequest.of(pageNo, limit);
-        Page<Branch> branches = branchRepository.findBranchesInDistrict(nonSlugProvince, nonSlugDistrict, pageable);
-        return getBranchListViewDTOPageResponse(offset, branches);
     }
 
     @Override
@@ -79,11 +69,22 @@ public class BranchServiceImpl implements BranchService {
     }
 
     @Override
-    public PageResponse<BranchListViewDTO> getAllProvinces(int offset, Integer limit) {
+    public PageResponse<BranchListViewDTO> getBranches(String provinceSlug, String districtSlug, int offset, Integer limit) {
         int pageNo = offset / limit;
 
         Pageable pageable = PageRequest.of(pageNo, limit);
-        Page<Branch> branches = branchRepository.findAll(pageable);
+        Page<Branch> branches;
+        if (provinceSlug != null) {
+            String nonSlugProvince = StringUtils.seperateBySpace(provinceSlug);
+            if (districtSlug != null) {
+                String nonSlugDistrict = StringUtils.seperateBySpace(districtSlug);
+                branches = branchRepository.findBranchesInDistrict(nonSlugProvince, nonSlugDistrict, pageable);
+            } else {
+                branches = branchRepository.findBranchesInProvince(nonSlugProvince, pageable);
+            }
+        } else {
+            branches = branchRepository.findAll(pageable);
+        }
         return getBranchListViewDTOPageResponse(offset, branches);
     }
 
