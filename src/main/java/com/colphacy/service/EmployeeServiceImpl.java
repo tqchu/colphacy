@@ -86,11 +86,6 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw InvalidFieldsException.fromFieldError("oldPassword", "Mật khẩu cũ không đúng");
         }
 
-        // Check if the new password and confirm password match.
-        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
-            throw InvalidFieldsException.fromFieldError("confirmPassword", "Mật khẩu xác nhận không trùng khớp");
-        }
-
         // Update the employee's password with the new password (make sure to hash it).
         employee.setPassword(passwordEncoder.encode(request.getNewPassword()));
         employeeRepository.save(employee);

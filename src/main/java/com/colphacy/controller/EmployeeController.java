@@ -1,14 +1,17 @@
 package com.colphacy.controller;
 
 import com.colphacy.dto.EmployeeDetailDTO;
+import com.colphacy.exception.InvalidFieldsException;
 import com.colphacy.model.Employee;
 import com.colphacy.payload.request.ChangePasswordRequest;
 import com.colphacy.service.EmployeeService;
+import com.colphacy.validation.PasswordMatchValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -16,8 +19,19 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/api/employees")
 public class EmployeeController {
-    @Autowired
     private EmployeeService employeeService;
+
+    private PasswordMatchValidator passwordMatchValidator;
+
+    @Autowired
+    public void setEmployeeService(EmployeeService employeeService) {
+        this.employeeService = employeeService;
+    }
+
+    @Autowired
+    public void setPasswordMatchValidator(PasswordMatchValidator passwordMatchValidator) {
+        this.passwordMatchValidator = passwordMatchValidator;
+    }
 
     @Operation(summary = "Employee get profile", security = {@SecurityRequirement(name = "bearer-key")})
     @PreAuthorize("#id == principal.id")
@@ -35,7 +49,14 @@ public class EmployeeController {
 
     @Operation(summary = "Employee change password", security = {@SecurityRequirement(name = "bearer-key")})
     @PutMapping("/change-password")
-    public void changePassword(@Valid @RequestBody ChangePasswordRequest request, @AuthenticationPrincipal Employee employee) {
+    public void changePassword(@Valid @RequestBody ChangePasswordRequest request, @AuthenticationPrincipal Employee employee, Errors errors) {
+        // Validate the request
+        passwordMatchValidator.validate(request, errors);
+
+        if (errors.hasErrors()) {
+            throw InvalidFieldsException.fromFieldError("confirmPassword", "Mật khẩu xác nhận không trùng khớp");
+        }
+
         employeeService.changePassword(employee.getId(), request);
     }
 }
