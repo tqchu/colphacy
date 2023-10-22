@@ -2,7 +2,6 @@ package com.colphacy.controller;
 
 import com.colphacy.model.Employee;
 import com.colphacy.payload.request.LoginRequest;
-import com.colphacy.payload.request.LogoutRequest;
 import com.colphacy.payload.response.CustomerLoginResponse;
 import com.colphacy.payload.response.EmployeeLoginResponse;
 import com.colphacy.payload.response.LogoutResponse;
