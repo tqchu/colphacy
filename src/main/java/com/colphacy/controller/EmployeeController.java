@@ -5,7 +5,7 @@ import com.colphacy.exception.InvalidFieldsException;
 import com.colphacy.model.Employee;
 import com.colphacy.payload.request.ChangePasswordRequest;
 import com.colphacy.service.EmployeeService;
-import com.colphacy.validation.PasswordMatchValidator;
+import com.colphacy.validation.ChangePasswordValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ import javax.validation.Valid;
 public class EmployeeController {
     private EmployeeService employeeService;
 
-    private PasswordMatchValidator passwordMatchValidator;
+    private ChangePasswordValidator changePasswordValidator;
 
     @Autowired
     public void setEmployeeService(EmployeeService employeeService) {
@@ -29,8 +29,8 @@ public class EmployeeController {
     }
 
     @Autowired
-    public void setPasswordMatchValidator(PasswordMatchValidator passwordMatchValidator) {
-        this.passwordMatchValidator = passwordMatchValidator;
+    public void setChangePasswordValidator(ChangePasswordValidator changePasswordValidator) {
+        this.changePasswordValidator = changePasswordValidator;
     }
 
     @Operation(summary = "Employee get profile", security = {@SecurityRequirement(name = "bearer-key")})
@@ -51,7 +51,7 @@ public class EmployeeController {
     @PutMapping("/change-password")
     public void changePassword(@Valid @RequestBody ChangePasswordRequest request, @AuthenticationPrincipal Employee employee, Errors errors) {
         // Validate the request
-        passwordMatchValidator.validate(request, errors);
+        changePasswordValidator.validate(request, errors);
 
         if (errors.hasErrors()) {
             throw InvalidFieldsException.fromFieldError("confirmPassword", "Mật khẩu xác nhận không trùng khớp");
