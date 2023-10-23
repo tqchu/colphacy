@@ -40,4 +40,12 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setPassword(passwordEncoder.encode(request.getNewPassword()));
         customerRepository.save(customer);
     }
+
+    @Override
+    public Customer findById(Long id) {
+        Optional<Customer> optionalCustomer = customerRepository.findById(id);
+        if (optionalCustomer.isEmpty()) {
+            throw new RecordNotFoundException("Không tồn tại người dùng này");
+        } else return optionalCustomer.get();
+    }
 }

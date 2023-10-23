@@ -1,4 +1,4 @@
-package com.colphacy.validation;
+package com.colphacy.validator;
 
 import com.colphacy.payload.request.ChangePasswordRequest;
 import org.springframework.stereotype.Component;

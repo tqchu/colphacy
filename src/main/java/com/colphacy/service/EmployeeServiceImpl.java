@@ -51,7 +51,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     public Employee findById(Long id) {
         Optional<Employee> optionalEmployee = employeeRepository.findById(id);
         if (optionalEmployee.isEmpty()) {
-            throw new RecordNotFoundException("Không tìm thấy trang bạn yêu cầu");
+            throw new RecordNotFoundException("Không tồn tại người dùng này");
         } else return optionalEmployee.get();
     }
 

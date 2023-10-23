@@ -3,10 +3,11 @@ package com.colphacy.controller;
 import com.colphacy.model.Customer;
 import com.colphacy.payload.request.ChangePasswordRequest;
 import com.colphacy.service.CustomerService;
-import com.colphacy.validation.ChangePasswordRequestValidator;
+import com.colphacy.validator.ChangePasswordRequestValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
@@ -36,6 +37,7 @@ public class CustomerController {
     }
 
     @Operation(summary = "Customer change password", security = {@SecurityRequirement(name = "bearer-key")})
+    @PreAuthorize("hasAuthority('CUSTOMER')")
     @PutMapping("/change-password")
     public void changePassword(@Valid @RequestBody ChangePasswordRequest request, @AuthenticationPrincipal Customer customer) {
         customerService.changePassword(customer.getId(), request);

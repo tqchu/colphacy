@@ -4,7 +4,7 @@ import com.colphacy.dto.EmployeeDetailDTO;
 import com.colphacy.model.Employee;
 import com.colphacy.payload.request.ChangePasswordRequest;
 import com.colphacy.service.EmployeeService;
-import com.colphacy.validation.ChangePasswordRequestValidator;
+import com.colphacy.validator.ChangePasswordRequestValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -10,4 +10,6 @@ public interface CustomerService {
     Optional<Customer> findByUsername(String username);
 
     void changePassword(Long id, ChangePasswordRequest request);
+
+    Customer findById(Long id);
 }
