@@ -1,17 +1,16 @@
 package com.colphacy.controller;
 
 import com.colphacy.dto.EmployeeDetailDTO;
-import com.colphacy.exception.InvalidFieldsException;
 import com.colphacy.model.Employee;
 import com.colphacy.payload.request.ChangePasswordRequest;
 import com.colphacy.service.EmployeeService;
-import com.colphacy.validation.ChangePasswordValidator;
+import com.colphacy.validation.ChangePasswordRequestValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.validation.Errors;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -21,7 +20,12 @@ import javax.validation.Valid;
 public class EmployeeController {
     private EmployeeService employeeService;
 
-    private ChangePasswordValidator changePasswordValidator;
+    private ChangePasswordRequestValidator changePasswordRequestValidator;
+
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.addValidators(changePasswordRequestValidator);
+    }
 
     @Autowired
     public void setEmployeeService(EmployeeService employeeService) {
@@ -29,8 +33,8 @@ public class EmployeeController {
     }
 
     @Autowired
-    public void setChangePasswordValidator(ChangePasswordValidator changePasswordValidator) {
-        this.changePasswordValidator = changePasswordValidator;
+    public void setChangePasswordValidator(ChangePasswordRequestValidator changePasswordRequestValidator) {
+        this.changePasswordRequestValidator = changePasswordRequestValidator;
     }
 
     @Operation(summary = "Employee get profile", security = {@SecurityRequirement(name = "bearer-key")})
@@ -49,14 +53,7 @@ public class EmployeeController {
 
     @Operation(summary = "Employee change password", security = {@SecurityRequirement(name = "bearer-key")})
     @PutMapping("/change-password")
-    public void changePassword(@Valid @RequestBody ChangePasswordRequest request, @AuthenticationPrincipal Employee employee, Errors errors) {
-        // Validate the request
-        changePasswordValidator.validate(request, errors);
-
-        if (errors.hasErrors()) {
-            throw InvalidFieldsException.fromFieldError("confirmPassword", "Mật khẩu xác nhận không trùng khớp");
-        }
-
+    public void changePassword(@Valid @RequestBody ChangePasswordRequest request, @AuthenticationPrincipal Employee employee) {
         employeeService.changePassword(employee.getId(), request);
     }
 }
