@@ -10,7 +10,6 @@ import com.colphacy.model.Customer;
 import com.colphacy.model.Employee;
 import com.colphacy.model.LoggedToken;
 import com.colphacy.payload.request.LoginRequest;
-import com.colphacy.payload.request.LogoutRequest;
 import com.colphacy.payload.response.CustomerLoginResponse;
 import com.colphacy.payload.response.EmployeeLoginResponse;
 import com.colphacy.payload.response.LogoutResponse;
@@ -77,7 +76,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 throw new RecordNotFoundException("Tên người dùng không tồn tại");
             } else {
                 Employee employee = optionalEmployee.get();
-                String accessToken = jwtUtil.generateAccessToken(employee.getId());
+                String accessToken = jwtUtil.generateAccessToken(employee.getId(), employee.getRole().getName().name());
                 EmployeeDetailDTO employeeDetailDTO = employeeMapper.employeeToEmployeeDetailDTO(employee);
                 return new EmployeeLoginResponse(employeeDetailDTO, accessToken);
             }
@@ -95,7 +94,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 throw new RecordNotFoundException("Tên người dùng không tồn tại");
             } else {
                 Customer customer = optionalCustomer.get();
-                String accessToken = jwtUtil.generateAccessToken(customer.getId());
+                String accessToken = jwtUtil.generateAccessToken(customer.getId(), "CUSTOMER");
                 CustomerDetailDTO customerDetailDTO = customerMapper.customerToCustomerDetailDTO(customer);
                 return new CustomerLoginResponse(customerDetailDTO, accessToken);
             }

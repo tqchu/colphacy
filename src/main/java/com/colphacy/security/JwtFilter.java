@@ -1,6 +1,7 @@
 package com.colphacy.security;
 
 import com.colphacy.exception.InvalidFieldsException;
+import com.colphacy.service.CustomerService;
 import com.colphacy.service.EmployeeService;
 import com.colphacy.service.LoggedTokenService;
 import org.slf4j.Logger;
@@ -26,6 +27,7 @@ import java.io.IOException;
 public class JwtFilter extends OncePerRequestFilter {
     private JwtUtil jwtUtil;
     private EmployeeService employeeService;
+    private CustomerService customerService;
     private LoggedTokenService loggedTokenService;
 
     @Autowired
@@ -43,6 +45,11 @@ public class JwtFilter extends OncePerRequestFilter {
         this.employeeService = employeeService;
     }
 
+    @Autowired
+    public void setCustomerService(CustomerService customerService) {
+        this.customerService = customerService;
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtFilter.class);
     private final RequestMatcher requestMatcher = new AntPathRequestMatcher("/api/auth/employee/login");
     @Override
@@ -55,7 +62,13 @@ public class JwtFilter extends OncePerRequestFilter {
                 }
                 if (token != null && jwtUtil.validateAccessToken(token)) {
                     String id = jwtUtil.getUserIdFromAccessToken(token);
-                    UserDetails userDetails = employeeService.findById(Long.parseLong(id));
+                    String authority = jwtUtil.getAuthorityFromAccessToken(token);
+                    UserDetails userDetails;
+                    if ("CUSTOMER".equals(authority)) {
+                        userDetails = customerService.findById(Long.parseLong(id));
+                    } else {
+                        userDetails = employeeService.findById(Long.parseLong(id));
+                    }
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     authentication.setDetails((new WebAuthenticationDetailsSource()).buildDetails(request));
