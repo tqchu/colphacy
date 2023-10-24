@@ -3,7 +3,6 @@ package com.colphacy.service;
 import com.colphacy.dto.CustomerDetailDTO;
 import com.colphacy.dto.EmployeeDetailDTO;
 import com.colphacy.exception.InvalidFieldsException;
-import com.colphacy.exception.RecordNotFoundException;
 import com.colphacy.mapper.CustomerMapper;
 import com.colphacy.mapper.EmployeeMapper;
 import com.colphacy.model.Customer;
@@ -69,37 +68,37 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public EmployeeLoginResponse loginByEmployee(LoginRequest loginRequest) {
-        try {
-            authManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-            Optional<Employee> optionalEmployee = employeeService.findByUsername(loginRequest.getUsername());
-            if (optionalEmployee.isEmpty()) {
-                throw new RecordNotFoundException("Tên người dùng không tồn tại");
-            } else {
-                Employee employee = optionalEmployee.get();
-                String accessToken = jwtUtil.generateAccessToken(employee.getId(), employee.getRole().getName().name());
-                EmployeeDetailDTO employeeDetailDTO = employeeMapper.employeeToEmployeeDetailDTO(employee);
-                return new EmployeeLoginResponse(employeeDetailDTO, accessToken);
+        Optional<Employee> optionalEmployee = employeeService.findByUsername(loginRequest.getUsername());
+        if (optionalEmployee.isEmpty()) {
+            throw InvalidFieldsException.fromFieldError("username", "Tên người dùng không tồn tại");
+        } else {
+            try {
+                authManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+            } catch (AuthenticationException e) {
+                throw InvalidFieldsException.fromFieldError("password", "Mật khẩu không đúng");
             }
-        } catch (AuthenticationException e) {
-            throw new RecordNotFoundException("Tên tài khoản hoặc mật khẩu không đúng");
+            Employee employee = optionalEmployee.get();
+            String accessToken = jwtUtil.generateAccessToken(employee.getId(), "CUSTOMER");
+            EmployeeDetailDTO employeeDetailDTO = employeeMapper.employeeToEmployeeDetailDTO(employee);
+            return new EmployeeLoginResponse(employeeDetailDTO, accessToken);
         }
     }
 
     @Override
     public CustomerLoginResponse loginByCustomer(LoginRequest loginRequest) {
-        try {
-            authManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-            Optional<Customer> optionalCustomer = customerService.findByUsername(loginRequest.getUsername());
-            if (optionalCustomer.isEmpty()) {
-                throw new RecordNotFoundException("Tên người dùng không tồn tại");
-            } else {
-                Customer customer = optionalCustomer.get();
-                String accessToken = jwtUtil.generateAccessToken(customer.getId(), "CUSTOMER");
-                CustomerDetailDTO customerDetailDTO = customerMapper.customerToCustomerDetailDTO(customer);
-                return new CustomerLoginResponse(customerDetailDTO, accessToken);
+        Optional<Customer> optionalCustomer = customerService.findByUsername(loginRequest.getUsername());
+        if (optionalCustomer.isEmpty()) {
+            throw InvalidFieldsException.fromFieldError("username", "Tên người dùng không tồn tại");
+        } else {
+            try {
+                authManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+            } catch (AuthenticationException e) {
+                throw InvalidFieldsException.fromFieldError("password", "Mật khẩu không đúng");
             }
-        } catch (AuthenticationException e) {
-            throw new RecordNotFoundException("Tên tài khoản hoặc mật khẩu không đúng");
+            Customer customer = optionalCustomer.get();
+            String accessToken = jwtUtil.generateAccessToken(customer.getId(), "CUSTOMER");
+            CustomerDetailDTO customerDetailDTO = customerMapper.customerToCustomerDetailDTO(customer);
+            return new CustomerLoginResponse(customerDetailDTO, accessToken);
         }
     }
 
