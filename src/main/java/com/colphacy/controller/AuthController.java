@@ -1,5 +1,6 @@
 package com.colphacy.controller;
 
+import com.colphacy.model.Customer;
 import com.colphacy.model.Employee;
 import com.colphacy.payload.request.LoginRequest;
 import com.colphacy.payload.response.CustomerLoginResponse;
@@ -35,6 +36,12 @@ public class AuthController {
     @Operation(summary = "Employee logout", security = {@SecurityRequirement(name = "bearer-key")})
     @PostMapping("/employee/logout")
     public LogoutResponse logoutByEmployee(@RequestHeader("authorization") String authorization, @AuthenticationPrincipal Employee employee) {
-        return authenticationService.logoutByEmployee(authorization, employee.getId());
+        return authenticationService.logout(authorization, employee.getId());
+    }
+
+    @Operation(summary = "Customer logout")
+    @PostMapping("/customer/logout")
+    public LogoutResponse logoutByCustomer(@RequestHeader("authorization") String authorization, @AuthenticationPrincipal Customer customer) {
+        return authenticationService.logout(authorization, customer.getId());
     }
 }
