@@ -7,6 +7,7 @@ import com.colphacy.payload.response.EmployeeLoginResponse;
 import com.colphacy.payload.response.LogoutResponse;
 import com.colphacy.service.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +32,7 @@ public class AuthController {
         return authenticationService.loginByCustomer(loginRequest);
     }
 
-    @Operation(summary = "Employee logout")
+    @Operation(summary = "Employee logout", security = {@SecurityRequirement(name = "bearer-key")})
     @PostMapping("/employee/logout")
     public LogoutResponse logoutByEmployee(@RequestHeader("authorization") String authorization, @AuthenticationPrincipal Employee employee) {
         return authenticationService.logoutByEmployee(authorization, employee.getId());
