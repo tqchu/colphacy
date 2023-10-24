@@ -79,7 +79,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public LogoutResponse logoutByEmployee(String authorization, Long principalId) {
+    public LogoutResponse logout(String authorization, Long principalId) {
         if (authorization != null && authorization.startsWith("Bearer ")) {
             String[] parts = authorization.split(" ");
             if (parts.length == 2) {
