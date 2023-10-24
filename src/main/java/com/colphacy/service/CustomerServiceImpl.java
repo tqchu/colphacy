@@ -4,6 +4,7 @@ import com.colphacy.exception.InvalidFieldsException;
 import com.colphacy.exception.RecordNotFoundException;
 import com.colphacy.model.Customer;
 import com.colphacy.payload.request.ChangePasswordRequest;
+import com.colphacy.payload.request.LoginRequest;
 import com.colphacy.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -47,5 +48,19 @@ public class CustomerServiceImpl implements CustomerService {
         if (optionalCustomer.isEmpty()) {
             throw new RecordNotFoundException("Không tồn tại người dùng này");
         } else return optionalCustomer.get();
+    }
+
+    @Override
+    public Customer authenticate(LoginRequest loginRequest) {
+        Optional<Customer> optionalCustomer = customerRepository.findByUsername(loginRequest.getUsername());
+        if (optionalCustomer.isEmpty()) {
+            throw InvalidFieldsException.fromFieldError("username", "Tên người dùng không tồn tại");
+        }
+
+        Customer customer = optionalCustomer.get();
+        if (!passwordEncoder.matches(loginRequest.getPassword(), customer.getPassword())) {
+            throw InvalidFieldsException.fromFieldError("password", "Mật khẩu không đúng");
+        }
+        return customer;
     }
 }
