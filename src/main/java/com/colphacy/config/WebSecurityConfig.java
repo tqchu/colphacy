@@ -33,8 +33,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Qualifier("customerDetailsService")
     private UserDetailsService customerDetailsService;
-
-
     @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {

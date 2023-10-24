@@ -18,8 +18,9 @@ public class JwtUtil {
     @Value("${app.jwt.secret}")
     private String secretKey;
 
-    public String generateAccessToken(Long id) {
+    public String generateAccessToken(Long id, String role) {
         return Jwts.builder()
+                .claim("role", role)
                 .setSubject(String.valueOf(id))
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(new Date().getTime() + expireDuration))
@@ -53,5 +54,10 @@ public class JwtUtil {
         return (Claims)Jwts.parser().
                 setSigningKey(secretKey.getBytes(Charset.forName("UTF-8"))).
                 parseClaimsJws(token.replace("{", "").replace("}", "")).getBody();
+    }
+
+    public String getRoleFromAccessToken(String token) {
+        Claims claims = parseClaims(token);
+        return (String) claims.get("role");
     }
 }
