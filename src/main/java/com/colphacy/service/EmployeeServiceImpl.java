@@ -6,6 +6,7 @@ import com.colphacy.exception.RecordNotFoundException;
 import com.colphacy.mapper.EmployeeMapper;
 import com.colphacy.model.Employee;
 import com.colphacy.payload.request.ChangePasswordRequest;
+import com.colphacy.payload.request.LoginRequest;
 import com.colphacy.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -78,7 +79,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     public void changePassword(Long id, ChangePasswordRequest request) {
         Optional<Employee> optionalEmployee = employeeRepository.findById(id);
         if (optionalEmployee.isEmpty()) {
-            throw new RecordNotFoundException("Người dùng không tồn tại");
+            throw new RecordNotFoundException("Tên người dùng không tồn tại");
         }
         Employee employee = optionalEmployee.get();
         // Check if the old password matches the current password.
@@ -89,5 +90,19 @@ public class EmployeeServiceImpl implements EmployeeService {
         // Update the employee's password with the new password (make sure to hash it).
         employee.setPassword(passwordEncoder.encode(request.getNewPassword()));
         employeeRepository.save(employee);
+    }
+
+    @Override
+    public Employee authenticate(LoginRequest loginRequest) {
+        Optional<Employee> optionalEmployee = employeeRepository.findByUsername(loginRequest.getUsername());
+        if (optionalEmployee.isEmpty()) {
+            throw InvalidFieldsException.fromFieldError("username", "Tên người dùng không tồn tại");
+        }
+
+        Employee employee = optionalEmployee.get();
+        if (!passwordEncoder.matches(loginRequest.getPassword(), employee.getPassword())) {
+            throw InvalidFieldsException.fromFieldError("password", "Mật khẩu không đúng");
+        }
+        return employee;
     }
 }

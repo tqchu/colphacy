@@ -15,11 +15,7 @@ import com.colphacy.payload.response.LogoutResponse;
 import com.colphacy.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
@@ -68,38 +64,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public EmployeeLoginResponse loginByEmployee(LoginRequest loginRequest) {
-        Optional<Employee> optionalEmployee = employeeService.findByUsername(loginRequest.getUsername());
-        if (optionalEmployee.isEmpty()) {
-            throw InvalidFieldsException.fromFieldError("username", "Tên người dùng không tồn tại");
-        } else {
-            try {
-                authManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-            } catch (AuthenticationException e) {
-                throw InvalidFieldsException.fromFieldError("password", "Mật khẩu không đúng");
-            }
-            Employee employee = optionalEmployee.get();
-            String accessToken = jwtUtil.generateAccessToken(employee.getId(), "CUSTOMER");
-            EmployeeDetailDTO employeeDetailDTO = employeeMapper.employeeToEmployeeDetailDTO(employee);
-            return new EmployeeLoginResponse(employeeDetailDTO, accessToken);
-        }
+        Employee employee = employeeService.authenticate(loginRequest);
+        String accessToken = jwtUtil.generateAccessToken(employee.getId(), employee.getRole().getName().toString());
+        EmployeeDetailDTO employeeDetailDTO = employeeMapper.employeeToEmployeeDetailDTO(employee);
+        return new EmployeeLoginResponse(employeeDetailDTO, accessToken);
     }
 
     @Override
     public CustomerLoginResponse loginByCustomer(LoginRequest loginRequest) {
-        Optional<Customer> optionalCustomer = customerService.findByUsername(loginRequest.getUsername());
-        if (optionalCustomer.isEmpty()) {
-            throw InvalidFieldsException.fromFieldError("username", "Tên người dùng không tồn tại");
-        } else {
-            try {
-                authManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-            } catch (AuthenticationException e) {
-                throw InvalidFieldsException.fromFieldError("password", "Mật khẩu không đúng");
-            }
-            Customer customer = optionalCustomer.get();
-            String accessToken = jwtUtil.generateAccessToken(customer.getId(), "CUSTOMER");
-            CustomerDetailDTO customerDetailDTO = customerMapper.customerToCustomerDetailDTO(customer);
-            return new CustomerLoginResponse(customerDetailDTO, accessToken);
-        }
+        Customer customer = customerService.authenticate(loginRequest);
+        String accessToken = jwtUtil.generateAccessToken(customer.getId(), "CUSTOMER");
+        CustomerDetailDTO customerDetailDTO = customerMapper.customerToCustomerDetailDTO(customer);
+        return new CustomerLoginResponse(customerDetailDTO, accessToken);
     }
 
     @Override
