@@ -16,6 +16,10 @@ public class ChangePasswordRequestValidator implements Validator {
     public void validate(Object target, Errors errors) {
         ChangePasswordRequest request = (ChangePasswordRequest) target;
 
+        if (request.getNewPassword().equals(request.getOldPassword())) {
+            errors.rejectValue("newPassword", "password.duplication", "Mật khẩu mới không được trùng mật khẩu cũ");
+        }
+
         if (!request.getNewPassword().equals(request.getConfirmPassword())) {
             errors.rejectValue("confirmPassword", "password.mismatch", "Mật khẩu xác nhận không trùng khớp.");
         }
