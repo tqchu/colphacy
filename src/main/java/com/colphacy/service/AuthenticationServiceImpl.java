@@ -2,7 +2,6 @@ package com.colphacy.service;
 
 import com.colphacy.dto.CustomerDetailDTO;
 import com.colphacy.dto.EmployeeDetailDTO;
-import com.colphacy.exception.InvalidFieldsException;
 import com.colphacy.mapper.CustomerMapper;
 import com.colphacy.mapper.EmployeeMapper;
 import com.colphacy.model.Customer;
@@ -11,7 +10,6 @@ import com.colphacy.model.LoggedToken;
 import com.colphacy.payload.request.LoginRequest;
 import com.colphacy.payload.response.CustomerLoginResponse;
 import com.colphacy.payload.response.EmployeeLoginResponse;
-import com.colphacy.payload.response.LogoutResponse;
 import com.colphacy.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -79,27 +77,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public LogoutResponse logout(String authorization, Long principalId) {
+    public void logout(String authorization, Long principalId) {
         if (authorization != null && authorization.startsWith("Bearer ")) {
             String[] parts = authorization.split(" ");
             if (parts.length == 2) {
-                String accessToken = parts[1]; // This will give you the access token.
-                Long userId = Long.valueOf(jwtUtil.getUserIdFromAccessToken(accessToken));
-                if (!userId.equals(principalId)) {
-                    throw InvalidFieldsException.fromFieldError("token", "Access token không đúng");
-                }
-
-                // throw error if the token is already exists
-                if (loggedTokenService.findByToken(accessToken).isPresent()) {
-                    throw InvalidFieldsException.fromFieldError("token", "Access token không đúng");
-                }
-                boolean isSuccess = loggedTokenService.save(new LoggedToken(accessToken)) != null;
-                return new LogoutResponse(isSuccess);
-            } else {
-                throw InvalidFieldsException.fromFieldError("token", "Access token không đúng");
+                String accessToken = parts[1];
+                loggedTokenService.save(new LoggedToken(accessToken));
             }
-        } else {
-            throw InvalidFieldsException.fromFieldError("token", "Access token không đúng");
         }
     }
 }

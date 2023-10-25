@@ -5,7 +5,6 @@ import com.colphacy.model.Employee;
 import com.colphacy.payload.request.LoginRequest;
 import com.colphacy.payload.response.CustomerLoginResponse;
 import com.colphacy.payload.response.EmployeeLoginResponse;
-import com.colphacy.payload.response.LogoutResponse;
 import com.colphacy.service.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -35,13 +34,13 @@ public class AuthController {
 
     @Operation(summary = "Employee logout", security = {@SecurityRequirement(name = "bearer-key")})
     @PostMapping("/employee/logout")
-    public LogoutResponse logoutByEmployee(@RequestHeader("authorization") String authorization, @AuthenticationPrincipal Employee employee) {
-        return authenticationService.logout(authorization, employee.getId());
+    public void logoutByEmployee(@RequestHeader("authorization") String authorization, @AuthenticationPrincipal Employee employee) {
+        authenticationService.logout(authorization, employee.getId());
     }
 
     @Operation(summary = "Customer logout")
     @PostMapping("/customer/logout")
-    public LogoutResponse logoutByCustomer(@RequestHeader("authorization") String authorization, @AuthenticationPrincipal Customer customer) {
-        return authenticationService.logout(authorization, customer.getId());
+    public void logoutByCustomer(@RequestHeader("authorization") String authorization, @AuthenticationPrincipal Customer customer) {
+        authenticationService.logout(authorization, customer.getId());
     }
 }
