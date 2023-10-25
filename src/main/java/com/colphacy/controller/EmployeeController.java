@@ -22,8 +22,8 @@ public class EmployeeController {
 
     private ChangePasswordRequestValidator changePasswordRequestValidator;
 
-    @InitBinder
-    public void initBinder(WebDataBinder binder) {
+    @InitBinder("changePasswordRequest")
+    public void initChangePasswordBinder(WebDataBinder binder) {
         binder.addValidators(changePasswordRequestValidator);
     }
 
