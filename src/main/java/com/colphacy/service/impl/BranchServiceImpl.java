@@ -1,4 +1,4 @@
-package com.colphacy.service;
+package com.colphacy.service.impl;
 
 import com.colphacy.dto.SlugDTO;
 import com.colphacy.dto.branch.BranchDetailDTO;
@@ -12,6 +12,7 @@ import com.colphacy.model.Branch;
 import com.colphacy.model.BranchStatus;
 import com.colphacy.payload.response.PageResponse;
 import com.colphacy.repository.BranchRepository;
+import com.colphacy.service.BranchService;
 import com.colphacy.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
