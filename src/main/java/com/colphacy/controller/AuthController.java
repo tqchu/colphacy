@@ -38,7 +38,7 @@ public class AuthController {
         authenticationService.logout(authorization, employee.getId());
     }
 
-    @Operation(summary = "Customer logout")
+    @Operation(summary = "Customer logout", security = {@SecurityRequirement(name = "bearer-key")})
     @PostMapping("/customer/logout")
     public void logoutByCustomer(@RequestHeader("authorization") String authorization, @AuthenticationPrincipal Customer customer) {
         authenticationService.logout(authorization, customer.getId());
