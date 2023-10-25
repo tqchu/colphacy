@@ -1,6 +1,5 @@
 package com.colphacy.security;
 
-import com.colphacy.exception.InvalidFieldsException;
 import com.colphacy.service.CustomerService;
 import com.colphacy.service.EmployeeService;
 import com.colphacy.service.LoggedTokenService;
@@ -51,31 +50,25 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtFilter.class);
-    private final RequestMatcher requestMatcher = new AntPathRequestMatcher("/api/auth/employee/login");
+    private final RequestMatcher loginRequestsPattern = new AntPathRequestMatcher("/api/auth/**/login");
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if (!this.requestMatcher.matches(request)) {
-            try {
-                String token = getAccessToken(request);
-                if (token != null && loggedTokenService.findByToken(token).isPresent()) {
-                    throw InvalidFieldsException.fromFieldError("token", "Access token không đúng");
+        if (!this.loginRequestsPattern.matches(request)) {
+            String token = getAccessToken(request);
+            if (token != null && jwtUtil.validateAccessToken(token) && loggedTokenService.findByToken(token).isEmpty()) {
+                String id = jwtUtil.getUserIdFromAccessToken(token);
+                String authority = jwtUtil.getAuthorityFromAccessToken(token);
+                UserDetails userDetails;
+                if ("CUSTOMER".equals(authority)) {
+                    userDetails = customerService.findById(Long.parseLong(id));
+                } else {
+                    userDetails = employeeService.findById(Long.parseLong(id));
                 }
-                if (token != null && jwtUtil.validateAccessToken(token)) {
-                    String id = jwtUtil.getUserIdFromAccessToken(token);
-                    String authority = jwtUtil.getAuthorityFromAccessToken(token);
-                    UserDetails userDetails;
-                    if ("CUSTOMER".equals(authority)) {
-                        userDetails = customerService.findById(Long.parseLong(id));
-                    } else {
-                        userDetails = employeeService.findById(Long.parseLong(id));
-                    }
-                    UsernamePasswordAuthenticationToken authentication =
-                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    authentication.setDetails((new WebAuthenticationDetailsSource()).buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                }
-            } catch (Exception ex) {
-                LOGGER.error("Can't set user", ex);
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                authentication.setDetails((new WebAuthenticationDetailsSource()).buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
         filterChain.doFilter(request, response);
