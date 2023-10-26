@@ -1,11 +1,15 @@
 package com.colphacy.service;
 
 import com.colphacy.dto.SlugDTO;
+import com.colphacy.dto.branch.BranchDetailDTO;
 import com.colphacy.dto.branch.BranchListViewDTO;
+import com.colphacy.exception.InvalidFieldsException;
+import com.colphacy.exception.RecordNotFoundException;
 import com.colphacy.mapper.BranchMapper;
 import com.colphacy.mapper.SlugMapper;
 import com.colphacy.model.Address;
 import com.colphacy.model.Branch;
+import com.colphacy.model.BranchStatus;
 import com.colphacy.payload.response.PageResponse;
 import com.colphacy.repository.BranchRepository;
 import com.colphacy.util.StringUtils;
@@ -19,7 +23,9 @@ import org.springframework.stereotype.Service;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class BranchServiceImpl implements BranchService {
@@ -88,6 +94,33 @@ public class BranchServiceImpl implements BranchService {
         return getBranchListViewDTOPageResponse(offset, branches);
     }
 
+    @Override
+    public BranchDetailDTO create(BranchDetailDTO branchDetailDTO) {
+        branchDetailDTO.setStatus(BranchStatus.OPEN);
+        Branch branch = branchMapper.branchDetailDTOToBranch(branchDetailDTO);
+        branch.setId(null);
+        branchRepository.save(branch);
+        return branchMapper.branchToBranchDetailDTO(branch);
+    }
+
+    @Override
+    public BranchDetailDTO update(BranchDetailDTO branchDetailDTO) {
+        Long bId = branchDetailDTO.getId();
+        if (bId == null) {
+            throw InvalidFieldsException.fromFieldError("id", "Id là trường bắt buộc");
+        }
+        if (branchRepository.findById(bId).isEmpty())
+            throw new RecordNotFoundException("Không tìm thấy chi nhánh với id " + bId);
+        Branch branch = branchMapper.branchDetailDTOToBranch(branchDetailDTO);
+        branchRepository.save(branch);
+        return branchDetailDTO;
+    }
+
+    @Override
+    public List<BranchStatus> getAllStatuses() {
+        return Arrays.asList(BranchStatus.values());
+    }
+
     private PageResponse<BranchListViewDTO> getBranchListViewDTOPageResponse(int offset, Page<Branch> branches) {
         List<BranchListViewDTO> branchDTOs = branches.getContent().stream().map(branchMapper::branchToBranchListViewDTO)
                 .toList();
@@ -101,4 +134,11 @@ public class BranchServiceImpl implements BranchService {
         return pageResponse;
     }
 
+    public Branch findById(Long id) {
+        Optional<Branch> optionalBranch = branchRepository.findById(id);
+        if (optionalBranch.isEmpty())
+            throw new RecordNotFoundException("Không tìm thấy chi nhánh với id " + id);
+
+        return optionalBranch.get();
+    }
 }

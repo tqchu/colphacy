@@ -1,7 +1,9 @@
 package com.colphacy.controller;
 
 import com.colphacy.dto.SlugDTO;
+import com.colphacy.dto.branch.BranchDetailDTO;
 import com.colphacy.dto.branch.BranchListViewDTO;
+import com.colphacy.model.BranchStatus;
 import com.colphacy.payload.response.PageResponse;
 import com.colphacy.service.BranchService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Size;
 import java.util.List;
 
@@ -58,5 +61,24 @@ public class BranchController {
         }
         return branchService.getBranches(province, district, offset, limit);
     }
+
+    @Operation(summary = "Create a branch", security = {@SecurityRequirement(name = "bearer-key")})
+    @PostMapping
+    public BranchDetailDTO createBranch(@Valid @RequestBody BranchDetailDTO branchDetailDTO) {
+        return branchService.create(branchDetailDTO);
+    }
+
+    @Operation(summary = "Edit a branch", security = {@SecurityRequirement(name = "bearer-key")})
+    @PutMapping
+    public BranchDetailDTO editBranch(@Valid @RequestBody BranchDetailDTO branchDetailDTO) {
+        return branchService.update(branchDetailDTO);
+    }
+
+    @Operation(summary = "Get all branch statuses", security = {@SecurityRequirement(name = "bearer-key")})
+    @GetMapping("/statuses")
+    public List<BranchStatus> getAllBranchStatuses() {
+        return branchService.getAllStatuses();
+    }
+
 
 }

@@ -1,5 +1,6 @@
 package com.colphacy.mapper;
 
+import com.colphacy.dto.branch.BranchDetailDTO;
 import com.colphacy.dto.branch.BranchListViewDTO;
 import com.colphacy.model.Branch;
 import org.mapstruct.Mapper;
@@ -9,4 +10,8 @@ import org.mapstruct.Mapping;
 public interface BranchMapper {
     @Mapping(target = "address", expression = "java(branch.getAddress().toString())")
     BranchListViewDTO branchToBranchListViewDTO(Branch branch);
+
+    BranchDetailDTO branchToBranchDetailDTO(Branch branch);
+
+    Branch branchDetailDTOToBranch(BranchDetailDTO branchDetailDTO);
 }
