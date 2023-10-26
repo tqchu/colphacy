@@ -39,7 +39,6 @@ public class Branch {
     private String phone;
 
     @NotNull
-    @NotBlank
     @Enumerated(EnumType.STRING)
     private BranchStatus status = BranchStatus.OPEN;
 
