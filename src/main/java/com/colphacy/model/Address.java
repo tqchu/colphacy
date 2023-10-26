@@ -34,6 +34,12 @@ public class Address {
     @Size(max = 255)
     private String province;
 
+    @NotNull
+    private double latitude;
+
+    @NotNull
+    private double longitude;
+
     @Override
     public String toString() {
         return streetAddress + ", " + ward + ", " + district + ", " + province;
