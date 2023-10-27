@@ -33,6 +33,22 @@ public class UnitServiceImpl implements UnitService {
         return unitMapper.mapToUnitDTO(unitCreated);
     }
 
+    @Override
+    public UnitDTO update(Long id, UnitDTO unitDTO) {
+        Optional<Unit> unitOptional = unitRepository.findById(id);
+        if (unitOptional.isPresent()) {
+            Unit unit = unitOptional.get();
+            if (!unit.getName().equals(unitDTO.getName())) {
+                validateUnitNameIsUniqueElseThrow(unitDTO.getName());
+            }
+            unit.setName(unitDTO.getName());
+            Unit unitUpdated = unitRepository.save(unit);
+            return unitMapper.mapToUnitDTO(unitUpdated);
+        } else {
+            throw InvalidFieldsException.fromFieldError("name", "Không tìm thấy đơn vị");
+        }
+    }
+
     private void validateUnitNameIsUniqueElseThrow(String name) {
         Optional<Unit> unitOptional = unitRepository.findByName(name);
         if (unitOptional.isPresent()) {
