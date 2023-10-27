@@ -22,4 +22,6 @@ public interface BranchService {
     BranchDetailDTO update(BranchDetailDTO branchDetailDTO);
 
     List<BranchStatus> getAllStatuses();
+
+    BranchDetailDTO getBranchById(long id);
 }
