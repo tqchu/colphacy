@@ -30,4 +30,10 @@ public class UnitController {
     public UnitDTO edit(@Valid @RequestBody UnitDTO unitDTO) {
         return unitService.update(unitDTO);
     }
+
+    @Operation(summary = "Delete a unit", security = {@SecurityRequirement(name = "bearer-key")})
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable("id") Long id) {
+        unitService.delete(id);
+    }
 }
