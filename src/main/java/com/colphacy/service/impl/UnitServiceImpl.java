@@ -60,6 +60,12 @@ public class UnitServiceImpl implements UnitService {
         return unitMapper.unitToUnitDTO(unit);
     }
 
+    @Override
+    public void delete(Long id) {
+        UnitDTO unitDTO = findById(id);
+        unitRepository.deleteById(unitDTO.getId());
+    }
+
     private void validateUnitNameIsUniqueElseThrow(String name) {
         Optional<Unit> unitOptional = unitRepository.findByName(name);
         if (unitOptional.isPresent()) {
