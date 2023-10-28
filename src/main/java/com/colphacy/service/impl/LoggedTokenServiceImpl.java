@@ -1,14 +1,15 @@
-package com.colphacy.service;
+package com.colphacy.service.impl;
 
 import com.colphacy.model.LoggedToken;
 import com.colphacy.repository.LoggedTokenRepository;
+import com.colphacy.service.LoggedTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
-public class LoggedTokenServiceImpl implements LoggedTokenService{
+public class LoggedTokenServiceImpl implements LoggedTokenService {
     private LoggedTokenRepository loggedTokenRepository;
 
     @Autowired
