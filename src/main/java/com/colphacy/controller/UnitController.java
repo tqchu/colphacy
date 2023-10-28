@@ -24,4 +24,10 @@ public class UnitController {
     public UnitDTO create(@Valid @RequestBody UnitDTO unitDTO) {
         return unitService.create(unitDTO);
     }
+
+    @Operation(summary = "Edit a unit ", security = {@SecurityRequirement(name = "bearer-key")})
+    @PutMapping()
+    public UnitDTO edit(@Valid @RequestBody UnitDTO unitDTO) {
+        return unitService.update(unitDTO);
+    }
 }
