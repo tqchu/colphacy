@@ -1,4 +1,4 @@
-package com.colphacy.service;
+package com.colphacy.service.impl;
 
 import com.colphacy.dto.EmployeeDetailDTO;
 import com.colphacy.exception.InvalidFieldsException;
@@ -8,6 +8,7 @@ import com.colphacy.model.Employee;
 import com.colphacy.payload.request.ChangePasswordRequest;
 import com.colphacy.payload.request.LoginRequest;
 import com.colphacy.repository.EmployeeRepository;
+import com.colphacy.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;

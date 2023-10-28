@@ -1,4 +1,4 @@
-package com.colphacy.service;
+package com.colphacy.service.impl;
 
 import com.colphacy.exception.InvalidFieldsException;
 import com.colphacy.exception.RecordNotFoundException;
@@ -6,6 +6,7 @@ import com.colphacy.model.Customer;
 import com.colphacy.payload.request.ChangePasswordRequest;
 import com.colphacy.payload.request.LoginRequest;
 import com.colphacy.repository.CustomerRepository;
+import com.colphacy.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
