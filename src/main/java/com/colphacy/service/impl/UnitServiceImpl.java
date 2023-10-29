@@ -5,11 +5,16 @@ import com.colphacy.exception.InvalidFieldsException;
 import com.colphacy.exception.RecordNotFoundException;
 import com.colphacy.mapper.UnitMapper;
 import com.colphacy.model.Unit;
+import com.colphacy.payload.response.PageResponse;
 import com.colphacy.repository.UnitRepository;
 import com.colphacy.service.UnitService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -64,6 +69,31 @@ public class UnitServiceImpl implements UnitService {
     public void delete(Long id) {
         UnitDTO unitDTO = findById(id);
         unitRepository.deleteById(unitDTO.getId());
+    }
+
+    @Override
+    public PageResponse<UnitDTO> findAll(String keyword, int offset, int limit) {
+        Pageable pageable = PageRequest.of(offset, limit);
+
+        Page<Unit> unitPage;
+
+        if (keyword != null && !keyword.isEmpty()) {
+            unitPage = unitRepository.findUnitByNameContaining(keyword, pageable);
+        } else {
+            unitPage = unitRepository.findAll(pageable);
+        }
+
+        List<UnitDTO> unitDTOs = unitPage.getContent().stream().map(unitMapper::unitToUnitDTO)
+                .toList();
+
+        PageResponse<UnitDTO> pageResponse = new PageResponse<>();
+        pageResponse.setItems(unitDTOs);
+        pageResponse.setNumPages(unitPage.getTotalPages());
+        pageResponse.setOffset(unitPage.getNumber());
+        pageResponse.setLimit(unitPage.getSize());
+        pageResponse.setTotalItems((int) unitPage.getTotalElements());
+
+        return pageResponse;
     }
 
     private void validateUnitNameIsUniqueElseThrow(String name) {
