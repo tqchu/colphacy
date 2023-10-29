@@ -72,13 +72,13 @@ public class UnitServiceImpl implements UnitService {
     }
 
     @Override
-    public PageResponse<UnitDTO> findAll(String name, int offset, int limit) {
+    public PageResponse<UnitDTO> findAll(String keyword, int offset, int limit) {
         Pageable pageable = PageRequest.of(offset, limit);
 
         Page<Unit> unitPage;
 
-        if (name != null && !name.isEmpty()) {
-            unitPage = unitRepository.findUnitByNameContaining(name, pageable);
+        if (keyword != null && !keyword.isEmpty()) {
+            unitPage = unitRepository.findUnitByNameContaining(keyword, pageable);
         } else {
             unitPage = unitRepository.findAll(pageable);
         }

@@ -38,14 +38,14 @@ public class UnitController {
         unitService.delete(id);
     }
 
-    @Operation(summary = "Get the list unit", security = {@SecurityRequirement(name = "bearer-key")})
+    @Operation(summary = "List of units", security = {@SecurityRequirement(name = "bearer-key")})
     @GetMapping()
-    public PageResponse<UnitDTO> findAll(@RequestParam(required = false) String name,
+    public PageResponse<UnitDTO> findAll(@RequestParam(required = false) String keyword,
                                          @RequestParam(required = false, defaultValue = "0")
                                          @Size(min = 0, message = "Số bắt đầu phải là số không âm") int offset,
                                          @RequestParam(required = false, defaultValue = "5")
                                              @Size(min = 1, message = "Số lượng giới hạn phải lớn hơn 0") int limit)
     {
-        return unitService.findAll(name, offset, limit);
+        return unitService.findAll(keyword, offset, limit);
     }
 }
