@@ -14,8 +14,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -86,8 +84,7 @@ public class UnitServiceImpl implements UnitService {
 
         Page<UnitDTO> unitDTOPage = unitPage.map(unit -> unitMapper.unitToUnitDTO(unit));
 
-        PageResponseUtils<UnitDTO> pageResponseUtils = new PageResponseUtils<>();
-        PageResponse<UnitDTO> pageResponse = pageResponseUtils.getPageResponse(unitDTOPage);
+        PageResponse<UnitDTO> pageResponse = PageResponseUtils.getPageResponse(unitDTOPage);
 
         return pageResponse;
     }

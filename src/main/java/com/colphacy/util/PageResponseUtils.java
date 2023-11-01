@@ -7,7 +7,7 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 public class PageResponseUtils<T> {
-    public PageResponse<T> getPageResponse(Page<T> page) {
+    public static <T> PageResponse<T> getPageResponse(Page<T> page) {
         PageResponse<T> pageResponse = new PageResponse<>();
         pageResponse.setItems(page.getContent());
         pageResponse.setNumPages(page.getTotalPages());

@@ -15,8 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -87,8 +85,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         Page<CategoryDTO> categoryDTOPage= categoryPage.map(category -> categoryMapper.categoryToCategoryDTO(category));
 
-        PageResponseUtils<CategoryDTO> pageResponseUtils = new PageResponseUtils<>();
-        PageResponse<CategoryDTO> pageResponse = pageResponseUtils.getPageResponse(categoryDTOPage);
+        PageResponse<CategoryDTO> pageResponse = PageResponseUtils.getPageResponse(categoryDTOPage);
 
         return pageResponse;
     }
