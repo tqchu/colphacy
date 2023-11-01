@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Repository
 public interface UnitRepository extends JpaRepository<Unit, Long> {
-    Optional<Unit> findByName(String name);
+    Optional<Unit> findByNameIgnoreCase(String name);
 
     @Query("SELECT u FROM Unit u WHERE LOWER(unaccent(u.name)) LIKE LOWER(unaccent(concat('%', :name, '%')))")
     Page<Unit> findUnitByNameContaining(String name, Pageable pageable);
