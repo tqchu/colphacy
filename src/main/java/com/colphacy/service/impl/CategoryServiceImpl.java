@@ -1,6 +1,7 @@
 package com.colphacy.service.impl;
 
 import com.colphacy.dto.category.CategoryDTO;
+import com.colphacy.dto.unit.UnitDTO;
 import com.colphacy.exception.InvalidFieldsException;
 import com.colphacy.exception.RecordNotFoundException;
 import com.colphacy.mapper.CategoryMapper;
@@ -8,6 +9,7 @@ import com.colphacy.model.Category;
 import com.colphacy.payload.response.PageResponse;
 import com.colphacy.repository.CategoryRepository;
 import com.colphacy.service.CategoryService;
+import com.colphacy.util.PageResponseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -83,15 +85,10 @@ public class CategoryServiceImpl implements CategoryService {
             categoryPage = categoryRepository.findAll(pageable);
         }
 
-        List<CategoryDTO> categoryDTOs = categoryPage.getContent().stream().map(categoryMapper::categoryToCategoryDTO)
-                .toList();
+        Page<CategoryDTO> categoryDTOPage= categoryPage.map(category -> categoryMapper.categoryToCategoryDTO(category));
 
-        PageResponse<CategoryDTO> pageResponse = new PageResponse<>();
-        pageResponse.setItems(categoryDTOs);
-        pageResponse.setNumPages(categoryPage.getTotalPages());
-        pageResponse.setOffset(categoryPage.getNumber());
-        pageResponse.setLimit(categoryPage.getSize());
-        pageResponse.setTotalItems((int) categoryPage.getTotalElements());
+        PageResponseUtils<CategoryDTO> pageResponseUtils = new PageResponseUtils<>();
+        PageResponse<CategoryDTO> pageResponse = pageResponseUtils.getPageResponse(categoryDTOPage);
 
         return pageResponse;
     }

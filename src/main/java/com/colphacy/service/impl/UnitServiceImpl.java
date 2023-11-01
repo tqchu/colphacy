@@ -8,6 +8,7 @@ import com.colphacy.model.Unit;
 import com.colphacy.payload.response.PageResponse;
 import com.colphacy.repository.UnitRepository;
 import com.colphacy.service.UnitService;
+import com.colphacy.util.PageResponseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -83,15 +84,10 @@ public class UnitServiceImpl implements UnitService {
             unitPage = unitRepository.findAll(pageable);
         }
 
-        List<UnitDTO> unitDTOs = unitPage.getContent().stream().map(unitMapper::unitToUnitDTO)
-                .toList();
+        Page<UnitDTO> unitDTOPage = unitPage.map(unit -> unitMapper.unitToUnitDTO(unit));
 
-        PageResponse<UnitDTO> pageResponse = new PageResponse<>();
-        pageResponse.setItems(unitDTOs);
-        pageResponse.setNumPages(unitPage.getTotalPages());
-        pageResponse.setOffset(unitPage.getNumber());
-        pageResponse.setLimit(unitPage.getSize());
-        pageResponse.setTotalItems((int) unitPage.getTotalElements());
+        PageResponseUtils<UnitDTO> pageResponseUtils = new PageResponseUtils<>();
+        PageResponse<UnitDTO> pageResponse = pageResponseUtils.getPageResponse(unitDTOPage);
 
         return pageResponse;
     }
