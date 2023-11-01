@@ -97,7 +97,7 @@ public class UnitServiceImpl implements UnitService {
     }
 
     private void validateUnitNameIsUniqueElseThrow(String name) {
-        Optional<Unit> unitOptional = unitRepository.findByName(name);
+        Optional<Unit> unitOptional = unitRepository.findByNameIgnoreCase(name);
         if (unitOptional.isPresent()) {
             throw InvalidFieldsException.fromFieldError("name", "Tên đơn vị nên là duy nhất");
         }
