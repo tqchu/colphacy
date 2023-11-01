@@ -3,6 +3,7 @@ package com.colphacy.service.impl;
 import com.colphacy.dto.SlugDTO;
 import com.colphacy.dto.branch.BranchDetailDTO;
 import com.colphacy.dto.branch.BranchListViewDTO;
+import com.colphacy.dto.unit.UnitDTO;
 import com.colphacy.exception.InvalidFieldsException;
 import com.colphacy.exception.RecordNotFoundException;
 import com.colphacy.mapper.BranchMapper;
@@ -13,6 +14,7 @@ import com.colphacy.model.BranchStatus;
 import com.colphacy.payload.response.PageResponse;
 import com.colphacy.repository.BranchRepository;
 import com.colphacy.service.BranchService;
+import com.colphacy.util.PageResponseUtils;
 import com.colphacy.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -128,15 +130,10 @@ public class BranchServiceImpl implements BranchService {
         return branchMapper.branchToBranchDetailDTO(branch);
     }
 
-    private PageResponse<BranchListViewDTO> getBranchListViewDTOPageResponse(int offset, Page<Branch> branches) {
-        List<BranchListViewDTO> branchDTOs = branches.getContent().stream().map(branchMapper::branchToBranchListViewDTO)
-                .toList();
-        PageResponse<BranchListViewDTO> pageResponse = new PageResponse<>();
-        pageResponse.setItems(branchDTOs);
-        pageResponse.setOffset(offset);
-        pageResponse.setLimit(branches.getSize());
-        pageResponse.setNumPages(branches.getTotalPages());
-        pageResponse.setTotalItems((int) branches.getTotalElements());
+    private PageResponse<BranchListViewDTO> getBranchListViewDTOPageResponse(int offset, Page<Branch> branchPage) {
+        Page<BranchListViewDTO> branchDTOPage = branchPage.map(branch -> branchMapper.branchToBranchListViewDTO(branch));
+
+        PageResponse<BranchListViewDTO> pageResponse = PageResponseUtils.getPageResponse(branchDTOPage);
 
         return pageResponse;
     }
