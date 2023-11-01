@@ -1,6 +1,8 @@
 package com.colphacy.controller;
 
+import com.colphacy.dto.category.CategoryDTO;
 import com.colphacy.dto.unit.UnitDTO;
+import com.colphacy.model.Unit;
 import com.colphacy.payload.response.PageResponse;
 import com.colphacy.service.UnitService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,5 +49,11 @@ public class UnitController {
                                              @Size(min = 1, message = "Số lượng giới hạn phải lớn hơn 0") int limit)
     {
         return unitService.findAll(keyword, offset, limit);
+    }
+
+    @Operation(summary = "Get unit's details", security = {@SecurityRequirement(name = "bearer-key")})
+    @GetMapping("/{id}")
+    public UnitDTO getDetail(@PathVariable Long id) {
+        return unitService.findById(id);
     }
 }

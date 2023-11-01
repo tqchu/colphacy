@@ -8,13 +8,12 @@ import com.colphacy.model.Unit;
 import com.colphacy.payload.response.PageResponse;
 import com.colphacy.repository.UnitRepository;
 import com.colphacy.service.UnitService;
+import com.colphacy.util.PageResponseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -83,21 +82,15 @@ public class UnitServiceImpl implements UnitService {
             unitPage = unitRepository.findAll(pageable);
         }
 
-        List<UnitDTO> unitDTOs = unitPage.getContent().stream().map(unitMapper::unitToUnitDTO)
-                .toList();
+        Page<UnitDTO> unitDTOPage = unitPage.map(unit -> unitMapper.unitToUnitDTO(unit));
 
-        PageResponse<UnitDTO> pageResponse = new PageResponse<>();
-        pageResponse.setItems(unitDTOs);
-        pageResponse.setNumPages(unitPage.getTotalPages());
-        pageResponse.setOffset(unitPage.getNumber());
-        pageResponse.setLimit(unitPage.getSize());
-        pageResponse.setTotalItems((int) unitPage.getTotalElements());
+        PageResponse<UnitDTO> pageResponse = PageResponseUtils.getPageResponse(unitDTOPage);
 
         return pageResponse;
     }
 
     private void validateUnitNameIsUniqueElseThrow(String name) {
-        Optional<Unit> unitOptional = unitRepository.findByName(name);
+        Optional<Unit> unitOptional = unitRepository.findByNameIgnoreCase(name);
         if (unitOptional.isPresent()) {
             throw InvalidFieldsException.fromFieldError("name", "Tên đơn vị nên là duy nhất");
         }
