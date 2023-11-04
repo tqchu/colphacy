@@ -1,6 +1,5 @@
 package com.colphacy.controller;
 
-import com.colphacy.dto.branch.BranchDetailDTO;
 import com.colphacy.dto.category.CategoryDTO;
 import com.colphacy.payload.response.PageResponse;
 import com.colphacy.service.CategoryService;
@@ -54,6 +53,6 @@ public class CategoryController {
     @Operation(summary = "Get category's details", security = {@SecurityRequirement(name = "bearer-key")})
     @GetMapping("/{id}")
     public CategoryDTO getDetail(@PathVariable Long id) {
-        return categoryService.findById(id);
+        return categoryService.findCategoryDTOById(id);
     }
 }
