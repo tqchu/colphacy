@@ -26,7 +26,7 @@ public class BranchDetailDTO {
     @Pattern(regexp = "^([01]?\\d|2[0-3]):[0-5]\\d$", message = "Sai định dạng giờ (HH:mm)")
     private String openingHour;
 
-    @Pattern(regexp = "^\\d{10}$", message = "Sai định dạng SĐT")
+    @Pattern(regexp = "^(0[3|5|7|8|9])([0-9]{8})$", message = "Sai định dạng số điện thoại")
     private String phone;
 
     @Enumerated(EnumType.STRING)
