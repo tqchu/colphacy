@@ -22,7 +22,7 @@ public class ProviderController {
         this.providerService = providerService;
     }
 
-    @Operation(summary = "List of providers", security = {@SecurityRequirement(name = "bearer-key")})
+    @Operation(summary = "Get list of providers", security = {@SecurityRequirement(name = "bearer-key")})
     @GetMapping()
     public PageResponse<ProviderDTO> findAll(@RequestParam(required = false) String keyword,
                                              @RequestParam(required = false, defaultValue = "0")

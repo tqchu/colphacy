@@ -38,6 +38,6 @@ public class ProviderDTO {
     @NotBlank(groups = ValidationGroups.Create.class)
     @NotBlankIfPresent(groups = ValidationGroups.Update.class)
     @Size(max = 256)
-    @Email(message = "Email không đúng định dạng")
+    @Email(message = "Sai định dạng email")
     private String email;
 }
