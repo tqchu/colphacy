@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
 
@@ -52,6 +53,6 @@ public class UnitController {
     @Operation(summary = "Get unit's details", security = {@SecurityRequirement(name = "bearer-key")})
     @GetMapping("/{id}")
     public UnitDTO getDetail(@PathVariable Long id) {
-        return unitService.findById(id);
+        return unitService.findUnitDTOById(id);
     }
 }
