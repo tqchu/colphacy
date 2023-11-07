@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
 import java.util.Optional;
 
 @Service
@@ -44,7 +45,7 @@ public class UnitServiceImpl implements UnitService {
         if (id == null) {
             throw InvalidFieldsException.fromFieldError("id", "Id là trường bắt buộc");
         }
-        UnitDTO unitFound = findById(unitDTO.getId());
+        UnitDTO unitFound = findUnitDTOById(unitDTO.getId());
         Unit unit = unitMapper.unitDTOToUnit(unitFound);
         if (!unit.getName().equals(unitDTO.getName())) {
             validateUnitNameIsUniqueElseThrow(unitDTO.getName());
@@ -55,18 +56,23 @@ public class UnitServiceImpl implements UnitService {
     }
 
     @Override
-    public UnitDTO findById(Long id) {
-        Optional<Unit> unitOptional = unitRepository.findById(id);
-        if (unitOptional.isEmpty()) {
-            throw new RecordNotFoundException("Không tìm thấy đơn vị");
-        }
-        Unit unit = unitOptional.get();
+    public UnitDTO findUnitDTOById(Long id) {
+        Unit unit = findById(id);
         return unitMapper.unitToUnitDTO(unit);
     }
 
     @Override
+    public Unit findById(Long id) {
+        Optional<Unit> unitOptional = unitRepository.findById(id);
+        if (unitOptional.isEmpty()) {
+            throw new RecordNotFoundException("Không tìm thấy đơn vị");
+        }
+        return unitOptional.get();
+    }
+
+    @Override
     public void delete(Long id) {
-        UnitDTO unitDTO = findById(id);
+        UnitDTO unitDTO = findUnitDTOById(id);
         unitRepository.deleteById(unitDTO.getId());
     }
 
