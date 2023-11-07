@@ -1,22 +1,152 @@
 package com.colphacy.model;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@Entity(name = "products")
+@Entity
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
-    String name;
+    @NotNull
+    @NotBlank
+    @Length(max = 255)
+    private String name;
 
+    @NotNull
+    @NotBlank
+    @Length(max = 255)
+    private String packing;
+
+    @NotNull
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    @NotNull
+    @NotBlank
+    @Length(max = 255)
+    private String manufacturer;
+
+    @NotNull
+    @NotBlank
+    @Length(max = 255)
+    private String brandOrigin;
+
+    @NotNull
+    @NotBlank
+    @Length(max = 255)
+    private String indications;
+
+    @NotNull
+    @NotBlank
+    @Length(max = 50)
+    private String registrationNumber;
+
+    @NotNull
+    @Size(min = 1)
+    @OneToMany(mappedBy = "product", cascade = {
+            CascadeType.PERSIST,
+            CascadeType.REMOVE
+    }, orphanRemoval = true)
+    private List<Ingredient> ingredients = new ArrayList<>();
+
+    @NotNull
+    @NotBlank
+    private String uses;
+
+    @NotNull
+    @NotBlank
+    private String usage;
+
+    @NotNull
+    @NotBlank
+    private String sideEffects;
+
+    @NotNull
+    @NotBlank
+    private String notes;
+
+    @NotNull
+    @NotBlank
+    private String storage;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private ProductStatus status;
+
+    @NotNull
+    @Size(min = 1)
+    @OneToMany(mappedBy = "product", cascade = {
+            CascadeType.PERSIST,
+            CascadeType.REMOVE
+    }, orphanRemoval = true)
+    private List<ProductUnit> productUnits = new ArrayList<>();
+
+    @OneToMany(mappedBy = "product", cascade = {
+            CascadeType.PERSIST,
+            CascadeType.REMOVE
+    }, orphanRemoval = true)
+    private List<ProductImage> images = new ArrayList<>();
+
+    public void addIngredient(Ingredient ingredient) {
+        ingredients.add(ingredient);
+        ingredient.setProduct(this);
+    }
+
+    public void removeIngredient(Ingredient ingredient) {
+        ingredients.remove(ingredient);
+        ingredient.setProduct(null);
+    }
+
+    public void addProductUnit(ProductUnit productUnit) {
+        productUnits.add(productUnit);
+        productUnit.setProduct(this);
+    }
+
+    public void removeProductUnit(ProductUnit productUnit) {
+        productUnits.remove(productUnit);
+        productUnit.setProduct(null);
+    }
+
+    public void addProductImage(ProductImage productImage) {
+        images.add(productImage);
+        productImage.setProduct(this);
+    }
+
+    public void removeProductImage(ProductImage productImage) {
+        images.remove(productImage);
+        productImage.setProduct(null);
+    }
+
+    public void setIngredients(List<Ingredient> ingredients) {
+        for (Ingredient ingredient : ingredients) {
+            addIngredient(ingredient);
+        }
+    }
+
+    public void setProductUnits(List<ProductUnit> productUnits) {
+        for (ProductUnit productUnit : productUnits) {
+            addProductUnit(productUnit);
+        }
+    }
+
+    public void setImages(List<ProductImage> productImages) {
+        for (ProductImage productImage : productImages) {
+            addProductImage(productImage);
+        }
+    }
 }

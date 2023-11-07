@@ -1,6 +1,7 @@
 package com.colphacy.service;
 
 import com.colphacy.dto.category.CategoryDTO;
+import com.colphacy.model.Category;
 import com.colphacy.payload.response.PageResponse;
 
 public interface CategoryService {
@@ -8,7 +9,9 @@ public interface CategoryService {
 
     CategoryDTO update(CategoryDTO categoryDTO);
 
-    CategoryDTO findById(Long id);
+    CategoryDTO findCategoryDTOById(Long id);
+
+    Category findById(Long id);
 
     void delete(Long id);
 

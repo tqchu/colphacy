@@ -1,6 +1,7 @@
 package com.colphacy.service;
 
 import com.colphacy.dto.unit.UnitDTO;
+import com.colphacy.model.Unit;
 import com.colphacy.payload.response.PageResponse;
 
 public interface UnitService {
@@ -8,7 +9,9 @@ public interface UnitService {
 
     UnitDTO update(UnitDTO unitDTO);
 
-    UnitDTO findById(Long id);
+    UnitDTO findUnitDTOById(Long id);
+
+    Unit findById(Long id);
 
     void delete(Long id);
 

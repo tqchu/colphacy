@@ -1,7 +1,6 @@
 package com.colphacy.service.impl;
 
 import com.colphacy.dto.category.CategoryDTO;
-import com.colphacy.dto.unit.UnitDTO;
 import com.colphacy.exception.InvalidFieldsException;
 import com.colphacy.exception.RecordNotFoundException;
 import com.colphacy.mapper.CategoryMapper;
@@ -15,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
 import java.util.Optional;
 
 @Service
@@ -45,7 +45,7 @@ public class CategoryServiceImpl implements CategoryService {
         if (id == null) {
             throw InvalidFieldsException.fromFieldError("id", "Id là trường bắt buộc");
         }
-        CategoryDTO categoryFound = findById(categoryDTO.getId());
+        CategoryDTO categoryFound = findCategoryDTOById(categoryDTO.getId());
         Category category = categoryMapper.categoryDTOToCategory(categoryFound);
         if (!category.getName().equals(categoryDTO.getName())) {
             validateCategoryNameIsUniqueElseThrow(categoryDTO.getName());
@@ -56,7 +56,16 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryDTO findById(Long id) {
+    public Category findById(Long id) {
+        Optional<Category> categoryOptional = categoryRepository.findById(id);
+        if (categoryOptional.isEmpty()) {
+            throw new RecordNotFoundException("Không tìm thấy loại sản phẩm");
+        }
+        return categoryOptional.get();
+    }
+
+    @Override
+    public CategoryDTO findCategoryDTOById(Long id) {
         Optional<Category> categoryOptional = categoryRepository.findById(id);
         if (categoryOptional.isEmpty()) {
             throw new RecordNotFoundException("Không tìm thấy loại sản phẩm");
@@ -67,7 +76,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void delete(Long id) {
-        CategoryDTO categoryDTO = findById(id);
+        CategoryDTO categoryDTO = findCategoryDTOById(id);
         categoryRepository.deleteById(categoryDTO.getId());
     }
 
