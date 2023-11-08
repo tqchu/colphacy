@@ -91,7 +91,7 @@ public class UnitServiceImpl implements UnitService {
 
         Page<UnitDTO> unitDTOPage = unitPage.map(unit -> unitMapper.unitToUnitDTO(unit));
 
-        PageResponse<UnitDTO> pageResponse = PageResponseUtils.getPageResponse(unitDTOPage);
+        PageResponse<UnitDTO> pageResponse = PageResponseUtils.getPageResponse(offset, unitDTOPage);
 
         return pageResponse;
     }

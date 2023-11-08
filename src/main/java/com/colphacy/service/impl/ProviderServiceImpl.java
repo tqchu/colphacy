@@ -48,7 +48,7 @@ public class ProviderServiceImpl implements ProviderService {
 
         Page<ProviderDTO> providerDTOPage = providerPage.map(provider -> providerMapper.providerToProviderDTO(provider));
 
-        PageResponse<ProviderDTO> pageResponse = PageResponseUtils.getPageResponse(providerDTOPage);
+        PageResponse<ProviderDTO> pageResponse = PageResponseUtils.getPageResponse(offset, providerDTOPage);
 
         return pageResponse;
     }
