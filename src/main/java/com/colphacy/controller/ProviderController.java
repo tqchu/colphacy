@@ -7,6 +7,7 @@ import com.colphacy.validator.ValidationGroups;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +17,13 @@ import javax.validation.constraints.Size;
 @RequestMapping("/api/providers")
 public class ProviderController {
     private ProviderService providerService;
+
+    private final Integer defaultPageSize;
+
+    @Autowired
+    public ProviderController(Integer defaultPageSize) {
+        this.defaultPageSize = defaultPageSize;
+    }
 
     @Autowired
     private void setProviderService(ProviderService providerService) {
@@ -27,9 +35,12 @@ public class ProviderController {
     public PageResponse<ProviderDTO> findAll(@RequestParam(required = false) String keyword,
                                              @RequestParam(required = false, defaultValue = "0")
                                          @Size(min = 0, message = "Số bắt đầu phải là số không âm") int offset,
-                                             @RequestParam(required = false, defaultValue = "5")
-                                         @Size(min = 1, message = "Số lượng giới hạn phải lớn hơn 0") int limit)
+                                             @RequestParam(required = false)
+                                         @Size(min = 1, message = "Số lượng giới hạn phải lớn hơn 0") Integer limit)
     {
+        if (limit == null) {
+            limit = defaultPageSize;
+        }
         return providerService.findAll(keyword, offset, limit);
     }
 

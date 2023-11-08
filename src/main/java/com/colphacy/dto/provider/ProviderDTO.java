@@ -3,6 +3,7 @@ package com.colphacy.dto.provider;
 import com.colphacy.validator.NotBlankIfPresent;
 import com.colphacy.validator.ValidationGroups;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
@@ -13,14 +14,13 @@ import javax.validation.constraints.Email;
 
 @Data
 public class ProviderDTO {
-    @Id
     @NotNull(groups = ValidationGroups.Update.class, message = "Id là trường bắt buộc")
     private Long id;
 
     @NotNull(groups = ValidationGroups.Create.class)
     @NotBlank(groups = ValidationGroups.Create.class)
     @NotBlankIfPresent(groups = ValidationGroups.Update.class)
-    @Size(max = 256)
+    @Length(max = 50, message = "Tên nhà cung cấp không được dài quá 50 ký tự")
     private String name;
 
     @NotNull(groups = ValidationGroups.Create.class)
@@ -37,7 +37,7 @@ public class ProviderDTO {
     @NotNull(groups = ValidationGroups.Create.class)
     @NotBlank(groups = ValidationGroups.Create.class)
     @NotBlankIfPresent(groups = ValidationGroups.Update.class)
-    @Size(max = 256)
+    @Length(max = 256, message = "Email không đươc dài quá 50 ký tự")
     @Email(message = "Sai định dạng email")
     private String email;
 }
