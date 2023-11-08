@@ -97,7 +97,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         Page<CategoryDTO> categoryDTOPage = categoryPage.map(category -> categoryMapper.categoryToCategoryDTO(category));
 
-        PageResponse<CategoryDTO> pageResponse = PageResponseUtils.getPageResponse(categoryDTOPage);
+        PageResponse<CategoryDTO> pageResponse = PageResponseUtils.getPageResponse(offset, categoryDTOPage);
 
         return pageResponse;
     }
