@@ -79,7 +79,8 @@ public class UnitServiceImpl implements UnitService {
 
     @Override
     public PageResponse<UnitDTO> findAll(String keyword, int offset, int limit) {
-        Pageable pageable = PageRequest.of(offset, limit, Sort.by("id").ascending());
+        int pageNo = offset / limit;
+        Pageable pageable = PageRequest.of(pageNo, limit, Sort.by("id").ascending());
 
         Page<Unit> unitPage;
 
