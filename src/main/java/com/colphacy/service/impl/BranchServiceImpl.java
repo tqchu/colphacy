@@ -133,7 +133,7 @@ public class BranchServiceImpl implements BranchService {
     private PageResponse<BranchListViewDTO> getBranchListViewDTOPageResponse(int offset, Page<Branch> branchPage) {
         Page<BranchListViewDTO> branchDTOPage = branchPage.map(branch -> branchMapper.branchToBranchListViewDTO(branch));
 
-        PageResponse<BranchListViewDTO> pageResponse = PageResponseUtils.getPageResponse(branchDTOPage);
+        PageResponse<BranchListViewDTO> pageResponse = PageResponseUtils.getPageResponse(offset, branchDTOPage);
 
         return pageResponse;
     }
