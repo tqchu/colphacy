@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -22,10 +23,12 @@ public class CategoryServiceImpl implements CategoryService {
     private CategoryRepository categoryRepository;
 
     private CategoryMapper categoryMapper;
+
     @Autowired
     public void setCategoryMapper(CategoryMapper categoryMapper) {
         this.categoryMapper = categoryMapper;
     }
+
     @Autowired
     public void setCategoryRepository(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
@@ -82,7 +85,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public PageResponse<CategoryDTO> findAll(String keyword, int offset, int limit) {
-        Pageable pageable = PageRequest.of(offset, limit);
+        Pageable pageable = PageRequest.of(offset, limit, Sort.by("id").ascending());
 
         Page<Category> categoryPage;
 
@@ -92,7 +95,7 @@ public class CategoryServiceImpl implements CategoryService {
             categoryPage = categoryRepository.findAll(pageable);
         }
 
-        Page<CategoryDTO> categoryDTOPage= categoryPage.map(category -> categoryMapper.categoryToCategoryDTO(category));
+        Page<CategoryDTO> categoryDTOPage = categoryPage.map(category -> categoryMapper.categoryToCategoryDTO(category));
 
         PageResponse<CategoryDTO> pageResponse = PageResponseUtils.getPageResponse(categoryDTOPage);
 
