@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -78,7 +79,7 @@ public class UnitServiceImpl implements UnitService {
 
     @Override
     public PageResponse<UnitDTO> findAll(String keyword, int offset, int limit) {
-        Pageable pageable = PageRequest.of(offset, limit);
+        Pageable pageable = PageRequest.of(offset, limit, Sort.by("id").ascending());
 
         Page<Unit> unitPage;
 

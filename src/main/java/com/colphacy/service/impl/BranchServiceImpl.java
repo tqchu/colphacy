@@ -3,7 +3,6 @@ package com.colphacy.service.impl;
 import com.colphacy.dto.SlugDTO;
 import com.colphacy.dto.branch.BranchDetailDTO;
 import com.colphacy.dto.branch.BranchListViewDTO;
-import com.colphacy.dto.unit.UnitDTO;
 import com.colphacy.exception.InvalidFieldsException;
 import com.colphacy.exception.RecordNotFoundException;
 import com.colphacy.mapper.BranchMapper;
@@ -20,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -72,7 +72,7 @@ public class BranchServiceImpl implements BranchService {
             return cb.or(predicates.toArray(new Predicate[0]));
         };
         int pageNo = offset / limit;
-        Pageable pageable = PageRequest.of(pageNo, limit);
+        Pageable pageable = PageRequest.of(pageNo, limit, Sort.by("id").ascending());
         Page<Branch> page = branchRepository.findAll(filterSpec, pageable);
         return getBranchListViewDTOPageResponse(offset, page);
     }
