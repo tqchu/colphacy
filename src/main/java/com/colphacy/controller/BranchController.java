@@ -22,8 +22,12 @@ public class BranchController {
     @Autowired
     private BranchService branchService;
 
-    @Value("${colphacy.api.default-page-size}")
-    private int defaultPageSize;
+    private final Integer defaultPageSize;
+
+    @Autowired
+    public BranchController(Integer defaultPageSize) {
+        this.defaultPageSize = defaultPageSize;
+    }
 
     @Operation(summary = "Get all provinces along with their slugs", security = {@SecurityRequirement(name = "bearer-key")})
     @GetMapping("/provinces")
