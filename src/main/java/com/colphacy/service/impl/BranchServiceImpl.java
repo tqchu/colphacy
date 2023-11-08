@@ -81,7 +81,7 @@ public class BranchServiceImpl implements BranchService {
     public PageResponse<BranchListViewDTO> getBranches(String provinceSlug, String districtSlug, int offset, Integer limit) {
         int pageNo = offset / limit;
 
-        Pageable pageable = PageRequest.of(pageNo, limit);
+        Pageable pageable = PageRequest.of(pageNo, limit, Sort.by("id").ascending());
         Page<Branch> branches;
         if (provinceSlug != null) {
             String nonSlugProvince = StringUtils.seperateBySpace(provinceSlug);
