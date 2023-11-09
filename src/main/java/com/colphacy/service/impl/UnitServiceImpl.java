@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -95,6 +96,11 @@ public class UnitServiceImpl implements UnitService {
         PageResponse<UnitDTO> pageResponse = PageResponseUtils.getPageResponse(offset, unitDTOPage);
 
         return pageResponse;
+    }
+
+    @Override
+    public List<UnitDTO> findAll() {
+        return unitRepository.findAll().stream().map(unit -> unitMapper.unitToUnitDTO(unit)).toList();
     }
 
     private void validateUnitNameIsUniqueElseThrow(String name) {
