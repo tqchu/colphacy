@@ -6,11 +6,11 @@ import com.colphacy.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/categories")
@@ -47,9 +47,9 @@ public class CategoryController {
         categoryService.delete(id);
     }
 
-    @Operation(summary = "List of categories", security = {@SecurityRequirement(name = "bearer-key")})
+    @Operation(summary = "Get list of paginated categories", security = {@SecurityRequirement(name = "bearer-key")})
     @GetMapping()
-    public PageResponse<CategoryDTO> findAll(@RequestParam(required = false) String keyword,
+    public PageResponse<CategoryDTO> findPaginated(@RequestParam(required = false) String keyword,
                                          @RequestParam(required = false, defaultValue = "0")
                                          @Size(min = 0, message = "Số bắt đầu phải là số không âm") int offset,
                                          @RequestParam(required = false)
@@ -59,6 +59,12 @@ public class CategoryController {
             limit = defaultPageSize;
         }
         return categoryService.findAll(keyword, offset, limit);
+    }
+
+    @Operation(summary = "Get all categories", security = {@SecurityRequirement(name = "bearer-key")})
+    @GetMapping("/all")
+    public List<CategoryDTO> findAll() {
+        return categoryService.findAll();
     }
 
     @Operation(summary = "Get category's details", security = {@SecurityRequirement(name = "bearer-key")})

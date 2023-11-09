@@ -4,6 +4,8 @@ import com.colphacy.dto.category.CategoryDTO;
 import com.colphacy.model.Category;
 import com.colphacy.payload.response.PageResponse;
 
+import java.util.List;
+
 public interface CategoryService {
     CategoryDTO create(CategoryDTO categoryDTO);
 
@@ -16,4 +18,6 @@ public interface CategoryService {
     void delete(Long id);
 
     PageResponse<CategoryDTO> findAll(String keyword, int offset, int limit);
+
+    List<CategoryDTO> findAll();
 }

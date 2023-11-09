@@ -7,11 +7,11 @@ import com.colphacy.validator.ValidationGroups;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.Size;
+import java.util.List;
 
 @RestController()
 @RequestMapping("/api/providers")
@@ -30,9 +30,9 @@ public class ProviderController {
         this.providerService = providerService;
     }
 
-    @Operation(summary = "Get list of providers", security = {@SecurityRequirement(name = "bearer-key")})
+    @Operation(summary = "Get list of paginated providers", security = {@SecurityRequirement(name = "bearer-key")})
     @GetMapping()
-    public PageResponse<ProviderDTO> findAll(@RequestParam(required = false) String keyword,
+    public PageResponse<ProviderDTO> findPaginated(@RequestParam(required = false) String keyword,
                                              @RequestParam(required = false, defaultValue = "0")
                                          @Size(min = 0, message = "Số bắt đầu phải là số không âm") int offset,
                                              @RequestParam(required = false)
@@ -42,6 +42,12 @@ public class ProviderController {
             limit = defaultPageSize;
         }
         return providerService.findAll(keyword, offset, limit);
+    }
+
+    @Operation(summary = "Get all providers", security = {@SecurityRequirement(name = "bearer-key")})
+    @GetMapping("/all")
+    public List<ProviderDTO> findAll() {
+        return providerService.findAll();
     }
 
     @Operation(summary = "Create a new provider", security = {@SecurityRequirement(name = "bearer-key")})

@@ -6,11 +6,11 @@ import com.colphacy.service.UnitService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/units")
@@ -47,9 +47,9 @@ public class UnitController {
         unitService.delete(id);
     }
 
-    @Operation(summary = "List of units", security = {@SecurityRequirement(name = "bearer-key")})
+    @Operation(summary = "Get list of paginated units", security = {@SecurityRequirement(name = "bearer-key")})
     @GetMapping()
-    public PageResponse<UnitDTO> findAll(@RequestParam(required = false) String keyword,
+    public PageResponse<UnitDTO> findPaginated(@RequestParam(required = false) String keyword,
                                          @RequestParam(required = false, defaultValue = "0")
                                          @Size(min = 0, message = "Số bắt đầu phải là số không âm") int offset,
                                          @RequestParam(required = false)
@@ -59,6 +59,12 @@ public class UnitController {
             limit = defaultPageSize;
         }
         return unitService.findAll(keyword, offset, limit);
+    }
+
+    @Operation(summary = "Get all units", security = {@SecurityRequirement(name = "bearer-key")})
+    @GetMapping("/all")
+    public List<UnitDTO> findAll() {
+        return unitService.findAll();
     }
 
     @Operation(summary = "Get unit's details", security = {@SecurityRequirement(name = "bearer-key")})

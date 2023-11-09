@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -98,6 +99,11 @@ public class ProviderServiceImpl implements ProviderService {
     public void delete(Long id) {
         ProviderDTO providerDTO = findById(id);
         providerRepository.deleteById(providerDTO.getId());
+    }
+
+    @Override
+    public List<ProviderDTO> findAll() {
+        return providerRepository.findAll().stream().map(provider -> providerMapper.providerToProviderDTO(provider)).toList();
     }
 
     private void validateProviderNameIsUniqueElseThrow(String name) {
