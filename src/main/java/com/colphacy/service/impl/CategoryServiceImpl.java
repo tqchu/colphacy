@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -102,6 +103,11 @@ public class CategoryServiceImpl implements CategoryService {
         PageResponse<CategoryDTO> pageResponse = PageResponseUtils.getPageResponse(offset, categoryDTOPage);
 
         return pageResponse;
+    }
+
+    @Override
+    public List<CategoryDTO> findAll() {
+        return categoryRepository.findAll().stream().map(category -> categoryMapper.categoryToCategoryDTO(category)).toList();
     }
 
     private void validateCategoryNameIsUniqueElseThrow(String name) {

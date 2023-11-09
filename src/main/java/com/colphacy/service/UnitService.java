@@ -4,6 +4,8 @@ import com.colphacy.dto.unit.UnitDTO;
 import com.colphacy.model.Unit;
 import com.colphacy.payload.response.PageResponse;
 
+import java.util.List;
+
 public interface UnitService {
     UnitDTO create(UnitDTO unitDTO);
 
@@ -16,4 +18,6 @@ public interface UnitService {
     void delete(Long id);
 
     PageResponse<UnitDTO> findAll(String keyword, int offset, int limit);
+
+    List<UnitDTO> findAll();
 }
