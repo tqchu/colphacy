@@ -59,9 +59,9 @@ public class Product {
     @NotNull
     @Size(min = 1)
     @OneToMany(mappedBy = "product", cascade = {
-            CascadeType.PERSIST,
+            CascadeType.MERGE,
             CascadeType.REMOVE
-    }, orphanRemoval = true)
+    })
     private List<Ingredient> ingredients = new ArrayList<>();
 
     @NotNull
@@ -91,15 +91,15 @@ public class Product {
     @NotNull
     @Size(min = 1)
     @OneToMany(mappedBy = "product", cascade = {
-            CascadeType.PERSIST,
+            CascadeType.MERGE,
             CascadeType.REMOVE
-    }, orphanRemoval = true)
+    })
     private List<ProductUnit> productUnits = new ArrayList<>();
 
     @OneToMany(mappedBy = "product", cascade = {
-            CascadeType.PERSIST,
+            CascadeType.MERGE,
             CascadeType.REMOVE
-    }, orphanRemoval = true)
+    })
     private List<ProductImage> images = new ArrayList<>();
 
     public void addIngredient(Ingredient ingredient) {
@@ -133,20 +133,27 @@ public class Product {
     }
 
     public void setIngredients(List<Ingredient> ingredients) {
+        this.ingredients = new ArrayList<>();
+
         for (Ingredient ingredient : ingredients) {
             addIngredient(ingredient);
         }
     }
 
     public void setProductUnits(List<ProductUnit> productUnits) {
+        this.productUnits = new ArrayList<>();
+
         for (ProductUnit productUnit : productUnits) {
             addProductUnit(productUnit);
         }
     }
 
-    public void setImages(List<ProductImage> productImages) {
-        for (ProductImage productImage : productImages) {
+    public void setImages(List<ProductImage> images) {
+        this.images = new ArrayList<>();
+
+        for (ProductImage productImage : images) {
             addProductImage(productImage);
         }
     }
+
 }

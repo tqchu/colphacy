@@ -7,7 +7,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 @Component
-public class CreateProductValidator implements Validator {
+public class SaveProductValidator implements Validator {
     @Override
     public boolean supports(Class<?> clazz) {
         return ProductDTO.class.isAssignableFrom(clazz);
@@ -27,8 +27,8 @@ public class CreateProductValidator implements Validator {
         long countDefaultUnit = product.getProductUnits().stream()
                 .filter(ProductUnitDTO::isDefaultUnit)
                 .count();
-        if (countDefaultUnit != 1) {
-            errors.rejectValue("productUnit.isDefaultUnit", "isDefaultUnit.invalid", "Phải có duy nhất 1 đơn vị tính được đăng bán mặc định");
+        if (countDefaultUnit == 0) {
+            errors.rejectValue("productUnit.isDefaultUnit", "isDefaultUnit.invalid", "Phải có ít nhất 1 đơn vị tính được đăng bán");
         }
     }
 }
