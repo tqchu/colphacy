@@ -1,7 +1,9 @@
 package com.colphacy.controller;
 
+import com.colphacy.dto.product.ProductAdminListViewDTO;
 import com.colphacy.dto.product.ProductCustomerListViewDTO;
 import com.colphacy.dto.product.ProductDTO;
+import com.colphacy.payload.response.PageResponse;
 import com.colphacy.service.ProductService;
 import com.colphacy.validator.SaveProductValidator;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 @RestController
@@ -26,6 +29,8 @@ public class ProductController {
     @Value("${number-of-best-seller-products}")
     private int numberOfBestSellerProducts;
 
+    @Value("${colphacy.api.default-page-size}")
+    private Integer defaultPageSize;
     @InitBinder
     public void initValidator(WebDataBinder binder) {
         binder.addValidators(saveProductValidator);
@@ -53,5 +58,21 @@ public class ProductController {
     @GetMapping("/best-sellers")
     public List<ProductCustomerListViewDTO> getBestSellerProducts() {
         return productService.getBestSellerProducts(numberOfBestSellerProducts);
+    }
+
+
+    @Operation(summary = "Get list of paginated products for admin", security = {@SecurityRequirement(name = "bearer-key")})
+    @GetMapping("")
+    public PageResponse<ProductAdminListViewDTO> getPaginatedProductsAdmin(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Integer categoryId,
+            @RequestParam(required = false, defaultValue = "0")
+            @Min(value = 0, message = "Số bắt đầu phải là số không âm") int offset,
+            @RequestParam(required = false)
+            @Min(value = 1, message = "Số lượng giới hạn phải lớn hơn 0") Integer limit) {
+        if (limit == null) {
+            limit = defaultPageSize;
+        }
+        return productService.getPaginatedProductsAdmin(keyword, categoryId, offset, limit);
     }
 }
