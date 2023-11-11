@@ -1,5 +1,6 @@
 package com.colphacy.service.impl;
 
+import com.colphacy.dto.product.ProductCustomerListViewDTO;
 import com.colphacy.dto.product.ProductDTO;
 import com.colphacy.dto.product.ProductUnitDTO;
 import com.colphacy.exception.InvalidFieldsException;
@@ -16,9 +17,12 @@ import com.colphacy.service.CategoryService;
 import com.colphacy.service.ProductService;
 import com.colphacy.service.UnitService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -58,6 +62,11 @@ public class ProductServiceImpl implements ProductService {
         return productMapper.productToProductDTO(findById(id));
     }
 
+    @Override
+    public List<ProductCustomerListViewDTO> getBestSellerProducts(int number) {
+        Pageable pageable = PageRequest.of(0, number);
+        return productRepository.findBestSellerProducts(pageable, ProductStatus.FOR_SALE).stream().map(productMapper::productToProductCustomerListViewDTO).toList();
+    }
 
     @Transactional
     @Override
