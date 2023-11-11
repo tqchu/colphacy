@@ -31,6 +31,7 @@ public class ProductController {
 
     @Value("${colphacy.api.default-page-size}")
     private Integer defaultPageSize;
+
     @InitBinder
     public void initValidator(WebDataBinder binder) {
         binder.addValidators(saveProductValidator);
@@ -69,10 +70,15 @@ public class ProductController {
             @RequestParam(required = false, defaultValue = "0")
             @Min(value = 0, message = "Số bắt đầu phải là số không âm") int offset,
             @RequestParam(required = false)
-            @Min(value = 1, message = "Số lượng giới hạn phải lớn hơn 0") Integer limit) {
+            @Min(value = 1, message = "Số lượng giới hạn phải lớn hơn 0") Integer limit,
+            @RequestParam(required = false)
+            String sortBy,
+            @RequestParam(required = false)
+            String order
+    ) {
         if (limit == null) {
             limit = defaultPageSize;
         }
-        return productService.getPaginatedProductsAdmin(keyword, categoryId, offset, limit);
+        return productService.getPaginatedProductsAdmin(keyword, categoryId, offset, limit, sortBy, order);
     }
 }

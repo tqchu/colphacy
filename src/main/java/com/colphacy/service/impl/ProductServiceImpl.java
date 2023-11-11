@@ -1,5 +1,6 @@
 package com.colphacy.service.impl;
 
+import com.colphacy.dao.ProductDAO;
 import com.colphacy.dto.product.ProductAdminListViewDTO;
 import com.colphacy.dto.product.ProductCustomerListViewDTO;
 import com.colphacy.dto.product.ProductDTO;
@@ -18,19 +19,13 @@ import com.colphacy.repository.ProductUnitRepository;
 import com.colphacy.service.CategoryService;
 import com.colphacy.service.ProductService;
 import com.colphacy.service.UnitService;
-import com.colphacy.util.PageResponseUtils;
+import com.colphacy.types.PaginationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
-import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -45,6 +40,8 @@ public class ProductServiceImpl implements ProductService {
     private UnitService unitService;
     @Autowired
     private ProductRepository productRepository;
+    @Autowired
+    private ProductDAO productDAO;
     @Autowired
     private ProductUnitRepository productUnitRepository;
     @Autowired
@@ -78,27 +75,38 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public PageResponse<ProductAdminListViewDTO> getPaginatedProductsAdmin(String keyword, Integer categoryId, int offset, int limit) {
-        int pageNo = offset / limit;
-        Specification<Product> filterSpec = (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-
-            if (StringUtils.hasText(keyword)) {
-                predicates.add(cb.like(cb.lower(root.get("name")), "%" + keyword.toLowerCase() + "%"));
+    public PageResponse<ProductAdminListViewDTO> getPaginatedProductsAdmin(String keyword, Integer categoryId, int offset, int limit, String sortBy, String order) {
+        if (sortBy != null && List.of("salePrice", "importPrice").contains(sortBy)) {
+            if (sortBy.equals("salePrice")) {
+                sortBy = "sale_price";
             }
-            if (categoryId != null) {
-                predicates.add(cb.equal(root.get("category").get("id"), categoryId));
+            if (sortBy.equals("importPrice")) {
+                sortBy = "import_price";
             }
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
+        } else {
+            sortBy = "id";
+        }
 
-        Pageable pageable = PageRequest.of(pageNo, limit, Sort.by("id").descending());
+        if (!Objects.equals(order, "desc")) {
+            order = "asc";
+        }
 
-        Page<Product> page = productRepository.findAll(filterSpec, pageable);
+        PaginationRequest pageRequest = PaginationRequest.builder()
+                .offset(offset)
+                .limit(limit)
+                .sortBy(sortBy)
+                .order(order)
+                .build();
 
-        Page<ProductAdminListViewDTO> resPage = page.map(productMapper::productToProductAdminListViewDTO);
-
-        return PageResponseUtils.getPageResponse(offset, resPage);
+        List<ProductAdminListViewDTO> list = productDAO.getPaginatedProductsAdmin(keyword, categoryId, pageRequest);
+        Long totalItems = productDAO.getTotalProductsAdmin(keyword, categoryId);
+        PageResponse<ProductAdminListViewDTO> page = new PageResponse<>();
+        page.setItems(list);
+        page.setNumPages((int) ((totalItems - 1) / limit) + 1);
+        page.setLimit(limit);
+        page.setTotalItems(Math.toIntExact(totalItems));
+        page.setOffset(offset);
+        return page;
     }
 
     @Transactional
