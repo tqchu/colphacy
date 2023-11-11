@@ -1,5 +1,6 @@
 package com.colphacy.service.impl;
 
+import com.colphacy.dto.product.ProductAdminListViewDTO;
 import com.colphacy.dto.product.ProductCustomerListViewDTO;
 import com.colphacy.dto.product.ProductDTO;
 import com.colphacy.dto.product.ProductUnitDTO;
@@ -9,6 +10,7 @@ import com.colphacy.mapper.ProductMapper;
 import com.colphacy.model.Product;
 import com.colphacy.model.ProductStatus;
 import com.colphacy.model.ProductUnit;
+import com.colphacy.payload.response.PageResponse;
 import com.colphacy.repository.IngredientRepository;
 import com.colphacy.repository.ProductImageRepository;
 import com.colphacy.repository.ProductRepository;
@@ -16,12 +18,19 @@ import com.colphacy.repository.ProductUnitRepository;
 import com.colphacy.service.CategoryService;
 import com.colphacy.service.ProductService;
 import com.colphacy.service.UnitService;
+import com.colphacy.util.PageResponseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import javax.persistence.criteria.Predicate;
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -66,6 +75,30 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductCustomerListViewDTO> getBestSellerProducts(int number) {
         Pageable pageable = PageRequest.of(0, number);
         return productRepository.findBestSellerProducts(pageable, ProductStatus.FOR_SALE).stream().map(productMapper::productToProductCustomerListViewDTO).toList();
+    }
+
+    @Override
+    public PageResponse<ProductAdminListViewDTO> getPaginatedProductsAdmin(String keyword, Integer categoryId, int offset, int limit) {
+        int pageNo = offset / limit;
+        Specification<Product> filterSpec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (StringUtils.hasText(keyword)) {
+                predicates.add(cb.like(cb.lower(root.get("name")), "%" + keyword.toLowerCase() + "%"));
+            }
+            if (categoryId != null) {
+                predicates.add(cb.equal(root.get("category").get("id"), categoryId));
+            }
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        Pageable pageable = PageRequest.of(pageNo, limit, Sort.by("id").descending());
+
+        Page<Product> page = productRepository.findAll(filterSpec, pageable);
+
+        Page<ProductAdminListViewDTO> resPage = page.map(productMapper::productToProductAdminListViewDTO);
+
+        return PageResponseUtils.getPageResponse(offset, resPage);
     }
 
     @Transactional
