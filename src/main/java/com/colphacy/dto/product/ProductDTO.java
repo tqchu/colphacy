@@ -81,5 +81,5 @@ public class ProductDTO {
     @Valid
     private List<@NotNull ProductUnitDTO> productUnits;
 
-    private List<String> images = new ArrayList<>();
+    private List<@NotBlank String> images = new ArrayList<>();
 }
