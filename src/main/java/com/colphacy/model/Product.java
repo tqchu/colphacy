@@ -59,6 +59,7 @@ public class Product {
     @NotNull
     @Size(min = 1)
     @OneToMany(mappedBy = "product", cascade = {
+            CascadeType.PERSIST,
             CascadeType.MERGE,
             CascadeType.REMOVE
     })
@@ -91,12 +92,14 @@ public class Product {
     @NotNull
     @Size(min = 1)
     @OneToMany(mappedBy = "product", cascade = {
+            CascadeType.PERSIST,
             CascadeType.MERGE,
             CascadeType.REMOVE
     })
     private List<ProductUnit> productUnits = new ArrayList<>();
 
     @OneToMany(mappedBy = "product", cascade = {
+            CascadeType.PERSIST,
             CascadeType.MERGE,
             CascadeType.REMOVE
     })
