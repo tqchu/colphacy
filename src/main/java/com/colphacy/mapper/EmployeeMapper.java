@@ -1,7 +1,7 @@
 package com.colphacy.mapper;
 
 
-import com.colphacy.dto.EmployeeDetailDTO;
+import com.colphacy.dto.employee.EmployeeDetailDTO;
 import com.colphacy.model.Employee;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

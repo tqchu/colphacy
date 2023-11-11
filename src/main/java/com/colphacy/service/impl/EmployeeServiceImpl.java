@@ -1,16 +1,30 @@
 package com.colphacy.service.impl;
 
-import com.colphacy.dto.EmployeeDetailDTO;
+import com.colphacy.dto.employee.EmployeeCreateDTO;
+import com.colphacy.dto.employee.EmployeeDetailDTO;
+import com.colphacy.dto.employee.EmployeeUpdateDTO;
 import com.colphacy.exception.InvalidFieldsException;
 import com.colphacy.exception.RecordNotFoundException;
 import com.colphacy.mapper.EmployeeMapper;
+import com.colphacy.model.Branch;
 import com.colphacy.model.Employee;
+import com.colphacy.model.Gender;
+import com.colphacy.model.Role;
 import com.colphacy.payload.request.ChangePasswordRequest;
 import com.colphacy.payload.request.LoginRequest;
+import com.colphacy.payload.response.PageResponse;
+import com.colphacy.repository.BranchRepository;
 import com.colphacy.repository.EmployeeRepository;
+import com.colphacy.repository.RoleRepository;
+import com.colphacy.repository.specification.EmployeeSpecification;
 import com.colphacy.service.EmployeeService;
+import com.colphacy.util.PageResponseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +34,13 @@ import java.util.Optional;
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
     private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private BranchRepository branchRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
     private EmployeeMapper employeeMapper;
 
     private PasswordEncoder passwordEncoder;
@@ -41,7 +62,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public Optional<Employee> findByUsername(String username) {
-        return employeeRepository.findByUsername(username);
+        return employeeRepository.findByUsernameIgnoreCase(username);
     }
 
     @Override
@@ -58,16 +79,12 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public EmployeeDetailDTO save(Long id, EmployeeDetailDTO employeeDetailDTO) {
-        Optional<Employee> optionalEmployee = employeeRepository.findById(id);
-        if (optionalEmployee.isEmpty()) {
-            throw new RecordNotFoundException("Người dùng không tồn tại");
-        }
-        Optional<Employee> optEmployeeByUsername = employeeRepository.findByUsername(employeeDetailDTO.getUsername());
+    public EmployeeDetailDTO updateProfile(Long id, EmployeeDetailDTO employeeDetailDTO) {
+        Employee employee = findById(id);
+        Optional<Employee> optEmployeeByUsername = employeeRepository.findByUsernameIgnoreCase(employeeDetailDTO.getUsername());
         if (optEmployeeByUsername.isPresent() && !Objects.equals(optEmployeeByUsername.get().getId(), id)) {
             throw InvalidFieldsException.fromFieldError("username", "Tên người dùng đã được sử dụng");
         }
-        Employee employee = optionalEmployee.get();
         employee.setFullName(employeeDetailDTO.getFullName());
         employee.setGender(employeeDetailDTO.getGender());
         employee.setUsername(employeeDetailDTO.getUsername());
@@ -95,7 +112,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public Employee authenticate(LoginRequest loginRequest) {
-        Optional<Employee> optionalEmployee = employeeRepository.findByUsername(loginRequest.getUsername());
+        Optional<Employee> optionalEmployee = employeeRepository.findByUsernameIgnoreCase(loginRequest.getUsername());
         if (optionalEmployee.isEmpty()) {
             throw InvalidFieldsException.fromFieldError("username", "Tên người dùng không tồn tại");
         }
@@ -105,5 +122,85 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw InvalidFieldsException.fromFieldError("password", "Mật khẩu không đúng");
         }
         return employee;
+    }
+
+    @Override
+    public EmployeeDetailDTO create(EmployeeCreateDTO employeeCreateDTO) {
+        validateUserNameIsUniqueElseThrow(employeeCreateDTO.getUsername());
+        Employee employee = new Employee();
+
+        employee.setFullName(employeeCreateDTO.getFullName());
+        employee.setUsername(employeeCreateDTO.getUsername());
+        employee.setPhone(employeeCreateDTO.getPhone());
+        employee.setGender(employeeCreateDTO.getGender());
+        employee.setPassword(passwordEncoder.encode(employeeCreateDTO.getPassword()));
+
+        Branch branch = branchRepository.findById(employeeCreateDTO.getBranchId())
+                .orElseThrow(() -> new RecordNotFoundException("Không thể tìm thấy chi nhánh"));
+        Role role = roleRepository.findById(employeeCreateDTO.getRoleId())
+                .orElseThrow(() -> new RecordNotFoundException("Không thể tìm thấy role"));
+
+        employee.setBranch(branch);
+        employee.setRole(role);
+        Employee employeeCreated = employeeRepository.save(employee);
+        return employeeMapper.employeeToEmployeeDetailDTO(employeeCreated);
+    }
+
+    @Override
+    public void delete(Long id) {
+        Employee employee = findById(id);
+        employeeRepository.deleteById(employee.getId());
+    }
+
+    @Override
+    public PageResponse<EmployeeDetailDTO> findAll(String keyword, Long branchId, Long roleId, Gender gender, int offset, Integer limit) {
+        int pageNo = offset / limit;
+
+        Pageable pageable = PageRequest.of(pageNo, limit, Sort.by("id").ascending());
+
+        Page<Employee> employeePage = employeeRepository.findAll(EmployeeSpecification.filterBy(keyword, branchId, roleId, gender), pageable);
+
+        Page<EmployeeDetailDTO> employeeDetailDTOPage = employeePage.map(employee -> employeeMapper.employeeToEmployeeDetailDTO(employee));
+
+        return PageResponseUtils.getPageResponse(offset, employeeDetailDTOPage);
+    }
+
+    @Override
+    public EmployeeDetailDTO update(Long id, EmployeeUpdateDTO employeeUpdateDTO) {
+        Employee employee = findById(id);
+        if (employeeUpdateDTO.getUsername() != null) {
+            Optional<Employee> optEmployeeByUsername = employeeRepository.findByUsernameIgnoreCase(employeeUpdateDTO.getUsername());
+            if (optEmployeeByUsername.isPresent() && !Objects.equals(optEmployeeByUsername.get().getId(), id)) {
+                throw InvalidFieldsException.fromFieldError("username", "Tên người dùng đã được sử dụng");
+            }
+        }
+        if (employeeUpdateDTO.getFullName() != null) {
+            employee.setFullName(employeeUpdateDTO.getFullName());
+        }
+
+        if (employeeUpdateDTO.getGender() != null) {
+            employee.setGender(employeeUpdateDTO.getGender());
+        }
+
+        if (employeeUpdateDTO.getUsername() != null) {
+            employee.setUsername(employeeUpdateDTO.getUsername());
+        }
+
+        if (employeeUpdateDTO.getBranchId() != null) {
+            Branch branch = branchRepository.findById(employeeUpdateDTO.getBranchId())
+                    .orElseThrow(() -> new RecordNotFoundException("Không thể tìm thấy chi nhánh"));
+            employee.setBranch(branch);
+        }
+
+        employeeRepository.save(employee);
+
+        return employeeMapper.employeeToEmployeeDetailDTO(employee);
+    }
+
+    private void validateUserNameIsUniqueElseThrow(String username) {
+        Optional<Employee> employeeOptional = employeeRepository.findByUsernameIgnoreCase(username);
+        if (employeeOptional.isPresent()) {
+            throw InvalidFieldsException.fromFieldError("username", "Tên người dùng đã được sử dụng");
+        }
     }
 }

@@ -1,7 +1,7 @@
 package com.colphacy.service.impl;
 
 import com.colphacy.dto.CustomerDetailDTO;
-import com.colphacy.dto.EmployeeDetailDTO;
+import com.colphacy.dto.employee.EmployeeDetailDTO;
 import com.colphacy.mapper.CustomerMapper;
 import com.colphacy.mapper.EmployeeMapper;
 import com.colphacy.model.Customer;
