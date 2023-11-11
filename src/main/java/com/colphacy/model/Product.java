@@ -73,12 +73,10 @@ public class Product {
     @NotBlank
     private String usage;
 
-    @NotNull
-    @NotBlank
+
     private String sideEffects;
 
-    @NotNull
-    @NotBlank
+
     private String notes;
 
     @NotNull
