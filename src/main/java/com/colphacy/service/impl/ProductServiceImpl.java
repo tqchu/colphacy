@@ -109,6 +109,12 @@ public class ProductServiceImpl implements ProductService {
         return page;
     }
 
+    @Override
+    public void delete(Long id) {
+        findById(id);
+        productRepository.deleteById(id);
+    }
+
     @Transactional
     @Override
     public ProductDTO update(ProductDTO productDTO) {
