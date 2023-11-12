@@ -51,7 +51,7 @@ public class ProductDAOImpl implements ProductDAO {
             }
         }
 
-        sql += "GROUP BY p.id, c.name ORDER BY " + sortBy + " " + order + " LIMIT :limit OFFSET :offset";
+        sql += "GROUP BY p.id, c.name ORDER BY " + sortBy + " " + order + (!sortBy.equals("id") ? ", id ASC " : "") + " LIMIT :limit OFFSET :offset";
         return sql;
     }
 
