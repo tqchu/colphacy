@@ -20,4 +20,6 @@ public interface ProductService {
     List<ProductCustomerListViewDTO> getBestSellerProducts(int number);
 
     PageResponse<ProductAdminListViewDTO> getPaginatedProductsAdmin(String keyword, Integer categoryId, int offset, int limit, String sortBy, String order);
+
+    void delete(Long id);
 }
