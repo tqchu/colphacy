@@ -81,4 +81,10 @@ public class ProductController {
         }
         return productService.getPaginatedProductsAdmin(keyword, categoryId, offset, limit, sortBy, order);
     }
+
+    @Operation(summary = "Delete a product", security = {@SecurityRequirement(name = "bearer-key")})
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable("id") Long id) {
+        productService.delete(id);
+    }
 }
