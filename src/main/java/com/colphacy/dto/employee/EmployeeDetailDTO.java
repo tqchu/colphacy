@@ -1,4 +1,4 @@
-package com.colphacy.dto;
+package com.colphacy.dto.employee;
 
 import com.colphacy.model.Gender;
 import lombok.Data;
