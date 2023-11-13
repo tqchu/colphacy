@@ -1,9 +1,8 @@
 package com.colphacy.dto.employee;
 
 import com.colphacy.model.Gender;
-import com.colphacy.model.Role;
 import lombok.Data;
-import org.hibernate.validator.constraints.Length;
+import reactor.util.annotation.Nullable;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;

@@ -1,2 +1,2 @@
 insert into role
-values (2, 'ADMIN');
+values (2, 'STAFF');

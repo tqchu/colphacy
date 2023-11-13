@@ -6,10 +6,7 @@ import com.colphacy.dto.employee.EmployeeUpdateDTO;
 import com.colphacy.exception.InvalidFieldsException;
 import com.colphacy.exception.RecordNotFoundException;
 import com.colphacy.mapper.EmployeeMapper;
-import com.colphacy.model.Branch;
-import com.colphacy.model.Employee;
-import com.colphacy.model.Gender;
-import com.colphacy.model.Role;
+import com.colphacy.model.*;
 import com.colphacy.payload.request.ChangePasswordRequest;
 import com.colphacy.payload.request.LoginRequest;
 import com.colphacy.payload.response.PageResponse;
@@ -131,16 +128,24 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         employee.setFullName(employeeCreateDTO.getFullName());
         employee.setUsername(employeeCreateDTO.getUsername());
+        if (employeeRepository.findByPhone(employeeCreateDTO.getPhone()).isPresent()) {
+            throw InvalidFieldsException.fromFieldError("phone", "Số điện thoại đã được sử dụng");
+        }
         employee.setPhone(employeeCreateDTO.getPhone());
         employee.setGender(employeeCreateDTO.getGender());
         employee.setPassword(passwordEncoder.encode(employeeCreateDTO.getPassword()));
 
-        Branch branch = branchRepository.findById(employeeCreateDTO.getBranchId())
-                .orElseThrow(() -> new RecordNotFoundException("Không thể tìm thấy chi nhánh"));
         Role role = roleRepository.findById(employeeCreateDTO.getRoleId())
-                .orElseThrow(() -> new RecordNotFoundException("Không thể tìm thấy role"));
+                .orElseThrow(() -> new RecordNotFoundException("Không thể tìm thấy vai trò của tài khoản"));
+        if (role.getName().equals(RoleName.STAFF)) {
+            if (employeeCreateDTO.getBranchId() == null) {
+                throw InvalidFieldsException.fromFieldError("branchId", "Chi nhánh là bắt buộc đối với nhân viên");
+            }
+            Branch branch = branchRepository.findById(employeeCreateDTO.getBranchId())
+                    .orElseThrow(() -> new RecordNotFoundException("Không thể tìm thấy chi nhánh"));
+            employee.setBranch(branch);
+        }
 
-        employee.setBranch(branch);
         employee.setRole(role);
         Employee employeeCreated = employeeRepository.save(employee);
         return employeeMapper.employeeToEmployeeDetailDTO(employeeCreated);
@@ -168,22 +173,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public EmployeeDetailDTO update(Long id, EmployeeUpdateDTO employeeUpdateDTO) {
         Employee employee = findById(id);
-        if (employeeUpdateDTO.getUsername() != null) {
-            Optional<Employee> optEmployeeByUsername = employeeRepository.findByUsernameIgnoreCase(employeeUpdateDTO.getUsername());
-            if (optEmployeeByUsername.isPresent() && !Objects.equals(optEmployeeByUsername.get().getId(), id)) {
-                throw InvalidFieldsException.fromFieldError("username", "Tên người dùng đã được sử dụng");
-            }
-        }
-        if (employeeUpdateDTO.getFullName() != null) {
-            employee.setFullName(employeeUpdateDTO.getFullName());
-        }
 
         if (employeeUpdateDTO.getGender() != null) {
             employee.setGender(employeeUpdateDTO.getGender());
-        }
-
-        if (employeeUpdateDTO.getUsername() != null) {
-            employee.setUsername(employeeUpdateDTO.getUsername());
         }
 
         if (employeeUpdateDTO.getBranchId() != null) {
