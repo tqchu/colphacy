@@ -87,4 +87,26 @@ public class ProductController {
     public void delete(@PathVariable("id") Long id) {
         productService.delete(id);
     }
+
+
+    @Operation(summary = "Get list of products with search and filter for customers", security = {@SecurityRequirement(name = "bearer-key")})
+    @GetMapping("/customers")
+    public PageResponse<ProductAdminListViewDTO> getPaginatedProductsCustomer(
+            @RequestParam(required = false) String keyword, // name,
+            @RequestParam(required = false) Integer categoryId, // list ids
+            @RequestParam(required = false, defaultValue = "0")
+            @Min(value = 0, message = "Số bắt đầu phải là số không âm") int offset,
+            @RequestParam(required = false)
+            @Min(value = 1, message = "Số lượng giới hạn phải lớn hơn 0") Integer limit,
+            @RequestParam(required = false)
+            String sortBy, // salePrice, high rating, number of sold
+            @RequestParam(required = false)
+            String order
+            // min price, max price
+    ) {
+        if (limit == null) {
+            limit = defaultPageSize;
+        }
+        return productService.getPaginatedProductsCustomer(keyword, categoryId, offset, limit, sortBy, order);
+    }
 }
