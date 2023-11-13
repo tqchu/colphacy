@@ -1,2 +1,8 @@
-insert into role
-values (2, 'STAFF');
+DO
+$$
+BEGIN
+   IF NOT EXISTS (SELECT 1 FROM role WHERE name = 'STAFF') THEN
+      INSERT INTO role(name) VALUES ('STAFF');
+END IF;
+END
+$$

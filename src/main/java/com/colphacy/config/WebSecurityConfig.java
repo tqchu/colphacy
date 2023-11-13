@@ -77,14 +77,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/docs.json/**").permitAll()
                 .antMatchers(("/api/products/best-sellers")).permitAll()
                 .antMatchers("/api/auth/employee/logout").hasAnyAuthority("STAFF", "ADMIN")
-                .antMatchers("/api/branches/**").hasAuthority("ADMIN")
                 .antMatchers("/api/employees/profile/**", "/api/employees/change-password").hasAnyAuthority("ADMIN", "STAFF")
-                .antMatchers("/api/employees/**").hasAnyAuthority("ADMIN")
                 .antMatchers("/api/location/**").hasAnyAuthority("ADMIN", "STAFF")
                 .antMatchers("/api/units/**").hasAnyAuthority("ADMIN", "STAFF")
-                .antMatchers(HttpMethod.GET, "/api/categories").authenticated()
                 .antMatchers("/api/categories/**").hasAnyAuthority("ADMIN", "STAFF")
                 .antMatchers("/api/providers").hasAnyAuthority("ADMIN", "STAFF")
+                .antMatchers("/api/branches/**").hasAuthority("ADMIN")
+                .antMatchers("/api/employees/**").hasAnyAuthority("ADMIN")
+                .antMatchers(HttpMethod.GET, "/api/categories").authenticated()
+                .antMatchers("/api/roles").hasAnyAuthority("ADMIN")
                 .anyRequest().authenticated();
         http.exceptionHandling()
                 .authenticationEntryPoint(

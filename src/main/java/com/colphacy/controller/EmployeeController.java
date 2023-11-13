@@ -81,12 +81,6 @@ public class EmployeeController {
         return employeeService.update(employeeUpdateDTO.getId(), employeeUpdateDTO);
     }
 
-    @Operation(summary = "Delete a employee", security = {@SecurityRequirement(name = "bearer-key")})
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable("id") Long id) {
-        employeeService.delete(id);
-    }
-
     @Operation(summary = "Get list of paginated employees", security = {@SecurityRequirement(name = "bearer-key")})
     @GetMapping()
     public PageResponse<EmployeeDetailDTO> findPaginated(@RequestParam(required = false) String keyword,

@@ -17,4 +17,6 @@ public class EmployeeUpdateDTO {
     private Gender gender;
 
     private Long branchId;
+
+    private boolean isActive = true;
 }

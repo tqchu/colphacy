@@ -174,14 +174,17 @@ public class EmployeeServiceImpl implements EmployeeService {
     public EmployeeDetailDTO update(Long id, EmployeeUpdateDTO employeeUpdateDTO) {
         Employee employee = findById(id);
 
-        if (employeeUpdateDTO.getGender() != null) {
-            employee.setGender(employeeUpdateDTO.getGender());
-        }
+        employee.setGender(employeeUpdateDTO.getGender());
 
         if (employeeUpdateDTO.getBranchId() != null) {
             Branch branch = branchRepository.findById(employeeUpdateDTO.getBranchId())
                     .orElseThrow(() -> new RecordNotFoundException("Không thể tìm thấy chi nhánh"));
             employee.setBranch(branch);
+        }
+
+        employee.setActive(employeeUpdateDTO.isActive());
+        if (employeeUpdateDTO.isActive()) {
+            employee.setGender(employeeUpdateDTO.getGender());
         }
 
         employeeRepository.save(employee);
