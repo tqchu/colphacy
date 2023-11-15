@@ -22,9 +22,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -190,6 +192,20 @@ public class EmployeeServiceImpl implements EmployeeService {
         employeeRepository.save(employee);
 
         return employeeMapper.employeeToEmployeeDetailDTO(employee);
+    }
+
+    @Override
+    public Employee getCurrentlyLoggedInEmployee(Principal principal) {
+        if (principal == null) return null;
+
+        Employee employee = null;
+
+        if (principal instanceof UsernamePasswordAuthenticationToken) {
+            UsernamePasswordAuthenticationToken token = (UsernamePasswordAuthenticationToken) principal;
+            employee = (Employee) token.getPrincipal();
+        }
+
+        return employee;
     }
 
     private void validateUserNameIsUniqueElseThrow(String username) {

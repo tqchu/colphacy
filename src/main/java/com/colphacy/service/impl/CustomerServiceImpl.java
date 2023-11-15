@@ -9,9 +9,12 @@ import com.colphacy.repository.CustomerRepository;
 import com.colphacy.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.Optional;
 
 @Service
@@ -62,6 +65,20 @@ public class CustomerServiceImpl implements CustomerService {
         if (!passwordEncoder.matches(loginRequest.getPassword(), customer.getPassword())) {
             throw InvalidFieldsException.fromFieldError("password", "Mật khẩu không đúng");
         }
+        return customer;
+    }
+
+    @Override
+    public Customer getCurrentlyLoggedInCustomer(Principal principal) {
+        if (principal == null) return null;
+
+        Customer customer = null;
+
+        if (principal instanceof UsernamePasswordAuthenticationToken) {
+            UsernamePasswordAuthenticationToken token = (UsernamePasswordAuthenticationToken) principal;
+            customer = (Customer) token.getPrincipal();
+        }
+
         return customer;
     }
 }
