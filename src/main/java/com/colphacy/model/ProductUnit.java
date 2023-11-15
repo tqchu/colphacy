@@ -1,5 +1,6 @@
 package com.colphacy.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -36,5 +37,6 @@ public class ProductUnit {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
+    @JsonBackReference
     private Product product;
 }
