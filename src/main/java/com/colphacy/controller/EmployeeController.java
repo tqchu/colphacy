@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/employees")
@@ -65,7 +66,8 @@ public class EmployeeController {
 
     @Operation(summary = "Employee change password", security = {@SecurityRequirement(name = "bearer-key")})
     @PutMapping("/change-password")
-    public void changePassword(@Valid @RequestBody ChangePasswordRequest request, @AuthenticationPrincipal Employee employee) {
+    public void changePassword(@Valid @RequestBody ChangePasswordRequest request, Principal principal) {
+        Employee employee = employeeService.getCurrentlyLoggedInEmployee(principal);
         employeeService.changePassword(employee.getId(), request);
     }
 

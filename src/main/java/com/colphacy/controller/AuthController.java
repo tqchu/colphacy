@@ -6,6 +6,8 @@ import com.colphacy.payload.request.LoginRequest;
 import com.colphacy.payload.response.CustomerLoginResponse;
 import com.colphacy.payload.response.EmployeeLoginResponse;
 import com.colphacy.service.AuthenticationService;
+import com.colphacy.service.CustomerService;
+import com.colphacy.service.EmployeeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -20,6 +23,12 @@ import javax.validation.Valid;
 public class AuthController {
     @Autowired
     private AuthenticationService authenticationService;
+
+    @Autowired
+    private CustomerService customerService;
+
+    @Autowired
+    private EmployeeService employeeService;
 
     @Operation(summary = "Employee login")
     @PostMapping("/employee/login")
@@ -34,13 +43,15 @@ public class AuthController {
 
     @Operation(summary = "Employee logout", security = {@SecurityRequirement(name = "bearer-key")})
     @PostMapping("/employee/logout")
-    public void logoutByEmployee(@RequestHeader("authorization") String authorization, @AuthenticationPrincipal Employee employee) {
+    public void logoutByEmployee(@RequestHeader("authorization") String authorization, Principal principal) {
+        Employee employee = employeeService.getCurrentlyLoggedInEmployee(principal);
         authenticationService.logout(authorization, employee.getId());
     }
 
     @Operation(summary = "Customer logout", security = {@SecurityRequirement(name = "bearer-key")})
     @PostMapping("/customer/logout")
-    public void logoutByCustomer(@RequestHeader("authorization") String authorization, @AuthenticationPrincipal Customer customer) {
+    public void logoutByCustomer(@RequestHeader("authorization") String authorization, Principal principal) {
+        Customer customer = customerService.getCurrentlyLoggedInCustomer(principal);
         authenticationService.logout(authorization, customer.getId());
     }
 }
