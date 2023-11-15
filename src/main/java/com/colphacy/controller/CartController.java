@@ -2,7 +2,6 @@ package com.colphacy.controller;
 
 import com.colphacy.dto.cartItem.CartItemDTO;
 import com.colphacy.dto.cartItem.CartItemListViewDTO;
-import com.colphacy.model.CartItem;
 import com.colphacy.model.Customer;
 import com.colphacy.service.CartItemService;
 import org.springframework.beans.factory.annotation.Autowired;
