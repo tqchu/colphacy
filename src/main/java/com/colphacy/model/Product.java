@@ -1,5 +1,6 @@
 package com.colphacy.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -63,6 +64,7 @@ public class Product {
             CascadeType.MERGE,
             CascadeType.REMOVE
     })
+    @JsonManagedReference
     private List<Ingredient> ingredients = new ArrayList<>();
 
     @NotNull
@@ -94,6 +96,7 @@ public class Product {
             CascadeType.MERGE,
             CascadeType.REMOVE
     })
+    @JsonManagedReference
     private List<ProductUnit> productUnits = new ArrayList<>();
 
     @OneToMany(mappedBy = "product", cascade = {
@@ -101,6 +104,7 @@ public class Product {
             CascadeType.MERGE,
             CascadeType.REMOVE
     })
+    @JsonManagedReference
     private List<ProductImage> images = new ArrayList<>();
 
     public void addIngredient(Ingredient ingredient) {
