@@ -47,10 +47,13 @@ public class Product {
     @Length(max = 255)
     private String brandOrigin;
 
-    @NotNull
-    @NotBlank
     @Length(max = 255)
     private String indications;
+
+    @Length(max = 255)
+    private String shortDescription;
+
+    private String fullDescription;
 
     @NotNull
     @NotBlank

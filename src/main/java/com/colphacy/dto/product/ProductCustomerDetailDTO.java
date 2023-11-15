@@ -1,5 +1,6 @@
 package com.colphacy.dto.product;
 
+
 import com.colphacy.model.ProductStatus;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
@@ -12,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class ProductDTO {
+public class ProductCustomerDetailDTO {
     private Long id;
 
     @NotNull
@@ -83,4 +84,6 @@ public class ProductDTO {
     private List<@NotNull ProductUnitDTO> productUnits;
 
     private List<@NotBlank String> images = new ArrayList<>();
+
+
 }
