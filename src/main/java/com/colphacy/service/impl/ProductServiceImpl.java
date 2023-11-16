@@ -1,10 +1,9 @@
 package com.colphacy.service.impl;
 
 import com.colphacy.dao.ProductDAO;
-import com.colphacy.dto.product.ProductAdminListViewDTO;
-import com.colphacy.dto.product.ProductCustomerListViewDTO;
-import com.colphacy.dto.product.ProductDTO;
-import com.colphacy.dto.product.ProductUnitDTO;
+import com.colphacy.dto.product.*;
+import com.colphacy.enums.CustomerSearchViewSortField;
+import com.colphacy.enums.SortOrder;
 import com.colphacy.exception.InvalidFieldsException;
 import com.colphacy.exception.RecordNotFoundException;
 import com.colphacy.mapper.ProductMapper;
@@ -113,6 +112,34 @@ public class ProductServiceImpl implements ProductService {
     public void delete(Long id) {
         findById(id);
         productRepository.deleteById(id);
+    }
+
+    @Override
+    public PageResponse<ProductCustomerListViewDTO> getPaginatedProductsCustomer(ProductSearchCriteria productSearchCriteria) {
+        // Validate categoryIds
+        if (productSearchCriteria.getCategoryIds() != null) {
+            productSearchCriteria.getCategoryIds().forEach(cId -> categoryService.findById(cId));
+        }
+        // Validate maxPrice must be bigger or greater than minPrice
+        if (productSearchCriteria.getMinPrice() != null && productSearchCriteria.getMaxPrice() != null && productSearchCriteria.getMinPrice() > productSearchCriteria.getMaxPrice()) {
+            throw InvalidFieldsException.fromFieldError("maxPrice", "Gía cao nhất không được nhỏ hơn giá thấp nhất");
+        }
+
+        // if sortBy != sale_price then set desc for review and sold
+        if (!productSearchCriteria.getSortBy().toString().equalsIgnoreCase(CustomerSearchViewSortField.SALE_PRICE.toString())) {
+            productSearchCriteria.setOrder(SortOrder.DESC);
+        }
+
+        List<ProductCustomerListViewDTO> list = productDAO.getPaginatedProductsCustomer(productSearchCriteria);
+
+        Long totalItems = productDAO.getTotalProductsCustomer(productSearchCriteria);
+        PageResponse<ProductCustomerListViewDTO> page = new PageResponse<>();
+        page.setItems(list);
+        page.setNumPages((int) ((totalItems - 1) / productSearchCriteria.getLimit()) + 1);
+        page.setLimit(productSearchCriteria.getLimit());
+        page.setTotalItems(Math.toIntExact(totalItems));
+        page.setOffset(productSearchCriteria.getOffset());
+        return page;
     }
 
     @Transactional
