@@ -3,6 +3,7 @@ package com.colphacy.service;
 import com.colphacy.dto.product.ProductAdminListViewDTO;
 import com.colphacy.dto.product.ProductCustomerListViewDTO;
 import com.colphacy.dto.product.ProductDTO;
+import com.colphacy.dto.product.ProductSearchCriteria;
 import com.colphacy.model.Product;
 import com.colphacy.payload.response.PageResponse;
 
@@ -22,4 +23,6 @@ public interface ProductService {
     PageResponse<ProductAdminListViewDTO> getPaginatedProductsAdmin(String keyword, Integer categoryId, int offset, int limit, String sortBy, String order);
 
     void delete(Long id);
+
+    PageResponse<ProductCustomerListViewDTO> getPaginatedProductsCustomer(ProductSearchCriteria productSearchCriteria);
 }

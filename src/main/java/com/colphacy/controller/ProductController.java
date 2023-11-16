@@ -3,6 +3,7 @@ package com.colphacy.controller;
 import com.colphacy.dto.product.ProductAdminListViewDTO;
 import com.colphacy.dto.product.ProductCustomerListViewDTO;
 import com.colphacy.dto.product.ProductDTO;
+import com.colphacy.dto.product.ProductSearchCriteria;
 import com.colphacy.payload.response.PageResponse;
 import com.colphacy.service.ProductService;
 import com.colphacy.validator.SaveProductValidator;
@@ -32,7 +33,7 @@ public class ProductController {
     @Value("${colphacy.api.default-page-size}")
     private Integer defaultPageSize;
 
-    @InitBinder
+    @InitBinder("productDTO")
     public void initValidator(WebDataBinder binder) {
         binder.addValidators(saveProductValidator);
     }
@@ -91,22 +92,12 @@ public class ProductController {
 
     @Operation(summary = "Get list of products with search and filter for customers", security = {@SecurityRequirement(name = "bearer-key")})
     @GetMapping("/customers")
-    public PageResponse<ProductAdminListViewDTO> getPaginatedProductsCustomer(
-            @RequestParam(required = false) String keyword, // name,
-            @RequestParam(required = false) Integer categoryId, // list ids
-            @RequestParam(required = false, defaultValue = "0")
-            @Min(value = 0, message = "Số bắt đầu phải là số không âm") int offset,
-            @RequestParam(required = false)
-            @Min(value = 1, message = "Số lượng giới hạn phải lớn hơn 0") Integer limit,
-            @RequestParam(required = false)
-            String sortBy, // salePrice, high rating, number of sold
-            @RequestParam(required = false)
-            String order
-            // min price, max price
+    public PageResponse<ProductCustomerListViewDTO> getPaginatedProductsCustomer(
+            @Valid ProductSearchCriteria productSearchCriteria
     ) {
-        if (limit == null) {
-            limit = defaultPageSize;
+        if (productSearchCriteria.getLimit() == null) {
+            productSearchCriteria.setLimit(defaultPageSize);
         }
-        return productService.getPaginatedProductsCustomer(keyword, categoryId, offset, limit, sortBy, order);
+        return productService.getPaginatedProductsCustomer(productSearchCriteria);
     }
 }
