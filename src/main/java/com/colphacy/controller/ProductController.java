@@ -3,6 +3,7 @@ package com.colphacy.controller;
 import com.colphacy.dto.product.ProductAdminListViewDTO;
 import com.colphacy.dto.product.ProductCustomerListViewDTO;
 import com.colphacy.dto.product.ProductDTO;
+import com.colphacy.dto.product.ProductSearchCriteria;
 import com.colphacy.payload.response.PageResponse;
 import com.colphacy.service.ProductService;
 import com.colphacy.validator.SaveProductValidator;
@@ -32,7 +33,7 @@ public class ProductController {
     @Value("${colphacy.api.default-page-size}")
     private Integer defaultPageSize;
 
-    @InitBinder
+    @InitBinder("productDTO")
     public void initValidator(WebDataBinder binder) {
         binder.addValidators(saveProductValidator);
     }
@@ -86,5 +87,17 @@ public class ProductController {
     @DeleteMapping("/{id}")
     public void delete(@PathVariable("id") Long id) {
         productService.delete(id);
+    }
+
+
+    @Operation(summary = "Get list of products with search and filter for customers", security = {@SecurityRequirement(name = "bearer-key")})
+    @GetMapping("/customers")
+    public PageResponse<ProductCustomerListViewDTO> getPaginatedProductsCustomer(
+            @Valid ProductSearchCriteria productSearchCriteria
+    ) {
+        if (productSearchCriteria.getLimit() == null) {
+            productSearchCriteria.setLimit(defaultPageSize);
+        }
+        return productService.getPaginatedProductsCustomer(productSearchCriteria);
     }
 }

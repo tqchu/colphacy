@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.BindException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -24,6 +26,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -229,6 +232,26 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException ex) {
         return new ResponseEntity<>(getError(DEFAULT_ERROR_NAME, "File không thể lớn hơn 10MB"), HttpStatus.BAD_REQUEST);
     }
+
+    @Override
+    protected ResponseEntity<Object> handleBindException(
+            BindException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            if (Objects.requireNonNull(error.getCodes())[error.getCodes().length - 1].equals("typeMismatch")) {
+                errors.put(((FieldError) error).getField(), "Giá trị không hợp lệ");
+            } else {
+                String fieldName = ((FieldError) error).getField();
+                String errorMessage = error.getDefaultMessage();
+                errors.put(fieldName, errorMessage);
+            }
+        });
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+//    @ExceptionHandler({ConversionFailedException.class})
+
+
 
 }
 
