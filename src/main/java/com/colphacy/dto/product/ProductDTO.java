@@ -54,7 +54,7 @@ public class ProductDTO {
     @NotNull
     @Size(min = 1)
     @Valid
-    private List<@NotNull IngredientDTO> ingredients;
+    private List<@NotNull @Valid IngredientDTO> ingredients;
 
     @NotNull
     @NotBlank
@@ -64,9 +64,7 @@ public class ProductDTO {
     @NotBlank
     private String usage;
 
-
     private String sideEffects;
-
 
     private String notes;
 
@@ -80,7 +78,7 @@ public class ProductDTO {
     @NotNull
     @Size(min = 1)
     @Valid
-    private List<@NotNull ProductUnitDTO> productUnits;
+    private List<@NotNull @Valid ProductUnitDTO> productUnits;
 
     private List<@NotBlank String> images = new ArrayList<>();
 }
