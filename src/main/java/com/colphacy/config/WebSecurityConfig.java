@@ -79,6 +79,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/auth/employee/logout").hasAnyAuthority("STAFF", "ADMIN")
                 .antMatchers("/api/employees/profile/**", "/api/employees/change-password").hasAnyAuthority("ADMIN", "STAFF")
                 .antMatchers("/api/location/**").hasAnyAuthority("ADMIN", "STAFF")
+                .antMatchers("/api/units/all").permitAll()
                 .antMatchers("/api/units/**").hasAnyAuthority("ADMIN", "STAFF")
                 .antMatchers("/api/categories/all").permitAll()
                 .antMatchers("/api/categories/**").hasAnyAuthority("ADMIN", "STAFF")
