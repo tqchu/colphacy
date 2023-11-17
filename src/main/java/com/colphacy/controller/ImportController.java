@@ -35,4 +35,11 @@ public class ImportController {
         Employee employee = employeeService.getCurrentlyLoggedInEmployee(principal);
         return importService.createImport(importDTO, employee.getId());
     }
+
+    @Operation(summary = "Get import's detail by its id", security = {@SecurityRequirement(name = "bearer-key")})
+    @GetMapping("/{id}")
+    public ImportDTO getImport(@PathVariable Long id) {
+        return importService.findImportDTOById(id);
+    }
+
 }
