@@ -103,6 +103,11 @@ public class UnitServiceImpl implements UnitService {
         return unitRepository.findAll().stream().map(unit -> unitMapper.unitToUnitDTO(unit)).toList();
     }
 
+    @Override
+    public List<UnitDTO> findUnitsByProductId(Long productId) {
+        return unitRepository.findAllByProductId(productId).stream().map(unit -> unitMapper.unitToUnitDTO(unit)).toList();
+    }
+
     private void validateUnitNameIsUniqueElseThrow(String name) {
         Optional<Unit> unitOptional = unitRepository.findByNameIgnoreCase(name);
         if (unitOptional.isPresent()) {

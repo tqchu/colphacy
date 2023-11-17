@@ -20,4 +20,6 @@ public interface UnitService {
     PageResponse<UnitDTO> findAll(String keyword, int offset, int limit);
 
     List<UnitDTO> findAll();
+
+    List<UnitDTO> findUnitsByProductId(Long productId);
 }

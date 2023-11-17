@@ -67,6 +67,12 @@ public class UnitController {
         return unitService.findAll();
     }
 
+    @Operation(summary = "Get all units of a product", security = {@SecurityRequirement(name = "bearer-key")})
+    @GetMapping("/products")
+    public List<UnitDTO> findUnitsOfProduct(Long productId) {
+        return unitService.findUnitsByProductId(productId);
+    }
+
     @Operation(summary = "Get unit's details", security = {@SecurityRequirement(name = "bearer-key")})
     @GetMapping("/{id}")
     public UnitDTO getDetail(@PathVariable Long id) {
