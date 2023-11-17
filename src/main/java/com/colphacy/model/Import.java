@@ -47,20 +47,22 @@ public class Import {
     @NotNull
     @Size(min = 1)
     @OneToMany(mappedBy = "anImport", cascade = {
-            CascadeType.MERGE
+            CascadeType.PERSIST,
+            CascadeType.MERGE,
+            CascadeType.REMOVE
     })
     private List<ImportDetail> importDetails = new ArrayList<>();
 
-    public void addIngredient(ImportDetail importDetail) {
+    public void addImportDetail(ImportDetail importDetail) {
         importDetails.add(importDetail);
         importDetail.setAnImport(this);
     }
 
-    public void setIngredients(List<ImportDetail> importDetails) {
+    public void setImportDetails(List<ImportDetail> importDetails) {
         this.importDetails = new ArrayList<>();
 
         for (ImportDetail importDetail : importDetails) {
-            addIngredient(importDetail);
+            addImportDetail(importDetail);
         }
     }
 }
