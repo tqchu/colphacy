@@ -10,4 +10,7 @@ public interface ProductUnitRepository extends JpaRepository<ProductUnit, Long> 
     @Query("delete from ProductUnit pu where pu.product.id = ?1")
     void deleteByProductId(Long productId);
 
+    boolean existsByProductIdAndUnitId(Long productId, Long unitId);
+
+    ProductUnit findByProductIdAndUnitId(Long productId, Long unitId);
 }
