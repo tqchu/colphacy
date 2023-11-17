@@ -1,7 +1,5 @@
 package com.colphacy.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,7 +25,6 @@ public class Import {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "branch_id")
-    @JsonBackReference
     private Branch branch;
 
     @NotNull
@@ -40,22 +37,30 @@ public class Import {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id")
-    @JsonBackReference
     private Employee employee;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "provider_id")
-    @JsonBackReference
     private Provider provider;
 
     @NotNull
     @Size(min = 1)
-    @OneToMany(mappedBy = "import", cascade = {
-            CascadeType.PERSIST,
-            CascadeType.MERGE,
-            CascadeType.REMOVE
+    @OneToMany(mappedBy = "anImport", cascade = {
+            CascadeType.MERGE
     })
-    @JsonManagedReference
     private List<ImportDetail> importDetails = new ArrayList<>();
+
+    public void addIngredient(ImportDetail importDetail) {
+        importDetails.add(importDetail);
+        importDetail.setAnImport(this);
+    }
+
+    public void setIngredients(List<ImportDetail> importDetails) {
+        this.importDetails = new ArrayList<>();
+
+        for (ImportDetail importDetail : importDetails) {
+            addIngredient(importDetail);
+        }
+    }
 }

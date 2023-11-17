@@ -23,5 +23,5 @@ public interface BranchService {
 
     List<BranchStatus> getAllStatuses();
 
-    BranchDetailDTO getBranchById(long id);
+    BranchDetailDTO findBranchById(long id);
 }

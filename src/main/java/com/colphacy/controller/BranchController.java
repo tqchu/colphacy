@@ -9,7 +9,6 @@ import com.colphacy.service.BranchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -87,6 +86,6 @@ public class BranchController {
     @Operation(summary = "Get branch's details", security = {@SecurityRequirement(name = "bearer-key")})
     @GetMapping("/{id}")
     public BranchDetailDTO getBranchDetail(@PathVariable long id) {
-        return branchService.getBranchById(id);
+        return branchService.findBranchById(id);
     }
 }
