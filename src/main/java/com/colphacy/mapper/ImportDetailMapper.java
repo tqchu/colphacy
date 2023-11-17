@@ -5,13 +5,11 @@ import com.colphacy.model.ImportDetail;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {ProductMapper.class})
 public interface ImportDetailMapper {
-    @Mapping(source = "productId", target = "product.id")
     @Mapping(source = "unitId", target = "unit.id")
     ImportDetail importDetailDTOToImportDetail(ImportDetailDTO importDetailDTO);
 
-    @Mapping(source = "product.id", target = "productId")
     @Mapping(source = "unit.id", target = "unitId")
     ImportDetailDTO importDetailToImportDetailDTO(ImportDetail importDetail);
 }

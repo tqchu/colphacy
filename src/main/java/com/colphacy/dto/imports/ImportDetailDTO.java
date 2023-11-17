@@ -1,5 +1,6 @@
 package com.colphacy.dto.imports;
 
+import com.colphacy.dto.product.ProductSimpleDTO;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -10,9 +11,8 @@ import java.time.LocalDate;
 public class ImportDetailDTO {
     private Long id;
 
-    @NotNull(message = "Phải có thông tin về sản phẩm")
-    @Positive(message = "Id sản phẩm phải lớn hơn không")
-    private Long productId;
+    @NotNull
+    private ProductSimpleDTO product;
 
     @NotNull(message = "Phải có thông tin về số lượng")
     @Positive(message = "Số lượng phải lớn hơn 0")

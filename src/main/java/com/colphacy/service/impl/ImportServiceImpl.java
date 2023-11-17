@@ -38,12 +38,12 @@ public class ImportServiceImpl implements ImportService {
         providerService.findById(importDTO.getProvider().getId());
 
         importDTO.getImportDetails().forEach(importDetail -> {
-            productService.findById(importDetail.getProductId());
+            productService.findById(importDetail.getProduct().getId());
             unitService.findById(importDetail.getUnitId());
-            if (!productUnitRepository.existsByProductIdAndUnitId(importDetail.getProductId(), importDetail.getUnitId())) {
-                throw InvalidFieldsException.fromFieldError("importDetails", "Không có unit id " + importDetail.getUnitId() + " tương ứng với product id " + importDetail.getProductId());
+            if (!productUnitRepository.existsByProductIdAndUnitId(importDetail.getProduct().getId(), importDetail.getUnitId())) {
+                throw InvalidFieldsException.fromFieldError("importDetails", "Không có unit id " + importDetail.getUnitId() + " tương ứng với product id " + importDetail.getProduct().getId());
             }
-            ProductUnit pu = productUnitRepository.findByProductIdAndUnitId(importDetail.getProductId(), importDetail.getUnitId());
+            ProductUnit pu = productUnitRepository.findByProductIdAndUnitId(importDetail.getProduct().getId(), importDetail.getUnitId());
             importDetail.setQuantity(importDetail.getQuantity() * pu.getRatio());
         });
 

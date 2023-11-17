@@ -22,7 +22,7 @@ public class SaveImportValidator implements Validator {
     public void validate(Object target, Errors errors) {
         ImportDTO anImport = (ImportDTO) target;
         Stream<String> compositeKeys = anImport.getImportDetails().stream()
-                .map(detail -> detail.getProductId() + "_" + detail.getUnitId() + "_" + detail.getExpirationDate());
+                .map(detail -> detail.getProduct().getId() + "_" + detail.getUnitId() + "_" + detail.getExpirationDate());
 
         // Group by composite key and count occurrences
         Map<String, Long> compositeKeyCounts = compositeKeys
