@@ -9,9 +9,9 @@ import java.util.List;
 public interface CartItemService {
     List<CartItemListViewDTO> findByCustomerId(Long customerId);
 
-    void addProduct(Long productId, Integer quantity, Customer customer);
+    void addProduct(Long productId, Long unitId, Integer quantity, Customer customer);
 
-    void updateQuantity(Long productId, Long customerId, Integer quantity);
+    void updateQuantity(Long cartId, Long customerId, Integer quantity);
 
-    void removeProductFromCart(Long customerId, Long productId);
+    void removeProductFromCart(Long cartId, Long customerId);
 }

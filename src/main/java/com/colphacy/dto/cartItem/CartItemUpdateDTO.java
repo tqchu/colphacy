@@ -6,14 +6,8 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class CartItemDTO {
-    @NotNull
-    private Long productId;
-
+public class CartItemUpdateDTO {
     @NotNull
     @Min(value = 1, message = "Số lượng phải lớn hơn 0")
     private Integer quantity;
-
-    @NotNull
-    private Long unitId;
 }

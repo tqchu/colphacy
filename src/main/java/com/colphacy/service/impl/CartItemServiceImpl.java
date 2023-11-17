@@ -3,12 +3,11 @@ package com.colphacy.service.impl;
 import com.colphacy.dto.cartItem.CartItemListViewDTO;
 import com.colphacy.exception.RecordNotFoundException;
 import com.colphacy.mapper.CartItemMapper;
-import com.colphacy.model.CartItem;
-import com.colphacy.model.Customer;
-import com.colphacy.model.Product;
+import com.colphacy.model.*;
 import com.colphacy.repository.CartItemRepository;
-import com.colphacy.repository.CustomerRepository;
 import com.colphacy.repository.ProductRepository;
+import com.colphacy.repository.ProductUnitRepository;
+import com.colphacy.repository.UnitRepository;
 import com.colphacy.service.CartItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,9 +20,23 @@ public class CartItemServiceImpl implements CartItemService {
 
     private CartItemMapper cartItemMapper;
 
+    private UnitRepository unitRepository;
+
+    private ProductUnitRepository productUnitRepository;
+
     @Autowired
     public void setCartItemRepository(CartItemRepository cartItemRepository) {
         this.cartItemRepository = cartItemRepository;
+    }
+
+    @Autowired
+    public void setUnitRepository(UnitRepository unitRepository) {
+        this.unitRepository = unitRepository;
+    }
+
+    @Autowired
+    public void setProductUnitRepository(ProductUnitRepository productUnitRepository) {
+        this.productUnitRepository = productUnitRepository;
     }
 
     @Autowired
@@ -44,10 +57,15 @@ public class CartItemServiceImpl implements CartItemService {
     }
 
     @Override
-    public void addProduct(Long productId, Integer quantity, Customer customer) {
+    public void addProduct(Long productId, Long unitId, Integer quantity, Customer customer) {
         Integer addedQuantity = quantity;
-        Product product = productRepository.findById(productId).orElseThrow(() -> new RecordNotFoundException("Không thể tìm thấy sản phẩm"));;
-        CartItem cartItem = cartItemRepository.findByCustomerIdAndProductId(customer.getId(), product.getId());
+        Product product = productRepository.findById(productId).orElseThrow(() -> new RecordNotFoundException("Không thể tìm thấy sản phẩm"));
+        Unit unit = unitRepository.findById(unitId).orElseThrow(() -> new RecordNotFoundException("Không thể tìm thấy đơn vị"));
+        CartItem cartItem = cartItemRepository.findByCustomerIdAndProductIdAndUnitId(customer.getId(), product.getId(), unit.getId());
+        ProductUnit productUnit = productUnitRepository.findByProductIdAndUnitId(product.getId(), unit.getId());
+        if (productUnit == null) {
+            throw new RecordNotFoundException("Sản phẩm không có đơn vị này");
+        }
 
         if (cartItem != null) {
             addedQuantity += cartItem.getQuantity();
@@ -57,27 +75,28 @@ public class CartItemServiceImpl implements CartItemService {
             cartItem.setProduct(product);
             cartItem.setCustomer(customer);
             cartItem.setQuantity(quantity);
+            cartItem.setUnit(unit);
         }
 
         cartItemRepository.save(cartItem);
     }
 
     @Override
-    public void updateQuantity(Long productId, Long customerId, Integer quantity) {
-        CartItem cartItem = cartItemRepository.findByCustomerIdAndProductId(customerId, productId);
+    public void updateQuantity(Long cartId, Long customerId, Integer quantity) {
+        CartItem cartItem = cartItemRepository.findByIdAndCustomerId(cartId, customerId);
         if (cartItem == null) {
             throw new RecordNotFoundException("Đơn hàng không tồn tại");
         }
-        cartItemRepository.updateQuantity(productId, customerId, quantity);
+        cartItemRepository.updateQuantity(cartId, customerId, quantity);
     }
 
     @Override
-    public  void removeProductFromCart(Long customerId, Long productId) {
-        CartItem cartItem = cartItemRepository.findByCustomerIdAndProductId(customerId, productId);
+    public  void removeProductFromCart(Long cartId, Long customerId) {
+        CartItem cartItem = cartItemRepository.findByIdAndCustomerId(cartId, customerId);
 
         if (cartItem == null) {
             throw new RecordNotFoundException("Đơn hàng không tồn tại");
         }
-        cartItemRepository.deleteByCustomerIdAndProductId(customerId, productId);
+        cartItemRepository.deleteByIdAndCustomerId(cartId, customerId);
     }
 }

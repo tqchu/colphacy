@@ -22,5 +22,9 @@ public class CartItem {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
+    @ManyToOne
+    @JoinColumn(name = "unit_id")
+    private Unit unit;
+
     private Integer  quantity;
 }
