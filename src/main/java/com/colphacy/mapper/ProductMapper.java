@@ -2,6 +2,7 @@ package com.colphacy.mapper;
 
 import com.colphacy.dto.product.ProductCustomerListViewDTO;
 import com.colphacy.dto.product.ProductDTO;
+import com.colphacy.dto.product.ProductSimpleDTO;
 import com.colphacy.model.Product;
 import com.colphacy.model.ProductImage;
 import org.mapstruct.Mapper;
@@ -14,6 +15,10 @@ public interface ProductMapper {
 
     @Mapping(source = "category.id", target = "categoryId")
     ProductDTO productToProductDTO(Product product);
+
+    ProductSimpleDTO productToProductSimpleDTO(Product product);
+
+    Product productSimpleDTOToProduct(ProductSimpleDTO product);
 
 
     default ProductCustomerListViewDTO productToProductCustomerListViewDTO(Product product) {

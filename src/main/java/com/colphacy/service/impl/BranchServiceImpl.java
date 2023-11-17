@@ -125,7 +125,7 @@ public class BranchServiceImpl implements BranchService {
     }
 
     @Override
-    public BranchDetailDTO getBranchById(long id) {
+    public BranchDetailDTO findBranchById(long id) {
         Branch branch = findById(id);
         return branchMapper.branchToBranchDetailDTO(branch);
     }
