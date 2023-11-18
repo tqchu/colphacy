@@ -1,12 +1,16 @@
 package com.colphacy.service.impl;
 
+import com.colphacy.dao.ImportDAO;
 import com.colphacy.dto.imports.ImportDTO;
+import com.colphacy.dto.imports.ImportListViewDTO;
+import com.colphacy.dto.imports.ImportSearchCriteria;
 import com.colphacy.exception.InvalidFieldsException;
 import com.colphacy.exception.RecordNotFoundException;
 import com.colphacy.mapper.ImportMapper;
 import com.colphacy.model.Employee;
 import com.colphacy.model.Import;
 import com.colphacy.model.ProductUnit;
+import com.colphacy.payload.response.PageResponse;
 import com.colphacy.repository.ImportDetailRepository;
 import com.colphacy.repository.ImportRepository;
 import com.colphacy.repository.ProductUnitRepository;
@@ -15,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -37,6 +42,8 @@ public class ImportServiceImpl implements ImportService {
     private ImportRepository importRepository;
     @Autowired
     private ImportDetailRepository importDetailRepository;
+    @Autowired
+    private ImportDAO importDAO;
 
     @Override
     @Transactional
@@ -109,5 +116,28 @@ public class ImportServiceImpl implements ImportService {
         anImport.setEmployee(employee);
         importRepository.save(anImport);
         return importMapper.importToImportDTO(anImport);
+    }
+
+    @Override
+    public PageResponse<ImportListViewDTO> getPaginatedImports(ImportSearchCriteria criteria) {
+        if (criteria.getBranchId() != null) {
+            branchService.findBranchById(criteria.getBranchId());
+        }
+        // Validate maxPrice must be bigger or greater than minPrice
+        if (criteria.getStartDate() != null && criteria.getEndDate() != null && criteria.getStartDate().isAfter(criteria.getEndDate())) {
+            throw InvalidFieldsException.fromFieldError("end", "Ngày bắt đầu không thể lớn hơn ngày kết thúc");
+        }
+
+        List<ImportListViewDTO> list = importDAO.getPaginatedImportsCustomer(criteria);
+
+        Long totalItems = importDAO.getTotalImportsCustomer(criteria);
+        PageResponse<ImportListViewDTO> page = new PageResponse<>();
+        page.setItems(list);
+        page.setNumPages((int) ((totalItems - 1) / criteria.getLimit()) + 1);
+        page.setLimit(criteria.getLimit());
+        page.setTotalItems(Math.toIntExact(totalItems));
+        page.setOffset(criteria.getOffset());
+        return page;
+
     }
 }

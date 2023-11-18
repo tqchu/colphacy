@@ -23,7 +23,19 @@ public class AliasToBeanResultTransformer implements ResultTransformer {
                 if (alias != null) {
                     // Convert snake_case to camelCase
                     String camelCaseAlias = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, alias);
-                    PropertyAccessorFactory.forDirectFieldAccess(result).setPropertyValue(camelCaseAlias, tuple[i]);
+
+                    // Check if the tuple element is of type java.sql.Timestamp
+                    if (tuple[i] instanceof java.sql.Timestamp) {
+                        // Convert java.sql.Timestamp to java.time.LocalDateTime
+                        java.sql.Timestamp sqlTimestamp = (java.sql.Timestamp) tuple[i];
+                        java.time.LocalDateTime localDateTime = sqlTimestamp.toLocalDateTime();
+
+                        // Set the property value as LocalDateTime
+                        PropertyAccessorFactory.forDirectFieldAccess(result).setPropertyValue(camelCaseAlias, localDateTime);
+                    } else {
+                        // Set the property value as is
+                        PropertyAccessorFactory.forDirectFieldAccess(result).setPropertyValue(camelCaseAlias, tuple[i]);
+                    }
                 }
             }
             return result;
