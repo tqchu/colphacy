@@ -6,4 +6,6 @@ public interface ImportService {
     ImportDTO createImport(ImportDTO importDTO, Long employeeId);
 
     ImportDTO findImportDTOById(Long id);
+
+    ImportDTO updateImport(ImportDTO importDTO, Long id);
 }
