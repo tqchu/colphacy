@@ -1,13 +1,17 @@
 package com.colphacy.controller;
 
 import com.colphacy.dto.imports.ImportDTO;
+import com.colphacy.dto.imports.ImportListViewDTO;
+import com.colphacy.dto.imports.ImportSearchCriteria;
 import com.colphacy.model.Employee;
+import com.colphacy.payload.response.PageResponse;
 import com.colphacy.service.EmployeeService;
 import com.colphacy.service.ImportService;
 import com.colphacy.validator.SaveImportValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +27,10 @@ public class ImportController {
     private SaveImportValidator saveImportValidator;
     @Autowired
     private EmployeeService employeeService;
+
+
+    @Value("${colphacy.api.default-page-size}")
+    private Integer defaultPageSize;
 
     @InitBinder("importDTO")
     public void initValidator(WebDataBinder binder) {
@@ -49,4 +57,12 @@ public class ImportController {
         return importService.findImportDTOById(id);
     }
 
+    @Operation(summary = "Get paginated import history", security = {@SecurityRequirement(name = "bearer-key")})
+    @GetMapping("")
+    public PageResponse<ImportListViewDTO> getPaginatedImports(ImportSearchCriteria criteria) {
+        if (criteria.getLimit() == null) {
+            criteria.setLimit(defaultPageSize);
+        }
+        return importService.getPaginatedImports(criteria);
+    }
 }
