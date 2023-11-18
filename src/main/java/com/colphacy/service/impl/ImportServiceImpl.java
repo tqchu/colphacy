@@ -7,6 +7,7 @@ import com.colphacy.mapper.ImportMapper;
 import com.colphacy.model.Employee;
 import com.colphacy.model.Import;
 import com.colphacy.model.ProductUnit;
+import com.colphacy.repository.ImportDetailRepository;
 import com.colphacy.repository.ImportRepository;
 import com.colphacy.repository.ProductUnitRepository;
 import com.colphacy.service.*;
@@ -34,6 +35,8 @@ public class ImportServiceImpl implements ImportService {
     private ImportMapper importMapper;
     @Autowired
     private ImportRepository importRepository;
+    @Autowired
+    private ImportDetailRepository importDetailRepository;
 
     @Override
     @Transactional
@@ -65,10 +68,46 @@ public class ImportServiceImpl implements ImportService {
 
     @Override
     public ImportDTO findImportDTOById(Long id) {
+        return importMapper.importToImportDTO(findImportById(id));
+    }
+
+    private Import findImportById(Long id) {
         Optional<Import> optionalImport = importRepository.findById(id);
         if (optionalImport.isEmpty()) {
             throw new RecordNotFoundException("Không tìm thấy đơn nhập hàng có id = " + id);
         }
-        return importMapper.importToImportDTO(optionalImport.get());
+
+        return optionalImport.get();
+    }
+
+    @Transactional
+    @Override
+    public ImportDTO updateImport(ImportDTO importDTO, Long employeeId) {
+
+        Import existingImport = findImportById(importDTO.getId());
+
+        // Validate branch for employee?
+        branchService.findBranchById(importDTO.getBranch().getId());
+        providerService.findById(importDTO.getProvider().getId());
+
+        importDTO.getImportDetails().forEach(importDetail -> {
+            importDetail.setId(null);
+            productService.findById(importDetail.getProduct().getId());
+            unitService.findById(importDetail.getUnitId());
+            if (!productUnitRepository.existsByProductIdAndUnitId(importDetail.getProduct().getId(), importDetail.getUnitId())) {
+                throw InvalidFieldsException.fromFieldError("importDetails", "Không có unit id " + importDetail.getUnitId() + " tương ứng với product id " + importDetail.getProduct().getId());
+            }
+        });
+        importDetailRepository.deleteByImportId(existingImport.getId());
+        Import anImport = importMapper.importDTOToImport(importDTO);
+        anImport.getImportDetails().forEach(importDetail -> {
+            ProductUnit pu = productUnitRepository.findByProductIdAndUnitId(importDetail.getProduct().getId(), importDetail.getUnit().getId());
+            importDetail.setBaseQuantity(importDetail.getQuantity() * pu.getRatio());
+        });
+        Employee employee = new Employee();
+        employee.setId(employeeId);
+        anImport.setEmployee(employee);
+        importRepository.save(anImport);
+        return importMapper.importToImportDTO(anImport);
     }
 }
