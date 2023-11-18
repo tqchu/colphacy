@@ -2,6 +2,7 @@ package com.colphacy.controller;
 
 import com.colphacy.dto.cartItem.CartItemDTO;
 import com.colphacy.dto.cartItem.CartItemListViewDTO;
+import com.colphacy.dto.cartItem.CartItemUpdateDTO;
 import com.colphacy.model.Customer;
 import com.colphacy.service.CartItemService;
 import com.colphacy.service.CustomerService;
@@ -38,20 +39,20 @@ public class CartController {
     @PostMapping("/add")
     public void addProductToCart(@RequestBody @Valid CartItemDTO cartItemDTO, Principal principal) {
         Customer customer = customerService.getCurrentlyLoggedInCustomer(principal);
-        cartItemService.addProduct(cartItemDTO.getProductId(), cartItemDTO.getQuantity(), customer);
+        cartItemService.addProduct(cartItemDTO.getProductId(), cartItemDTO.getUnitId(), cartItemDTO.getQuantity(), customer);
     }
 
     @Operation(summary = "Update quantity of product in cart", security = {@SecurityRequirement(name = "bearer-key")})
-    @PutMapping("/update")
-    public void updateQuantity(@RequestBody @Valid CartItemDTO cartItemDTO,  Principal principal) {
+    @PutMapping("/update/{id}")
+    public void updateQuantity(@PathVariable("id") Long cartId, @RequestBody @Valid CartItemUpdateDTO cartItemUpdateDTO, Principal principal) {
         Customer customer = customerService.getCurrentlyLoggedInCustomer(principal);
-        cartItemService.updateQuantity(cartItemDTO.getProductId(), customer.getId(), cartItemDTO.getQuantity());
+        cartItemService.updateQuantity(cartId, customer.getId(), cartItemUpdateDTO.getQuantity());
     }
 
     @Operation(summary = "Remove product from cart", security = {@SecurityRequirement(name = "bearer-key")})
-    @DeleteMapping("/remove/{product_id}")
-    public void removeProductFromCart(@PathVariable("product_id") Long productId,  Principal principal) {
+    @DeleteMapping("/remove/{id}")
+    public void removeProductFromCart(@PathVariable("id") Long cartId, Principal principal) {
         Customer customer = customerService.getCurrentlyLoggedInCustomer(principal);
-        cartItemService.removeProductFromCart(customer.getId(), productId);
+        cartItemService.removeProductFromCart(cartId, customer.getId());
     }
 }
