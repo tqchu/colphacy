@@ -81,6 +81,9 @@ public class ProviderServiceImpl implements ProviderService {
             validateProviderEmailIsUniqueElseThrow(providerDTO.getEmail());
         }
         provider.setName(providerDTO.getName());
+        provider.setAddress(providerDTO.getAddress());
+        provider.setPhone(providerDTO.getPhone());
+        provider.setEmail(providerDTO.getEmail());
         Provider providerUpdated = providerRepository.save(provider);
         return providerMapper.providerToProviderDTO(providerUpdated);
     }
