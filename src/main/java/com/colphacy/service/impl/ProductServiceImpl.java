@@ -20,8 +20,6 @@ import com.colphacy.service.ProductService;
 import com.colphacy.service.UnitService;
 import com.colphacy.types.PaginationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -69,8 +67,13 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductCustomerListViewDTO> getBestSellerProducts(int number) {
-        Pageable pageable = PageRequest.of(0, number);
-        return productRepository.findBestSellerProducts(pageable, ProductStatus.FOR_SALE).stream().map(productMapper::productToProductCustomerListViewDTO).toList();
+        ProductSearchCriteria criteria = new ProductSearchCriteria();
+        criteria.setOffset(0);
+        criteria.setLimit(50);
+        criteria.setOrder(SortOrder.DESC);
+        criteria.setSortBy(CustomerSearchViewSortField.SALE_PRICE);
+        return productDAO.getPaginatedProductsCustomer(criteria);
+//        return productRepository.findBestSellerProducts(pageable, ProductStatus.FOR_SALE).stream().map(productMapper::productToProductCustomerListViewDTO).toList();
     }
 
     @Override
