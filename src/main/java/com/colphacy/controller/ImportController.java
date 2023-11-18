@@ -36,6 +36,13 @@ public class ImportController {
         return importService.createImport(importDTO, employee.getId());
     }
 
+    @Operation(summary = "Update an import", security = {@SecurityRequirement(name = "bearer-key")})
+    @PutMapping
+    public ImportDTO updateImport(@Valid @RequestBody ImportDTO importDTO, Principal principal) {
+        Employee employee = employeeService.getCurrentlyLoggedInEmployee(principal);
+        return importService.updateImport(importDTO, employee.getId());
+    }
+
     @Operation(summary = "Get import's detail by its id", security = {@SecurityRequirement(name = "bearer-key")})
     @GetMapping("/{id}")
     public ImportDTO getImport(@PathVariable Long id) {
