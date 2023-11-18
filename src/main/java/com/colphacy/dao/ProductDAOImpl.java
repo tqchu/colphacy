@@ -133,6 +133,7 @@ public class ProductDAOImpl implements ProductDAO {
                        p.name             as name,
                        min(u.name)        as unit_name,
                        min(pu.sale_price) as sale_price,
+                       min(pu.unit_id) as unit_id,
                        min(pi.url) as image
                 FROM product p
                          JOIN product_unit pu
