@@ -14,16 +14,19 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
     @Query("SELECT c FROM cart_item c WHERE c.customer.id = :customerId")
     List<CartItem> findByCustomerId(Long customerId);
 
-    @Query("SELECT c FROM cart_item c WHERE c.customer.id = :customerId and c.product.id = :productId")
-    CartItem findByCustomerIdAndProductId(Long customerId, Long productId);
+    @Query("SELECT c FROM cart_item c WHERE c.customer.id = :customerId and c.product.id = :productId and c.unit.id = :unitId")
+    CartItem findByCustomerIdAndProductIdAndUnitId(Long customerId, Long productId, Long unitId);
 
-    @Query("UPDATE cart_item c SET c.quantity = :quantity WHERE c.product.id = :productId AND c.customer.id = :customerId")
+    @Query("UPDATE cart_item c SET c.quantity = :quantity WHERE c.customer.id = :customerId AND c.id = :cartId")
     @Modifying
     @Transactional
-    void updateQuantity(Long productId, Long customerId, Integer quantity);
+    void updateQuantity(Long cartId, Long customerId, Integer quantity);
 
-    @Query("DELETE FROM cart_item c WHERE c.customer.id = :customerId and c.product.id = :productId")
+    @Query("DELETE FROM cart_item c WHERE c.id = :id and c.customer.id = :customerId")
     @Modifying
     @Transactional
-    void deleteByCustomerIdAndProductId(Long customerId, Long productId);
+    void deleteByIdAndCustomerId(Long id, Long customerId);
+
+    @Query("SELECT c FROM cart_item c WHERE c.id = :id and c.customer.id = :customerId")
+    CartItem findByIdAndCustomerId(Long id, Long customerId);
 }
