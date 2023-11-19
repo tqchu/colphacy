@@ -1,25 +1,16 @@
-package com.colphacy.model;
+package com.colphacy.dto.receiver;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.colphacy.model.Address;
+import lombok.Data;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@Entity(name = "receiver")
-public class Receiver {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+@Data
+public class ReceiverDTO {
     private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "customer_id")
-    private Customer customer;
 
     @NotNull
     @NotBlank
@@ -31,7 +22,6 @@ public class Receiver {
     @Size(min = 10, max = 10)
     private String phone;
 
-    @NotNull
     @Embedded
     private Address address;
 

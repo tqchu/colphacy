@@ -5,6 +5,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
@@ -27,7 +29,15 @@ public class OrderItem {
     @JoinColumn(name = "unit_id")
     private Unit unit;
 
+    @NotNull
+    @Min(1)
     private Double price;
 
+    @NotNull
+    @Min(1)
     private Integer quantity;
+
+    @NotNull
+    @Min(1)
+    private Integer baseQuantity;
 }

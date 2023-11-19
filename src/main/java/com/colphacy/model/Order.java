@@ -7,11 +7,13 @@ import lombok.Setter;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @Entity
+@Table(name = "orders")
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,14 +28,19 @@ public class Order {
     private Receiver receiver;
 
     @NotNull
-    private LocalDateTime orderDate = LocalDateTime.now();
+    private LocalDateTime orderTime = LocalDateTime.now();
 
-    private LocalDateTime deliveredDate;
+    private LocalDateTime shippingTime;
+
+    private LocalDateTime deliveredTime;
 
     @NotNull
     private Double totalPrice;
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    private OrderStatus status;
+    private OrderStatus status = OrderStatus.PROCESSING;
+
+    @OneToMany(mappedBy = "order", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private Set<OrderItem> orderItems;
 }

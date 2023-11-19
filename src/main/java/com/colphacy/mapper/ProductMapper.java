@@ -2,6 +2,7 @@ package com.colphacy.mapper;
 
 import com.colphacy.dto.product.ProductCustomerListViewDTO;
 import com.colphacy.dto.product.ProductDTO;
+import com.colphacy.dto.product.ProductOrderDTO;
 import com.colphacy.dto.product.ProductSimpleDTO;
 import com.colphacy.exception.RecordNotFoundException;
 import com.colphacy.model.Product;
@@ -22,7 +23,6 @@ public interface ProductMapper {
     ProductSimpleDTO productToProductSimpleDTO(Product product);
 
     Product productSimpleDTOToProduct(ProductSimpleDTO product);
-
 
     default ProductCustomerListViewDTO productToProductCustomerListViewDTO(Product product) {
         ProductCustomerListViewDTO res = new ProductCustomerListViewDTO();
@@ -70,5 +70,15 @@ public interface ProductMapper {
                 ProductImage();
         productImage.setUrl(url);
         return productImage;
+    }
+
+    default ProductOrderDTO productToProductOrderDTO(Product product) {
+        ProductOrderDTO productOrderDTO = new ProductOrderDTO();
+        productOrderDTO.setId(product.getId());
+        productOrderDTO.setName(product.getName());
+        if (!product.getImages().isEmpty()) {
+            productOrderDTO.setImage(product.getImages().get(0).getUrl());
+        }
+        return productOrderDTO;
     }
 }

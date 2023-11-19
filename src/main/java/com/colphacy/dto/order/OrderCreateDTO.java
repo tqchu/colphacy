@@ -1,13 +1,20 @@
 package com.colphacy.dto.order;
 
-import com.colphacy.model.OrderStatus;
+import com.colphacy.dto.orderItem.OrderItemCreateDTO;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.util.List;
 
+@Data
+@NoArgsConstructor
 public class OrderCreateDTO {
-    private Long customerId;
+    @NotNull
     private Long receiverId;
-    private LocalDateTime orderDate;
-    private LocalDateTime shippingDate;
-    private OrderStatus status;
+
+    @NotNull
+    @Size(min = 1)
+    private List<OrderItemCreateDTO> orderItemCreateDTOs;
 }

@@ -1,8 +1,9 @@
 package com.colphacy.service;
 
 import com.colphacy.dto.order.OrderCreateDTO;
-import com.colphacy.model.Order;
+import com.colphacy.dto.order.OrderDTO;
+import com.colphacy.model.Customer;
 
 public interface OrderService {
-    Order createOrder(OrderCreateDTO orderCreateDTO);
+    OrderDTO createOrder(OrderCreateDTO orderCreateDTO, Customer customer);
 }
