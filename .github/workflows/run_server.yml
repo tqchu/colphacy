@@ -1,0 +1,13 @@
+on:
+  push:
+    branches:
+      - develop
+jobs:
+  run-command:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run command on Azure VM
+        run: |
+          echo "${{ secrets.SSH_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+          ssh -tt -i private_key.pem -o StrictHostKeyChecking=no colphacy@172.188.83.0 '/home/run.sh' 
