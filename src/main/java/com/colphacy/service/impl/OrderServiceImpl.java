@@ -9,6 +9,8 @@ import com.colphacy.repository.*;
 import com.colphacy.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,6 +34,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private OrderMapper orderMapper;
+
+    @Autowired
+    private CartItemRepository cartItemRepository;
 
     @Override
     public OrderDTO createOrder(OrderCreateDTO orderCreateDTO, Customer customer) {
@@ -78,6 +83,15 @@ public class OrderServiceImpl implements OrderService {
         Order savedOrder = orderRepository.save(order);
 
         // TODO("remove from cart")
+        List<Long> productIds = items.stream()
+                .map(item -> item.getProduct().getId())
+                .toList();
+
+        List<Long> unitIds = items.stream()
+                .map(item -> item.getUnit().getId())
+                .toList();
+        cartItemRepository.deleteByProductIdsAndUnitIdsAndCustomerId(productIds, unitIds, customer.getId());
+
 
         return orderMapper.orderToOrderDTO(savedOrder);
     }

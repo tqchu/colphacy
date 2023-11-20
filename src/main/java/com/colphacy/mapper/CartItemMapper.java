@@ -8,6 +8,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring", uses = {ProductMapper.class})
 public interface CartItemMapper {
 
+    // Not map unitId
     @Mapping(source = "product", target = "productInfo")
     CartItemListViewDTO cartItemToCartItemListViewDTO(CartItem cartItem);
 }
