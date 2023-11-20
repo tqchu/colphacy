@@ -7,6 +7,7 @@ import lombok.Setter;
 import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -40,4 +41,7 @@ public class OrderItem {
     @NotNull
     @Min(1)
     private Integer baseQuantity;
+
+    @NotNull
+    private LocalDate expirateDate;
 }

@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Set;
+import java.util.List;
 
 @Getter
 @Setter
@@ -57,7 +57,7 @@ public class Customer implements UserDetails {
     private Address address;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
-    private Set<Receiver> receiver;
+    private List<Receiver> receiver;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

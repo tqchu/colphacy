@@ -7,7 +7,8 @@ import lombok.Setter;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -30,17 +31,31 @@ public class Order {
     @NotNull
     private LocalDateTime orderTime = LocalDateTime.now();
 
-    private LocalDateTime shippingTime;
+    private LocalDateTime shipTime;
 
     private LocalDateTime deliveredTime;
 
     @NotNull
-    private Double totalPrice;
-
-    @NotNull
     @Enumerated(EnumType.STRING)
-    private OrderStatus status = OrderStatus.PROCESSING;
+    private OrderStatus status = OrderStatus.PENDING;
 
     @OneToMany(mappedBy = "order", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private Set<OrderItem> orderItems;
+    private List<OrderItem> orderItems;
+
+    public void addOrderItem(OrderItem orderItem) {
+        orderItems.add(orderItem);
+        orderItem.setOrder(this);
+    }
+
+    public void setOrderItems(List<OrderItem> orderItems) {
+        this.orderItems = new ArrayList<>();
+
+        for (OrderItem orderItem : orderItems) {
+            addOrderItem(orderItem);
+        }
+    }
+
+    @ManyToOne
+    @JoinColumn(name = "branch_id")
+    private Branch branch;
 }

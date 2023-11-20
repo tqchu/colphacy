@@ -2,13 +2,14 @@ package com.colphacy.dto.order;
 
 import com.colphacy.dto.orderItem.OrderItemDTO;
 import com.colphacy.dto.receiver.ReceiverDTO;
+import com.colphacy.model.Branch;
 import com.colphacy.model.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -16,7 +17,8 @@ import java.util.Set;
 public class OrderDTO {
     private ReceiverDTO receiver;
     private LocalDateTime orderTime;
-    private LocalDateTime shippingTime;
+    private LocalDateTime shipTime;
     private OrderStatus status;
-    private Set<OrderItemDTO> orderItems;
+    private List<OrderItemDTO> orderItems;
+    private Branch branch;
 }

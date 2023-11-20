@@ -27,7 +27,7 @@ public class OrderController {
 
     @Operation(summary = "Create a new order", security = {@SecurityRequirement(name = "bearer-key")})
     @PostMapping()
-    OrderDTO create(@RequestBody @Valid OrderCreateDTO orderCreateDTO, Principal principal) {
+    public OrderDTO create(@RequestBody @Valid OrderCreateDTO orderCreateDTO, Principal principal) {
         Customer customer = customerService.getCurrentlyLoggedInCustomer(principal);
         return orderService.createOrder(orderCreateDTO, customer);
     }
