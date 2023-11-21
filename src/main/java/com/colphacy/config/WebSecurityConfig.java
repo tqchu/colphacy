@@ -76,6 +76,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/swagger-ui/**").permitAll()
                 .antMatchers("/api/docs.json/**").permitAll()
                 .antMatchers(("/api/products/best-sellers")).permitAll()
+                .antMatchers(("/api/products/customers")).permitAll()
                 .antMatchers("/api/auth/employee/logout").hasAnyAuthority("STAFF", "ADMIN")
                 .antMatchers("/api/employees/profile/**", "/api/employees/change-password").hasAnyAuthority("ADMIN", "STAFF")
                 .antMatchers("/api/location/**").hasAnyAuthority("ADMIN", "STAFF")
