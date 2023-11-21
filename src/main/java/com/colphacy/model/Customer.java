@@ -14,12 +14,13 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
-@Entity
+@Entity(name = "customer")
 public class Customer implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -54,6 +55,9 @@ public class Customer implements UserDetails {
 
     @Embedded
     private Address address;
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
+    private List<Receiver> receiver;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

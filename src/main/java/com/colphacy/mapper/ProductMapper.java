@@ -8,8 +8,10 @@ import com.colphacy.model.Product;
 import com.colphacy.model.ProductImage;
 import com.colphacy.model.ProductUnit;
 import com.colphacy.model.Unit;
+import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring", uses = {IngredientMapper.class, ProductUnitMapper.class})
 public interface ProductMapper {
@@ -23,6 +25,12 @@ public interface ProductMapper {
 
     Product productSimpleDTOToProduct(ProductSimpleDTO product);
 
+    @AfterMapping
+    default void setImageUrl(@MappingTarget ProductSimpleDTO productSimpleDTO, Product product) {
+        if (product.getImages() != null && !product.getImages().isEmpty()) {
+            productSimpleDTO.setImage(product.getImages().get(0).getUrl());
+        }
+    }
 
     default ProductCustomerListViewDTO productToProductCustomerListViewDTO(Product product) {
         ProductCustomerListViewDTO res = new ProductCustomerListViewDTO();
