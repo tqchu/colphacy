@@ -13,4 +13,6 @@ public class ProductSimpleDTO {
     private Long id;
 
     private String name;
+
+    private String image;
 }
