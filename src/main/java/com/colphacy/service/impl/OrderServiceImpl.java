@@ -70,7 +70,7 @@ public class OrderServiceImpl implements OrderService {
             item.setQuantity(orderItem.getQuantity());
             item.setBaseQuantity(orderItem.getQuantity() * productUnit.getRatio());
             // update later
-            item.setExpirateDate(LocalDate.now());
+            item.setExpirationDate(LocalDate.now());
 
             return item;
         }).toList();

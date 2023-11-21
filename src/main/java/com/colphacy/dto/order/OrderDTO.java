@@ -17,7 +17,10 @@ import java.util.List;
 public class OrderDTO {
     private ReceiverDTO receiver;
     private LocalDateTime orderTime;
+    private LocalDateTime confirmTime;
     private LocalDateTime shipTime;
+    private LocalDateTime deliverTime;
+    private LocalDateTime cancelTime;
     private OrderStatus status;
     private List<OrderItemDTO> orderItems;
     private Branch branch;

@@ -43,5 +43,5 @@ public class OrderItem {
     private Integer baseQuantity;
 
     @NotNull
-    private LocalDate expirateDate;
+    private LocalDate expirationDate;
 }

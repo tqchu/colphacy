@@ -90,7 +90,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/api/categories").authenticated()
                 .antMatchers("/api/carts").hasAuthority("CUSTOMER")
                 // now, set for create order
-                .antMatchers("/api/orders").hasAuthority("CUSTOMER")
+                .antMatchers("/api/orders").authenticated()
                 .antMatchers("/api/roles").hasAnyAuthority("ADMIN")
                 .anyRequest().authenticated();
         http.exceptionHandling()

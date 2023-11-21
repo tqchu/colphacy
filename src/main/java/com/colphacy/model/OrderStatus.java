@@ -2,7 +2,7 @@ package com.colphacy.model;
 
 public enum OrderStatus {
     PENDING,
-    PROCESSING,
+    CONFIRMED,
     SHIPPING,
     DELIVERED,
     CANCELLED

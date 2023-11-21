@@ -29,11 +29,11 @@ public class Order {
     private Receiver receiver;
 
     @NotNull
-    private LocalDateTime orderTime = LocalDateTime.now();
-
+    private LocalDateTime orderTime;
+    private LocalDateTime confirmTime;
     private LocalDateTime shipTime;
-
-    private LocalDateTime deliveredTime;
+    private LocalDateTime deliverTime;
+    private LocalDateTime cancelTime;
 
     @NotNull
     @Enumerated(EnumType.STRING)
