@@ -40,7 +40,7 @@ public class OrderItem {
 
     @NotNull
     @Min(1)
-    private Integer baseQuantity;
+    private Integer ratio;
 
     @NotNull
     private LocalDate expirationDate;
