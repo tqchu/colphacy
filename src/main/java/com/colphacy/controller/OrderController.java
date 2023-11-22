@@ -31,4 +31,11 @@ public class OrderController {
         Customer customer = customerService.getCurrentlyLoggedInCustomer(principal);
         return orderService.createOrder(orderCreateDTO, customer);
     }
+
+    @Operation(summary = "Update a new order", security = {@SecurityRequirement(name = "bearer-key")})
+    @PostMapping("{id}")
+    public OrderDTO update(@RequestBody @Valid OrderCreateDTO orderCreateDTO, Principal principal) {
+        Customer customer = customerService.getCurrentlyLoggedInCustomer(principal);
+        return orderService.createOrder(orderCreateDTO, customer);
+    }
 }
