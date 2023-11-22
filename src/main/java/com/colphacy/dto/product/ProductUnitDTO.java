@@ -15,7 +15,6 @@ public class ProductUnitDTO {
     @Min(1)
     private Integer ratio;
 
-    @NotNull
     @Positive
     private Double salePrice;
 
