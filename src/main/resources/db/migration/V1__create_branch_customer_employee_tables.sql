@@ -15,6 +15,8 @@ CREATE TABLE branch
     province       VARCHAR(255)                            NOT NULL,
     CONSTRAINT pk_branch PRIMARY KEY (id)
 );
+
+
 CREATE INDEX idx_branch_status ON Branch (status);
 
 CREATE TABLE customer
