@@ -11,7 +11,7 @@ import javax.validation.constraints.Positive;
 public class IngredientDTO {
     @NotNull
     @NotBlank
-    @Length(max = 255)
+    @Length(max = 255, message = "Tên thành phần không được vượt quá 255 kí tự")
     private String name;
 
     @NotNull
