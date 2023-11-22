@@ -64,7 +64,7 @@ public class ImportServiceImpl implements ImportService {
         Import anImport = importMapper.importDTOToImport(importDTO);
         anImport.getImportDetails().forEach(importDetail -> {
             ProductUnit pu = productUnitRepository.findByProductIdAndUnitId(importDetail.getProduct().getId(), importDetail.getUnit().getId());
-            importDetail.setBaseQuantity(importDetail.getQuantity() * pu.getRatio());
+            importDetail.setRatio(pu.getRatio());
         });
         Employee employee = new Employee();
         employee.setId(employeeId);
@@ -109,7 +109,7 @@ public class ImportServiceImpl implements ImportService {
         Import anImport = importMapper.importDTOToImport(importDTO);
         anImport.getImportDetails().forEach(importDetail -> {
             ProductUnit pu = productUnitRepository.findByProductIdAndUnitId(importDetail.getProduct().getId(), importDetail.getUnit().getId());
-            importDetail.setBaseQuantity(importDetail.getQuantity() * pu.getRatio());
+            importDetail.setRatio(importDetail.getQuantity() * pu.getRatio());
         });
         Employee employee = new Employee();
         employee.setId(employeeId);

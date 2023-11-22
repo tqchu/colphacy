@@ -38,7 +38,7 @@ public class ImportDetail {
     private Integer quantity;
 
     @NotNull
-    private Integer baseQuantity;
+    private Integer ratio;
 
     @NotNull
     private LocalDate expirationDate;

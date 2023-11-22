@@ -68,7 +68,7 @@ public class OrderServiceImpl implements OrderService {
             item.setUnit(unit);
             item.setPrice(orderItem.getPrice());
             item.setQuantity(orderItem.getQuantity());
-            item.setBaseQuantity(orderItem.getQuantity() * productUnit.getRatio());
+            item.setRatio(productUnit.getRatio());
             // update later
             item.setExpirationDate(LocalDate.now());
 
