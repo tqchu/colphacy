@@ -180,9 +180,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler({Exception.class})
     public ResponseEntity<Object> handleAllExceptions(Exception ex, WebRequest request) {
+        String traceId = String.valueOf(System.currentTimeMillis());
         LOGGER.error("An error occurred: ", ex);
+        LOGGER.error("TraceId: {}", traceId);
         Map<String, String> error = new HashMap<>();
         error.put(DEFAULT_ERROR_NAME, "Có lỗi xảy ra");
+        error.put("traceId", traceId);
         return new ResponseEntity<>(error, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
