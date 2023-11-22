@@ -28,7 +28,6 @@ public class ProductUnit {
     @Min(1)
     private Integer ratio;
 
-    @NotNull
     @Positive
     private Double salePrice;
 
