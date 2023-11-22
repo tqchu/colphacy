@@ -17,12 +17,12 @@ public class ProductDTO {
 
     @NotNull
     @NotBlank
-    @Length(max = 255)
+    @Length(max = 255, message = "Tên thành phần không được vượt quá 255 kí tự")
     private String name;
 
     @NotNull
     @NotBlank
-    @Length(max = 255)
+    @Length(max = 255, message = "Quy cách không được vượt quá 255 kí tự")
     private String packing;
 
     @NotNull
@@ -30,25 +30,25 @@ public class ProductDTO {
 
     @NotNull
     @NotBlank
-    @Length(max = 255)
+    @Length(max = 255, message = "Tên NSX không được vượt quá 255 kí tự")
     private String manufacturer;
 
     @NotNull
     @NotBlank
-    @Length(max = 255)
+    @Length(max = 255, message = "Xuất xứ thương hiệu không được vượt quá 255 kí tự")
     private String brandOrigin;
 
-    @Length(max = 255)
+    @Length(max = 255, message = "Chỉ định không được vượt quá 255 kí tự")
     private String indications;
 
-    @Length(max = 255)
+    @Length(max = 255, message = "Mô tả ngắn không được vượt quá 255 kí tự")
     private String shortDescription;
 
     private String fullDescription;
 
     @NotNull
     @NotBlank
-    @Length(max = 50)
+    @Length(max = 50, message = "Số đăng ký không được vượt quá 50 kí tự")
     private String registrationNumber;
 
     @NotNull
