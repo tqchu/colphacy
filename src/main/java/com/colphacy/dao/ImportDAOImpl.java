@@ -34,7 +34,7 @@ public class ImportDAOImpl implements ImportDAO {
             query.setParameter("startDate", criteria.getStartDate());
         }
         if (hasEndDateCondition) {
-            query.setParameter("endDate", criteria.getEndDate());
+            query.setParameter("endDate", criteria.getEndDate().atTime(23, 59, 59));
         }
         if (hasBranchIdCondition) {
             query.setParameter("branchId", criteria.getBranchId());
@@ -69,7 +69,7 @@ public class ImportDAOImpl implements ImportDAO {
             query.setParameter("startDate", criteria.getStartDate());
         }
         if (hasEndDateCondition) {
-            query.setParameter("endDate", criteria.getEndDate());
+            query.setParameter("endDate", criteria.getEndDate().atTime(23, 59, 59));
         }
         if (hasBranchIdCondition) {
             query.setParameter("branchId", criteria.getBranchId());
@@ -109,7 +109,7 @@ public class ImportDAOImpl implements ImportDAO {
                 }
             }
             if (hasEndDateCondition) {
-                sql += "import_time <= :endDate";
+                sql += "import_time <= :endDate ";
                 if (hasBranchIdCondition) {
                     sql += " AND ";
                 }
@@ -175,7 +175,7 @@ public class ImportDAOImpl implements ImportDAO {
                 }
             }
             if (hasEndDateCondition) {
-                sql += "import_time <= :endDate";
+                sql += " import_time <= :endDate ";
                 if (hasBranchIdCondition) {
                     sql += " AND ";
                 }
