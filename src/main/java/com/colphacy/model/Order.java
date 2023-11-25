@@ -29,7 +29,7 @@ public class Order {
     private Receiver receiver;
 
     @NotNull
-    private LocalDateTime orderTime;
+    private LocalDateTime orderTime = LocalDateTime.now();
     private LocalDateTime confirmTime;
     private LocalDateTime shipTime;
     private LocalDateTime deliverTime;
