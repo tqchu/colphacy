@@ -125,12 +125,12 @@ public class ImportServiceImpl implements ImportService {
         }
         // Validate maxPrice must be bigger or greater than minPrice
         if (criteria.getStartDate() != null && criteria.getEndDate() != null && criteria.getStartDate().isAfter(criteria.getEndDate())) {
-            throw InvalidFieldsException.fromFieldError("end", "Ngày bắt đầu không thể lớn hơn ngày kết thúc");
+            throw InvalidFieldsException.fromFieldError("endDate", "Ngày bắt đầu không thể lớn hơn ngày kết thúc");
         }
 
-        List<ImportListViewDTO> list = importDAO.getPaginatedImportsCustomer(criteria);
+        List<ImportListViewDTO> list = importDAO.getPaginatedImports(criteria);
 
-        Long totalItems = importDAO.getTotalImportsCustomer(criteria);
+        Long totalItems = importDAO.getTotalImports(criteria);
         PageResponse<ImportListViewDTO> page = new PageResponse<>();
         page.setItems(list);
         page.setNumPages((int) ((totalItems - 1) / criteria.getLimit()) + 1);
@@ -138,6 +138,5 @@ public class ImportServiceImpl implements ImportService {
         page.setTotalItems(Math.toIntExact(totalItems));
         page.setOffset(criteria.getOffset());
         return page;
-
     }
 }

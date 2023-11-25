@@ -14,9 +14,9 @@ public class ImportDAOImpl implements ImportDAO {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public List<ImportListViewDTO> getPaginatedImportsCustomer(ImportSearchCriteria criteria) {
+    public List<ImportListViewDTO> getPaginatedImports(ImportSearchCriteria criteria) {
         // Get the native SQL query
-        String sql = getPaginatedImportsCustomerByCriteria(criteria);
+        String sql = getPaginatedImportsByCriteria(criteria);
 
         // Create a Query object using the SQL query
         Query query = entityManager.createNativeQuery(sql);
@@ -49,9 +49,9 @@ public class ImportDAOImpl implements ImportDAO {
     }
 
     @Override
-    public Long getTotalImportsCustomer(ImportSearchCriteria criteria) {
+    public Long getTotalImports(ImportSearchCriteria criteria) {
         // Get the SQL query to count the imports
-        String sql = getCountImportsCustomerByCriteria(criteria);
+        String sql = getCountImportsByCriteria(criteria);
 
         // Create a Query object using the SQL query
         Query query = entityManager.createNativeQuery(sql);
@@ -80,7 +80,7 @@ public class ImportDAOImpl implements ImportDAO {
     }
 
 
-    private String getCountImportsCustomerByCriteria(ImportSearchCriteria criteria) {
+    private String getCountImportsByCriteria(ImportSearchCriteria criteria) {
         String sql = """
                 SELECT COUNT (list.id) FROM 
                 (SELECT i.id as id
@@ -124,7 +124,7 @@ public class ImportDAOImpl implements ImportDAO {
         return sql;
     }
 
-    private String getPaginatedImportsCustomerByCriteria(ImportSearchCriteria criteria) {
+    private String getPaginatedImportsByCriteria(ImportSearchCriteria criteria) {
         // Use a CTE to filter the imports by keyword
         String sql;
         boolean hasKeywordCondition = criteria.getKeyword() != null;
