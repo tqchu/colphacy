@@ -1,11 +1,14 @@
 package com.colphacy.service.impl;
 
-import com.colphacy.dto.order.OrderCreateDTO;
-import com.colphacy.dto.order.OrderDTO;
+import com.colphacy.dao.OrderDAO;
+import com.colphacy.dto.order.*;
+import com.colphacy.exception.InvalidFieldsException;
 import com.colphacy.exception.RecordNotFoundException;
 import com.colphacy.mapper.OrderMapper;
 import com.colphacy.model.*;
+import com.colphacy.payload.response.PageResponse;
 import com.colphacy.repository.*;
+import com.colphacy.service.BranchService;
 import com.colphacy.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,8 @@ import java.util.Optional;
 
 @Service
 public class OrderServiceImpl implements OrderService {
+    @Autowired
+    private BranchService branchService;
     @Autowired
     private OrderRepository orderRepository;
 
@@ -39,6 +44,11 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private BranchRepository branchRepository;
+
+    @Autowired
+    private OrderItemRepository orderDetailRepository;
+    @Autowired
+    private OrderDAO orderDAO;
 
     @Override
     public OrderDTO createOrder(OrderCreateDTO orderCreateDTO, Customer customer) {
@@ -95,5 +105,44 @@ public class OrderServiceImpl implements OrderService {
 
 
         return orderMapper.orderToOrderDTO(savedOrder);
+    }
+
+    @Override
+    public PageResponse<OrderListViewDTO> getPaginatedOrders(OrderSearchCriteria criteria) {
+
+        // Handle sort field
+        if (criteria.getSortBy() != null && criteria.getSortBy().name().equalsIgnoreCase("time")) {
+            if (criteria.getStatus() == null || criteria.getStatus() == OrderStatus.PENDING) {
+                criteria.setSortBy(OrderListSortField.ORDER_TIME);
+            } else if (criteria.getStatus() == OrderStatus.CONFIRMED) {
+                criteria.setSortBy(OrderListSortField.CONFIRM_TIME);
+            } else if (criteria.getStatus() == OrderStatus.SHIPPING) {
+                criteria.setSortBy(OrderListSortField.SHIP_TIME);
+            } else if (criteria.getStatus() == OrderStatus.DELIVERED) {
+                criteria.setSortBy(OrderListSortField.DELIVER_TIME);
+            } else if (criteria.getStatus() == OrderStatus.CANCELLED) {
+                criteria.setSortBy(OrderListSortField.CANCEL_TIME);
+            }
+        }
+        if (criteria.getBranchId() != null) {
+            branchService.findBranchById(criteria.getBranchId());
+        }
+        // Validate maxPrice must be bigger or greater than minPrice
+        if (criteria.getStartDate() != null && criteria.getEndDate() != null && criteria.getStartDate().isAfter(criteria.getEndDate())) {
+            throw InvalidFieldsException.fromFieldError("endDate", "Ngày bắt đầu không thể lớn hơn ngày kết thúc");
+        }
+
+        List<OrderListViewDTO> list = orderDAO.getPaginatedOrders(criteria);
+
+//        Long totalItems = orderDAO.getTotalOrders(criteria);
+        Long totalItems = 10L;
+
+        PageResponse<OrderListViewDTO> page = new PageResponse<>();
+        page.setItems(list);
+        page.setNumPages((int) ((totalItems - 1) / criteria.getLimit()) + 1);
+        page.setLimit(criteria.getLimit());
+        page.setTotalItems(Math.toIntExact(totalItems));
+        page.setOffset(criteria.getOffset());
+        return page;
     }
 }

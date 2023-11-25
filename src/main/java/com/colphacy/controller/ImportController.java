@@ -28,7 +28,6 @@ public class ImportController {
     @Autowired
     private EmployeeService employeeService;
 
-
     @Value("${colphacy.api.default-page-size}")
     private Integer defaultPageSize;
 
