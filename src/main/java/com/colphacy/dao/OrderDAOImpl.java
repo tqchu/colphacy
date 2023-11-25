@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.transaction.Transactional;
 import java.util.List;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -151,6 +152,7 @@ public class OrderDAOImpl implements OrderDAO {
         }
     }
 
+    @Transactional
     @Override
     public List<ProductOrderSuitableDTO> findSuitableProduct(List<OrderItemCreateDTO> sets, double receiverLat, double receiverLong) {
         createAndInsertTempTable(sets);
