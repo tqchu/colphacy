@@ -50,7 +50,7 @@ public class OrderController {
     }
 
     @Operation(summary = "Get paginated order history by status", security = {@SecurityRequirement(name = "bearer-key")})
-    @PutMapping("/{id}")
+    @PutMapping("")
     public void updateStatus(@RequestBody @Valid OrderUpdateDTO order) {
         orderService.updateOrder(order);
     }
