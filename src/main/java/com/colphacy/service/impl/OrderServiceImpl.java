@@ -179,5 +179,6 @@ public class OrderServiceImpl implements OrderService {
             order.setDeliverTime(now);
             order.setStatus(OrderStatus.DELIVERED);
         }
+        orderRepository.save(order);
     }
 }
