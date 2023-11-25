@@ -50,6 +50,13 @@ public class ProductController {
         return productService.findProductDTOById(id);
     }
 
+
+    @Operation(summary = "Get product's detail by its id for customers")
+    @GetMapping("/customers/{id}")
+    public ProductDTO getProductForCustomer(@PathVariable Long id) {
+        return productService.findProductDTOById(id);
+    }
+
     @Operation(summary = "Update a product", security = {@SecurityRequirement(name = "bearer-key")})
     @PutMapping
     public ProductDTO updateProduct(@Valid @RequestBody ProductDTO productDTO) {
