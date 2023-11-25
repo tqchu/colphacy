@@ -1,9 +1,6 @@
 package com.colphacy.controller;
 
-import com.colphacy.dto.order.OrderCreateDTO;
-import com.colphacy.dto.order.OrderDTO;
-import com.colphacy.dto.order.OrderListViewDTO;
-import com.colphacy.dto.order.OrderSearchCriteria;
+import com.colphacy.dto.order.*;
 import com.colphacy.model.Customer;
 import com.colphacy.payload.response.PageResponse;
 import com.colphacy.service.CustomerService;
@@ -50,5 +47,11 @@ public class OrderController {
             criteria.setLimit(defaultPageSize);
         }
         return orderService.getPaginatedOrders(criteria);
+    }
+
+    @Operation(summary = "Get paginated order history by status", security = {@SecurityRequirement(name = "bearer-key")})
+    @PutMapping("/{id}")
+    public void updateStatus(@RequestBody @Valid OrderUpdateDTO order) {
+        orderService.updateOrder(order);
     }
 }
