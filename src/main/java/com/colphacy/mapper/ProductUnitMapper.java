@@ -11,5 +11,6 @@ public interface ProductUnitMapper {
     ProductUnit productUnitDTOToProductUnit(ProductUnitDTO productUnitDTO);
 
     @Mapping(source = "unit.id", target = "unitId")
+    @Mapping(source = "unit.name", target = "unitName")
     ProductUnitDTO productUnitToProductUnitDTO(ProductUnit productUnit);
 }
