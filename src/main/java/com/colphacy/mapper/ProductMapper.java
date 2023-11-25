@@ -21,6 +21,7 @@ public interface ProductMapper {
     @Mapping(source = "category.id", target = "categoryId")
     ProductDTO productToProductDTO(Product product);
 
+    @Mapping(expression = "java(product.getImages().isEmpty() ? null : product.getImages().get(0).getUrl())", target = "image")
     ProductSimpleDTO productToProductSimpleDTO(Product product);
 
     Product productSimpleDTOToProduct(ProductSimpleDTO product);

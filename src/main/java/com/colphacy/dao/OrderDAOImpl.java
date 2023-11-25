@@ -2,12 +2,19 @@ package com.colphacy.dao;
 
 import com.colphacy.dto.order.OrderListViewDTO;
 import com.colphacy.dto.order.OrderSearchCriteria;
+import com.colphacy.dto.orderItem.OrderItemCreateDTO;
+import com.colphacy.dto.product.ProductOrderSuitableDTO;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.transaction.Transactional;
 import java.util.List;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.sql.Date;
+import java.util.ArrayList;
 
 @Repository
 public class OrderDAOImpl implements OrderDAO {
@@ -125,5 +132,101 @@ public class OrderDAOImpl implements OrderDAO {
         // Add the grouping and ordering clauses
         sql += " GROUP BY o.id, c.id, o.order_time ORDER BY " + criteria.getSortBy() + " " + criteria.getOrder() + " LIMIT :limit OFFSET :offset";
         return sql;
+    }
+
+    private void createAndInsertTempTable(List<OrderItemCreateDTO> sets) {
+        entityManager.createNativeQuery("CREATE TEMPORARY TABLE IF NOT EXISTS temp_sets (" +
+                "product_id INT, " +
+                "unit_id INT, " +
+                "quantity INT," +
+                "price FLOAT" +
+                ")").executeUpdate();
+
+        for (OrderItemCreateDTO set : sets) {
+            entityManager.createNativeQuery("INSERT INTO temp_sets (product_id, unit_id, quantity, price) VALUES (?, ?, ?, ?)")
+                    .setParameter(1, set.getProductId())
+                    .setParameter(2, set.getUnitId())
+                    .setParameter(3, set.getQuantity())
+                    .setParameter(4, set.getPrice())
+                    .executeUpdate();
+        }
+    }
+
+    @Transactional
+    @Override
+    public List<ProductOrderSuitableDTO> findSuitableProduct(List<OrderItemCreateDTO> sets, double receiverLat, double receiverLong) {
+        createAndInsertTempTable(sets);
+        String queryString = "WITH quantity_sum AS (" +
+                "SELECT t.product_id, " +
+                "t.unit_id, " +
+                "t.branch_id, " +
+                "t.quantity, " +
+                "SUM(t.quantity) OVER (PARTITION BY t.product_id, t.unit_id, t.branch_id ORDER BY t.branch_id ASC, t.expiration_date ASC ROWS UNBOUNDED PRECEDING) as running_total, " +
+                "t.expiration_date, " +
+                "s.quantity as n, " +
+                "s.price " + // Include the price from the input
+                "FROM branches_view t " +
+                "JOIN temp_sets s ON t.product_id = s.product_id AND t.unit_id = s.unit_id), " +
+                "max_running_total AS (" +
+                "SELECT product_id, " +
+                "unit_id, " +
+                "branch_id, " +
+                "quantity, " +
+                "MAX(running_total) OVER (PARTITION BY product_id, unit_id, branch_id) as max_running_total " +
+                "FROM quantity_sum) " +
+                "SELECT qs.product_id, " +
+                "qs.unit_id, " +
+                "qs.branch_id, " +
+                "CASE WHEN qs.running_total < qs.n THEN qs.quantity " +
+                "ELSE qs.n - (qs.running_total - qs.quantity) END as quantity, " +
+                "qs.expiration_date, " +
+                "qs.price " + // Include the price in the SELECT clause
+                "FROM quantity_sum qs " +
+                "JOIN max_running_total mrt " +
+                "ON mrt.branch_id = qs.branch_id " +
+                "AND mrt.product_id = qs.product_id " +
+                "AND mrt.unit_id = qs.unit_id " +
+                "AND mrt.quantity = qs.quantity " +
+                "WHERE qs.branch_id = (" +
+                "SELECT qs.branch_id " +
+                "FROM quantity_sum qs " +
+                "JOIN max_running_total mrt " +
+                "ON mrt.branch_id = qs.branch_id " +
+                "AND mrt.product_id = qs.product_id " +
+                "AND mrt.unit_id = qs.unit_id " +
+                "AND mrt.quantity = qs.quantity " +
+                "JOIN public.branch b ON qs.branch_id = b.id " +
+                "WHERE mrt.max_running_total >= qs.n " +
+                "AND ((qs.n - (qs.running_total - qs.quantity)) > 0) " +
+                "GROUP BY qs.branch_id, b.latitude, b.longitude " +
+                "HAVING COUNT(distinct (qs.product_id, qs.unit_id, qs.branch_id)) = :size " +
+                "ORDER BY (6371 * acos(cos(radians(:receiverLat)) * cos(radians(b.latitude)) " +
+                "* cos(radians(b.longitude) - radians(:receiverLong)) + sin(radians(:receiverLat)) " +
+                "* sin(radians(b.latitude)))) " +
+                "LIMIT 1) " +
+                "AND mrt.max_running_total >= qs.n " +
+                "AND ((qs.n - (qs.running_total - qs.quantity)) > 0)";
+
+        List<ProductOrderSuitableDTO> resultList = new ArrayList<>();
+
+        List<Object[]> result = entityManager.createNativeQuery(queryString)
+                .setParameter("size", sets.size())
+                .setParameter("receiverLat", receiverLat)
+                .setParameter("receiverLong", receiverLong)
+                .getResultList();
+
+        for (Object[] item : result) {
+            ProductOrderSuitableDTO productOrderSuitableDTO = new ProductOrderSuitableDTO();
+            productOrderSuitableDTO.setProductId(((BigInteger) item[0]).longValue());
+            productOrderSuitableDTO.setUnitId(((BigInteger) item[1]).longValue());
+            productOrderSuitableDTO.setBranchId(((BigInteger) item[2]).longValue());
+            productOrderSuitableDTO.setQuantity(((BigDecimal) item[3]).intValue());
+            Date date = (Date) item[4];
+            productOrderSuitableDTO.setExpirationDate(date.toLocalDate());
+            productOrderSuitableDTO.setPrice((Double) item[5]); // Set the price from the result
+
+            resultList.add(productOrderSuitableDTO);
+        }
+        return resultList;
     }
 }
