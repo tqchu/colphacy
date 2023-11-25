@@ -6,7 +6,7 @@ import com.colphacy.dto.imports.ImportSearchCriteria;
 import java.util.List;
 
 public interface ImportDAO {
-    List<ImportListViewDTO> getPaginatedImportsCustomer(ImportSearchCriteria criteria);
+    List<ImportListViewDTO> getPaginatedImports(ImportSearchCriteria criteria);
 
-    Long getTotalImportsCustomer(ImportSearchCriteria criteria);
+    Long getTotalImports(ImportSearchCriteria criteria);
 }
