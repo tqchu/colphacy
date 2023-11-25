@@ -3,6 +3,7 @@ package com.colphacy.service.impl;
 import com.colphacy.dao.OrderDAO;
 import com.colphacy.dto.order.*;
 import com.colphacy.exception.InvalidFieldsException;
+import com.colphacy.dto.product.ProductOrderSuitableDTO;
 import com.colphacy.exception.RecordNotFoundException;
 import com.colphacy.mapper.OrderMapper;
 import com.colphacy.model.*;
@@ -64,45 +65,51 @@ public class OrderServiceImpl implements OrderService {
         Order order = new Order();
         order.setReceiver(receiver);
         order.setCustomer(customer);
+        List<ProductOrderSuitableDTO> productOrderSuitables = orderDAO.findSuitableProduct(orderCreateDTO.getOrderItemCreateDTOs(), receiver.getAddress().getLatitude(), receiver.getAddress().getLongitude());
 
-        List<OrderItem> items = orderCreateDTO.getOrderItemCreateDTOs().stream().map(orderItem -> {
-            Product product = productRepository.findById(orderItem.getProductId()).orElseThrow(() -> new RecordNotFoundException("Sản phẩm không tồn tại"));
-            Unit unit = unitRepository.findById(orderItem.getUnitId()).orElseThrow(() -> new RecordNotFoundException("Đơn vị không tồn tại"));
+        if (productOrderSuitables.isEmpty()) {
+            throw new RecordNotFoundException("Sản phẩm đã hết hàng");
+        }
+
+        List<OrderItem> items = productOrderSuitables.stream().map(item -> {
+            Product product = productRepository.findById(item.getProductId()).orElseThrow(() -> new RecordNotFoundException("Sản phẩm không tồn tại"));
+            Unit unit = unitRepository.findById(item.getUnitId()).orElseThrow(() -> new RecordNotFoundException("Đơn vị không tồn tại"));
             ProductUnit productUnit = productUnitRepository.findByProductIdAndUnitId(product.getId(), unit.getId());
 
             if (productUnit == null) {
                 throw new RecordNotFoundException("Sản phẩm không có đơn vị này");
             }
 
-            OrderItem item = new OrderItem();
-            item.setProduct(product);
-            item.setUnit(unit);
-            item.setPrice(orderItem.getPrice());
-            item.setQuantity(orderItem.getQuantity());
-            item.setRatio(productUnit.getRatio());
+            OrderItem orderItem = new OrderItem();
+            orderItem.setProduct(product);
+            orderItem.setUnit(unit);
+            orderItem.setPrice(item.getPrice());
+            orderItem.setQuantity(item.getQuantity());
+            orderItem.setRatio(productUnit.getRatio());
             // update later
-            item.setExpirationDate(LocalDate.now());
+            orderItem.setExpirationDate(item.getExpirationDate());
 
-            return item;
+            return orderItem;
         }).toList();
 
         order.setOrderItems(items);
-        // fetch branch, updated later
-        Branch branch = branchRepository.findAll().get(0);
+        Long branchId = productOrderSuitables.get(0).getBranchId();
+        Branch branch = branchRepository.findById(branchId).get();
         order.setBranch(branch);
-        // TODO("finding branch to sell products is also important, just only one branch handle an order.
-        //so if the customer buy the product online, we must find the suitable branch")
         Order savedOrder = orderRepository.save(order);
 
-        List<Long> productIds = items.stream()
-                .map(item -> item.getProduct().getId())
-                .toList();
+        // remove from cart
 
-        List<Long> unitIds = items.stream()
-                .map(item -> item.getUnit().getId())
-                .toList();
-        // TODO (fix delete logic)
-        cartItemRepository.deleteByProductIdsAndUnitIdsAndCustomerId(productIds, unitIds, customer.getId());
+//        List<Long> productIds = items.stream()
+//                .map(item -> item.getProduct().getId())
+//                .toList();
+//
+//        List<Long> unitIds = items.stream()
+//                .map(item -> item.getUnit().getId())
+//                .toList();
+//        // TODO (fix delete logic)
+//        cartItemRepository.deleteByProductIdsAndUnitIdsAndCustomerId(productIds, unitIds, customer.getId());
+
 
 
         return orderMapper.orderToOrderDTO(savedOrder);
