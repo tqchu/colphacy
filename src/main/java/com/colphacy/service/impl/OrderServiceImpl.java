@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -144,5 +145,39 @@ public class OrderServiceImpl implements OrderService {
         page.setTotalItems(Math.toIntExact(totalItems));
         page.setOffset(criteria.getOffset());
         return page;
+    }
+
+    private Order findOrderById(Long id) {
+        Optional<Order> optionalOrder = orderRepository.findById(id);
+        if (optionalOrder.isEmpty()) {
+            throw new RecordNotFoundException("Không tìm thấy đơn hàng có id = " + id);
+        }
+
+        return optionalOrder.get();
+    }
+
+    @Override
+    public void updateOrder(OrderUpdateDTO orderDTO) {
+        Order order = findOrderById(orderDTO.getId());
+
+        if (orderDTO.getToStatus() == OrderStatus.CANCELLED && order.getStatus() != OrderStatus.PENDING) {
+            throw InvalidFieldsException.fromFieldError("toStatus", "Không thể hủy đơn hàng ở trạng thái này");
+        }
+        LocalDateTime now = LocalDateTime.now();
+        if (order.getStatus() == OrderStatus.PENDING) {
+            if (orderDTO.getToStatus() == OrderStatus.CANCELLED) {
+                order.setCancelTime(now);
+                order.setStatus(OrderStatus.CANCELLED);
+            } else {
+                order.setStatus(OrderStatus.CONFIRMED);
+                order.setConfirmTime(now);
+            }
+        } else if (order.getStatus() == OrderStatus.CONFIRMED) {
+            order.setShipTime(now);
+            order.setStatus(OrderStatus.SHIPPING);
+        } else if (order.getStatus() == OrderStatus.SHIPPING) {
+            order.setDeliverTime(now);
+            order.setStatus(OrderStatus.DELIVERED);
+        }
     }
 }
