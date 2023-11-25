@@ -11,6 +11,8 @@ public class ProductUnitDTO {
     @NotNull
     private Long unitId;
 
+    private String unitName;
+
     @NotNull
     @Min(1)
     private Integer ratio;
