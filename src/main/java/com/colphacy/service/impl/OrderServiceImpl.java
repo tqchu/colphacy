@@ -1,10 +1,13 @@
 package com.colphacy.service.impl;
 
+import com.colphacy.dao.CartDAO;
 import com.colphacy.dao.OrderDAO;
+import com.colphacy.dto.cart.CartItemTuple;
 import com.colphacy.dto.order.*;
+import com.colphacy.dto.product.ProductOrderItem;
 import com.colphacy.exception.InvalidFieldsException;
-import com.colphacy.dto.product.ProductOrderSuitableDTO;
 import com.colphacy.exception.RecordNotFoundException;
+import com.colphacy.mapper.OrderItemMapper;
 import com.colphacy.mapper.OrderMapper;
 import com.colphacy.model.*;
 import com.colphacy.payload.response.PageResponse;
@@ -14,7 +17,7 @@ import com.colphacy.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +28,8 @@ public class OrderServiceImpl implements OrderService {
     private BranchService branchService;
     @Autowired
     private OrderRepository orderRepository;
+    @Autowired
+    private OrderItemMapper orderItemMapper;
 
     @Autowired
     private ReceiverRepository receiverRepository;
@@ -42,16 +47,12 @@ public class OrderServiceImpl implements OrderService {
     private OrderMapper orderMapper;
 
     @Autowired
-    private CartItemRepository cartItemRepository;
-
-    @Autowired
-    private BranchRepository branchRepository;
-
-    @Autowired
-    private OrderItemRepository orderDetailRepository;
-    @Autowired
     private OrderDAO orderDAO;
 
+    @Autowired
+    private CartDAO cartDAO;
+
+    @Transactional
     @Override
     public OrderDTO createOrder(OrderCreateDTO orderCreateDTO, Customer customer) {
         Optional<Receiver> receiverOptional = receiverRepository.findByIdAndCustomerId(orderCreateDTO.getReceiverId(), customer.getId());
@@ -59,59 +60,50 @@ public class OrderServiceImpl implements OrderService {
         if (receiverOptional.isEmpty()) {
             throw new RecordNotFoundException("Thông tin người nhận không đúng");
         }
-
         Receiver receiver = receiverOptional.get();
+
+        orderCreateDTO.getItems().forEach(item ->
+                {
+                    if (!productRepository.existsById(item.getProductId())) {
+                        throw new RecordNotFoundException("Sản phẩm không tồn tại");
+                    }
+                    if (!unitRepository.existsById(item.getUnitId())) {
+                        throw new RecordNotFoundException("Đơn vị tính không tồn tại");
+                    }
+                    if (!productUnitRepository.existsByProductIdAndUnitId(item.getProductId(), item.getUnitId())) {
+                        throw new RecordNotFoundException("Sản phẩm không có đơn vị tính này");
+                    }
+                }
+        );
+
+        List<ProductOrderItem> availableProducts = orderDAO.findAvailableProducts(orderCreateDTO.getItems(), receiver.getAddress().getLatitude(), receiver.getAddress().getLongitude());
+
+        if (availableProducts.isEmpty()) {
+            throw new RecordNotFoundException("Sản phẩm đã hết hàng");
+        }
 
         Order order = new Order();
         order.setReceiver(receiver);
         order.setCustomer(customer);
-        List<ProductOrderSuitableDTO> productOrderSuitables = orderDAO.findSuitableProduct(orderCreateDTO.getOrderItemCreateDTOs(), receiver.getAddress().getLatitude(), receiver.getAddress().getLongitude());
 
-        if (productOrderSuitables.isEmpty()) {
-            throw new RecordNotFoundException("Sản phẩm đã hết hàng");
-        }
-
-        List<OrderItem> items = productOrderSuitables.stream().map(item -> {
-            Product product = productRepository.findById(item.getProductId()).orElseThrow(() -> new RecordNotFoundException("Sản phẩm không tồn tại"));
-            Unit unit = unitRepository.findById(item.getUnitId()).orElseThrow(() -> new RecordNotFoundException("Đơn vị không tồn tại"));
-            ProductUnit productUnit = productUnitRepository.findByProductIdAndUnitId(product.getId(), unit.getId());
-
-            if (productUnit == null) {
-                throw new RecordNotFoundException("Sản phẩm không có đơn vị này");
-            }
-
-            OrderItem orderItem = new OrderItem();
-            orderItem.setProduct(product);
-            orderItem.setUnit(unit);
-            orderItem.setPrice(item.getPrice());
-            orderItem.setQuantity(item.getQuantity());
-            orderItem.setRatio(productUnit.getRatio());
-            // update later
-            orderItem.setExpirationDate(item.getExpirationDate());
-
-            return orderItem;
-        }).toList();
-
+        List<OrderItem> items = availableProducts.stream().map(orderItemMapper::productOrderItemToOrderItemDTO).toList();
         order.setOrderItems(items);
-        Long branchId = productOrderSuitables.get(0).getBranchId();
-        Branch branch = branchRepository.findById(branchId).get();
+        Long branchId = availableProducts.get(0).getBranchId();
+        Branch branch = new Branch();
+        branch.setId(branchId);
         order.setBranch(branch);
         Order savedOrder = orderRepository.save(order);
 
-        // remove from cart
-
-//        List<Long> productIds = items.stream()
-//                .map(item -> item.getProduct().getId())
-//                .toList();
-//
-//        List<Long> unitIds = items.stream()
-//                .map(item -> item.getUnit().getId())
-//                .toList();
-//        // TODO (fix delete logic)
-//        cartItemRepository.deleteByProductIdsAndUnitIdsAndCustomerId(productIds, unitIds, customer.getId());
-
-
-
+        // remove bought items from cart
+        List<CartItemTuple> cartItemTuples = orderCreateDTO.getItems().stream()
+                .map(item -> {
+                    CartItemTuple tuple = new CartItemTuple();
+                    tuple.setCustomerId(customer.getId());
+                    tuple.setProductId(item.getProductId());
+                    tuple.setUnitId(item.getUnitId());
+                    return tuple;
+                }).toList();
+        cartDAO.deleteByCustomerIdAndProductIdAndUnitId(cartItemTuples);
         return orderMapper.orderToOrderDTO(savedOrder);
     }
 

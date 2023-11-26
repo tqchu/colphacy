@@ -1,9 +1,9 @@
 package com.colphacy.dao;
 
+import com.colphacy.dto.cart.CartItemDTO;
 import com.colphacy.dto.order.OrderListViewDTO;
 import com.colphacy.dto.order.OrderSearchCriteria;
-import com.colphacy.dto.orderItem.OrderItemCreateDTO;
-import com.colphacy.dto.product.ProductOrderSuitableDTO;
+import com.colphacy.dto.product.ProductOrderItem;
 
 import java.util.List;
 
@@ -11,5 +11,5 @@ public interface OrderDAO {
 
     List<OrderListViewDTO> getPaginatedOrders(OrderSearchCriteria criteria);
 
-    List<ProductOrderSuitableDTO> findSuitableProduct(List<OrderItemCreateDTO> sets, double receiverLat, double receiverLong);
+    List<ProductOrderItem> findAvailableProducts(List<CartItemDTO> items, double receiverLat, double receiverLong);
 }

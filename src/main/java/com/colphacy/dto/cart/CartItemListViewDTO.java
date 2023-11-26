@@ -1,7 +1,6 @@
-package com.colphacy.dto.cartItem;
+package com.colphacy.dto.cart;
 
 import com.colphacy.dto.product.ProductCustomerListViewDTO;
-import com.colphacy.dto.product.ProductDTO;
 import lombok.Data;
 
 @Data

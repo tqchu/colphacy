@@ -32,6 +32,13 @@ public class AliasToBeanResultTransformer implements ResultTransformer {
 
                         // Set the property value as LocalDateTime
                         PropertyAccessorFactory.forDirectFieldAccess(result).setPropertyValue(camelCaseAlias, localDateTime);
+                    } else if (tuple[i] instanceof java.sql.Date) {
+                        // Convert java.sql.Date to java.time.LocalDate
+                        java.sql.Date sqlDate = (java.sql.Date) tuple[i];
+                        java.time.LocalDate localDate = sqlDate.toLocalDate();
+
+                        // Set the property value as LocalDate
+                        PropertyAccessorFactory.forDirectFieldAccess(result).setPropertyValue(camelCaseAlias, localDate);
                     } else {
                         // Set the property value as is
                         PropertyAccessorFactory.forDirectFieldAccess(result).setPropertyValue(camelCaseAlias, tuple[i]);

@@ -4,7 +4,7 @@ import com.colphacy.dto.order.OrderDTO;
 import com.colphacy.model.Order;
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring", uses = { OrderItemMapper.class })
+@Mapper(componentModel = "spring", uses = {OrderItemMapper.class, ReceiverMapper.class})
 public interface OrderMapper {
     OrderDTO orderToOrderDTO(Order order);
 }
