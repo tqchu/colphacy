@@ -27,7 +27,7 @@ public class OrderController {
     private Integer defaultPageSize;
 
     @Operation(summary = "Create a new order", security = {@SecurityRequirement(name = "bearer-key")})
-    @PostMapping()
+    @PostMapping("/purchase")
     public OrderDTO create(@RequestBody @Valid OrderCreateDTO orderCreateDTO, Principal principal) {
         Customer customer = customerService.getCurrentlyLoggedInCustomer(principal);
         return orderService.createOrder(orderCreateDTO, customer);
