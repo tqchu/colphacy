@@ -162,7 +162,7 @@ public class OrderDAOImpl implements OrderDAO {
                                               OVER (PARTITION BY t.product_id, t.unit_id, t.branch_id ORDER BY t.branch_id ASC, t.expiration_date ASC ROWS UNBOUNDED PRECEDING) as running_total,
                                               t.expiration_date,
                                               s.quantity as n
-                                      FROM stock_view t
+                                      FROM available_stock_view t
                                                JOIN temp_sets s ON t.product_id = s.product_id AND t.unit_id = s.unit_id),
                       max_running_total AS (SELECT product_id,
                                                    unit_id,
