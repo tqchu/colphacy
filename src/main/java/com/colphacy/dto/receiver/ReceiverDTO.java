@@ -6,6 +6,7 @@ import lombok.Data;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 @Data
@@ -19,7 +20,7 @@ public class ReceiverDTO {
 
     @NotNull
     @NotBlank
-    @Size(min = 10, max = 10)
+    @Pattern(regexp = "^(0[3|5|7|8|9])([0-9]{8})$", message = "Sai định dạng số điện thoại")
     private String phone;
 
     @Embedded
