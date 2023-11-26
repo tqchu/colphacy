@@ -1,9 +1,10 @@
 package com.colphacy.dto.order;
 
-import com.colphacy.dto.orderItem.OrderItemCreateDTO;
+import com.colphacy.dto.cart.CartItemDTO;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
@@ -16,5 +17,5 @@ public class OrderCreateDTO {
 
     @NotNull
     @Size(min = 1)
-    private List<OrderItemCreateDTO> orderItemCreateDTOs;
+    private List<@Valid CartItemDTO> items;
 }

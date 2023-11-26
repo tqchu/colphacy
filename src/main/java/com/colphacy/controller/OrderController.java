@@ -33,13 +33,6 @@ public class OrderController {
         return orderService.createOrder(orderCreateDTO, customer);
     }
 
-    @Operation(summary = "Update a new order", security = {@SecurityRequirement(name = "bearer-key")})
-    @PostMapping("{id}")
-    public OrderDTO update(@RequestBody @Valid OrderCreateDTO orderCreateDTO, Principal principal) {
-        Customer customer = customerService.getCurrentlyLoggedInCustomer(principal);
-        return orderService.createOrder(orderCreateDTO, customer);
-    }
-
     @Operation(summary = "Get paginated order history by status", security = {@SecurityRequirement(name = "bearer-key")})
     @GetMapping("")
     public PageResponse<OrderListViewDTO> getPaginatedOrders(OrderSearchCriteria criteria) {

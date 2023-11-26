@@ -1,4 +1,4 @@
-package com.colphacy.dto.cartItem;
+package com.colphacy.dto.cart;
 
 import lombok.Data;
 
