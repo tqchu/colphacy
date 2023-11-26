@@ -33,7 +33,7 @@ public class GlobalConfig implements WebMvcConfigurer {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:5173", "http://localhost:5174", "http://localhost:3000", "http://localhost:3001", "http://localhost:8081", "https://colphacy-user-client.vercel.app", "https://colphacy-admin-client.vercel.app", "https://colphacy-user-client-git-master-kaice88s-projects.vercel.app", "https://colphacy-user-client-cy6ozl5p5-kaice88s-projects.vercel.app")
+                        .allowedOrigins("*")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS");
             }
         };
