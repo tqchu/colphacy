@@ -14,6 +14,4 @@ public class OrderItemCreateDTO {
     private Long unitId;
     @Min(1)
     private Integer quantity;
-    @Min(1)
-    private Double price;
 }

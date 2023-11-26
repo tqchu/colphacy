@@ -1,6 +1,7 @@
 package com.colphacy.service.impl;
 
-import com.colphacy.dto.cartItem.CartItemListViewDTO;
+import com.colphacy.dto.cart.CartItemDTO;
+import com.colphacy.dto.cart.CartItemListViewDTO;
 import com.colphacy.exception.RecordNotFoundException;
 import com.colphacy.mapper.CartItemMapper;
 import com.colphacy.model.*;
@@ -57,15 +58,15 @@ public class CartItemServiceImpl implements CartItemService {
     }
 
     @Override
-    public void addProduct(Long productId, Long unitId, Integer quantity, Customer customer) {
-        Integer addedQuantity = quantity;
-        Product product = productRepository.findById(productId).orElseThrow(() -> new RecordNotFoundException("Không thể tìm thấy sản phẩm"));
-        Unit unit = unitRepository.findById(unitId).orElseThrow(() -> new RecordNotFoundException("Không thể tìm thấy đơn vị"));
-        CartItem cartItem = cartItemRepository.findByCustomerIdAndProductIdAndUnitId(customer.getId(), product.getId(), unit.getId());
+    public void addItem(CartItemDTO cartItemDTO, Customer customer) {
+        Integer addedQuantity = cartItemDTO.getQuantity();
+        Product product = productRepository.findById(cartItemDTO.getProductId()).orElseThrow(() -> new RecordNotFoundException("Không thể tìm thấy sản phẩm"));
+        Unit unit = unitRepository.findById(cartItemDTO.getUnitId()).orElseThrow(() -> new RecordNotFoundException("Không thể tìm thấy đơn vị"));
         ProductUnit productUnit = productUnitRepository.findByProductIdAndUnitId(product.getId(), unit.getId());
         if (productUnit == null) {
             throw new RecordNotFoundException("Sản phẩm không có đơn vị này");
         }
+        CartItem cartItem = cartItemRepository.findByCustomerIdAndProductIdAndUnitId(customer.getId(), product.getId(), unit.getId());
 
         if (cartItem != null) {
             addedQuantity += cartItem.getQuantity();
@@ -74,7 +75,7 @@ public class CartItemServiceImpl implements CartItemService {
             cartItem = new CartItem();
             cartItem.setProduct(product);
             cartItem.setCustomer(customer);
-            cartItem.setQuantity(quantity);
+            cartItem.setQuantity(cartItemDTO.getQuantity());
             cartItem.setUnit(unit);
         }
 
