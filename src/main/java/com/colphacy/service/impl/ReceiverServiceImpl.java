@@ -2,7 +2,6 @@ package com.colphacy.service.impl;
 
 import com.colphacy.dto.receiver.ReceiverDTO;
 import com.colphacy.exception.InvalidFieldsException;
-import com.colphacy.exception.ReceiverDeletingException;
 import com.colphacy.exception.RecordNotFoundException;
 import com.colphacy.mapper.ReceiverMapper;
 import com.colphacy.model.Customer;
@@ -12,6 +11,7 @@ import com.colphacy.service.ReceiverService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -66,11 +66,12 @@ public class ReceiverServiceImpl implements ReceiverService {
     public void delete(Long receiverId, Long customerId) {
         List<Receiver> receivers = receiverRepository.findByCustomerId(customerId);
         if (receivers.size() <= 1) {
-            throw new ReceiverDeletingException("Tài khoản phải có ít nhất một thông tin người nhận");
+            throw InvalidFieldsException.fromFieldError("id", "Tài khoản phải có ít nhất một thông tin người nhận");
         }
 
         Receiver receiver = findByReceiverIdAndCustomerId(receiverId, customerId);
-        receiverRepository.delete(receiver);
+        receiver.setDeletedAt(LocalDateTime.now());
+        receiverRepository.save(receiver);
     }
 
     private Receiver findByReceiverIdAndCustomerId(Long receiverId, Long customerId) {

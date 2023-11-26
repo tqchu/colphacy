@@ -7,6 +7,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -37,4 +38,6 @@ public class Receiver {
 
     @NotNull
     private Boolean isPrimary;
+
+    private LocalDateTime deletedAt;
 }
