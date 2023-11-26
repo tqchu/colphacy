@@ -252,6 +252,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(value = {ReceiverDeletingException.class})
+    @ResponseBody
+    public ResponseEntity<Object> handleReceiverDeletingException(ReceiverDeletingException ex) {
+        return new ResponseEntity<>(getError(DEFAULT_ERROR_NAME, ex), HttpStatus.BAD_REQUEST);
+    }
+
 //    @ExceptionHandler({ConversionFailedException.class})
 
 
