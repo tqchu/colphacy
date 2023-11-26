@@ -7,4 +7,6 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface ReceiverMapper {
     ReceiverDTO receiverToReceiverDTO(Receiver receiver);
+
+    Receiver receiverDTOToReceiver(ReceiverDTO receiverDTO);
 }
