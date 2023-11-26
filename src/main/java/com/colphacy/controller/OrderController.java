@@ -47,4 +47,10 @@ public class OrderController {
     public void updateStatus(@RequestBody @Valid OrderUpdateDTO order) {
         orderService.updateOrder(order);
     }
+
+    @Operation(summary = "Get paginated order history by status", security = {@SecurityRequirement(name = "bearer-key")})
+    @PutMapping("/cancel/{id}")
+    public void cancelOrder(@PathVariable Long id) {
+        orderService.cancelOrder(id);
+    }
 }

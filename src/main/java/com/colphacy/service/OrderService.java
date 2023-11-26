@@ -10,4 +10,6 @@ public interface OrderService {
     PageResponse<OrderListViewDTO> getPaginatedOrders(OrderSearchCriteria criteria);
 
     void updateOrder(OrderUpdateDTO order);
+
+    void cancelOrder(Long id);
 }

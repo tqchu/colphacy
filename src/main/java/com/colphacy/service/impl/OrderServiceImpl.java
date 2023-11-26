@@ -180,4 +180,18 @@ public class OrderServiceImpl implements OrderService {
         }
         orderRepository.save(order);
     }
+
+    @Override
+    public void cancelOrder(Long id) {
+        Order order = findOrderById(id);
+
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw InvalidFieldsException.fromFieldError("error", "Không thể hủy đơn hàng ở trạng thái này");
+        }
+        order.setCancelTime(LocalDateTime.now());
+        order.setStatus(OrderStatus.CANCELLED);
+        orderRepository.save(order);
+    }
+
+
 }
