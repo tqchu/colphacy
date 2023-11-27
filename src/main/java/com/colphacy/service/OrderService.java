@@ -12,4 +12,6 @@ public interface OrderService {
     void updateOrder(OrderUpdateDTO order);
 
     void cancelOrder(Long id);
+
+    OrderDTO findOrderDTOById(Long id);
 }

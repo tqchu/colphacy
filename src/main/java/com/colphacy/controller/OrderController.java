@@ -53,4 +53,10 @@ public class OrderController {
     public void cancelOrder(@PathVariable Long id) {
         orderService.cancelOrder(id);
     }
+
+    @Operation(summary = "Get order's detail", security = {@SecurityRequirement(name = "bearer-key")})
+    @GetMapping("/{id}")
+    public OrderDTO getOrder(@PathVariable Long id) {
+        return orderService.findOrderDTOById(id);
+    }
 }

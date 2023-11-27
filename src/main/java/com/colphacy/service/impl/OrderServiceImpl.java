@@ -193,5 +193,12 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
     }
 
+    @Override
+    public OrderDTO findOrderDTOById(Long id) {
+        Order order = findOrderById(id);
+
+        return orderMapper.orderToOrderDTO(order);
+    }
+
 
 }
