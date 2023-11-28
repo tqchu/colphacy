@@ -16,8 +16,11 @@ import com.colphacy.service.CustomerService;
 import com.colphacy.service.EmployeeService;
 import com.colphacy.service.LoggedTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
@@ -28,6 +31,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private CustomerService customerService;
     private CustomerMapper customerMapper;
     private LoggedTokenService loggedTokenService;
+    @Value("${app.jwt.expire-duration}")
+    private long expireDuration;
 
     @Autowired
     public void setEmployeeMapper(EmployeeMapper employeeMapper) {
@@ -67,17 +72,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public EmployeeLoginResponse loginByEmployee(LoginRequest loginRequest) {
         Employee employee = employeeService.authenticate(loginRequest);
-        String accessToken = jwtUtil.generateAccessToken(employee.getId(), employee.getRole().getName().toString());
+        LocalDateTime expirationDate = LocalDateTime.now().plusSeconds(expireDuration / 1000);
+        String accessToken = jwtUtil.generateAccessToken(employee.getId(), employee.getRole().getName().toString(), expirationDate);
         EmployeeDetailDTO employeeDetailDTO = employeeMapper.employeeToEmployeeDetailDTO(employee);
-        return new EmployeeLoginResponse(employeeDetailDTO, accessToken);
+        return new EmployeeLoginResponse(employeeDetailDTO, accessToken, expirationDate);
     }
 
     @Override
     public CustomerLoginResponse loginByCustomer(LoginRequest loginRequest) {
         Customer customer = customerService.authenticate(loginRequest);
-        String accessToken = jwtUtil.generateAccessToken(customer.getId(), "CUSTOMER");
+        LocalDateTime expirationDate = LocalDateTime.now().plusSeconds(expireDuration / 1000);
+        String accessToken = jwtUtil.generateAccessToken(customer.getId(), "CUSTOMER", expirationDate);
         CustomerDetailDTO customerDetailDTO = customerMapper.customerToCustomerDetailDTO(customer);
-        return new CustomerLoginResponse(customerDetailDTO, accessToken);
+        return new CustomerLoginResponse(customerDetailDTO, accessToken, expirationDate);
     }
 
     @Override
