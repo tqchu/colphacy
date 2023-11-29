@@ -14,4 +14,6 @@ public interface OrderService {
     void cancelOrder(Long id);
 
     OrderDTO findOrderDTOById(Long id);
+
+    PageResponse<OrderListViewCustomerDTO> getPaginatedOrdersCustomer(OrderSearchCriteria criteria);
 }

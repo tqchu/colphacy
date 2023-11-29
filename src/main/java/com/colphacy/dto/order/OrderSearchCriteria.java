@@ -27,4 +27,5 @@ public class OrderSearchCriteria {
     private Integer offset = 0;
     @Min(value = 1, message = "Số lượng giới hạn phải lớn hơn 0")
     private Integer limit;
+    private Long customerId;
 }
