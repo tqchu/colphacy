@@ -13,12 +13,10 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-@Mapper(componentModel = "spring", uses = {IngredientMapper.class, ProductUnitMapper.class})
+@Mapper(componentModel = "spring", uses = {IngredientMapper.class, ProductUnitMapper.class, CategoryMapper.class})
 public interface ProductMapper {
-    @Mapping(source = "categoryId", target = "category.id")
     Product productDTOToProduct(ProductDTO productDTO);
 
-    @Mapping(source = "category.id", target = "categoryId")
     ProductDTO productToProductDTO(Product product);
 
     @Mapping(expression = "java(product.getImages().isEmpty() ? null : product.getImages().get(0).getUrl())", target = "image")
