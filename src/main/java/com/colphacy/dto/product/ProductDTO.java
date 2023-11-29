@@ -1,5 +1,6 @@
 package com.colphacy.dto.product;
 
+import com.colphacy.dto.category.CategoryDTO;
 import com.colphacy.model.ProductStatus;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
@@ -26,7 +27,7 @@ public class ProductDTO {
     private String packing;
 
     @NotNull
-    private Long categoryId;
+    private CategoryDTO category;
 
     @NotNull
     @NotBlank
