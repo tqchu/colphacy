@@ -52,7 +52,7 @@ public class ProductServiceImpl implements ProductService {
         if (productDTO.getStatus() == ProductStatus.DISCONTINUED) {
             throw InvalidFieldsException.fromFieldError("status", "Không thể tạo sản phẩm ngừng kinh doanh");
         }
-        categoryService.findById(productDTO.getCategoryId());
+        categoryService.findById(productDTO.getCategory().getId());
         productDTO.getProductUnits().forEach(productUnitDTO -> unitService.findById(productUnitDTO.getUnitId()));
         Product product = productMapper.productDTOToProduct(productDTO);
         product.setId(null);
@@ -154,7 +154,7 @@ public class ProductServiceImpl implements ProductService {
 
         Product existingProduct = findById(productDTO.getId());
 
-        categoryService.findById(productDTO.getCategoryId());
+        categoryService.findById(productDTO.getCategory().getId());
         productDTO.getProductUnits().forEach(productUnitDTO -> unitService.findById(productUnitDTO.getUnitId()));
         Optional<ProductUnit> optionalBaseProductUnit = existingProduct.getProductUnits().stream()
                 .filter(pUnit -> pUnit.getRatio().equals(1))
