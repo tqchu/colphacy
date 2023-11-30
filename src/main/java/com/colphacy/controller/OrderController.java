@@ -42,6 +42,18 @@ public class OrderController {
         return orderService.getPaginatedOrders(criteria);
     }
 
+    @Operation(summary = "Get paginated order history by status for customer", security = {@SecurityRequirement(name = "bearer-key")})
+    @GetMapping("/customer")
+    public PageResponse<OrderListViewCustomerDTO> getPaginatedOrdersCustomer(OrderSearchCriteria criteria, Principal principal) {
+        Customer customer = customerService.getCurrentlyLoggedInCustomer(principal);
+
+        if (criteria.getLimit() == null) {
+            criteria.setLimit(defaultPageSize);
+        }
+        criteria.setCustomerId(customer.getId());
+        return orderService.getPaginatedOrdersCustomer(criteria);
+    }
+
     @Operation(summary = "Update order's status", security = {@SecurityRequirement(name = "bearer-key")})
     @PutMapping("")
     public void updateStatus(@RequestBody @Valid OrderUpdateDTO order) {
@@ -57,6 +69,12 @@ public class OrderController {
     @Operation(summary = "Get order's detail", security = {@SecurityRequirement(name = "bearer-key")})
     @GetMapping("/{id}")
     public OrderDTO getOrder(@PathVariable Long id) {
+        return orderService.findOrderDTOById(id);
+    }
+
+    @Operation(summary = "Get order's detail", security = {@SecurityRequirement(name = "bearer-key")})
+    @GetMapping("/customer/{id}")
+    public OrderDTO getOrderDetailCustomer(@PathVariable Long id) {
         return orderService.findOrderDTOById(id);
     }
 }

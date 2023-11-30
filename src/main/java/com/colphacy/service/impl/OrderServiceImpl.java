@@ -109,7 +109,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public PageResponse<OrderListViewDTO> getPaginatedOrders(OrderSearchCriteria criteria) {
-
+        criteria.setCustomerId(null);
         // Handle sort field
         if (criteria.getSortBy() != null && criteria.getSortBy().name().equalsIgnoreCase("time")) {
             if (criteria.getStatus() == null || criteria.getStatus() == OrderStatus.PENDING) {
@@ -198,6 +198,44 @@ public class OrderServiceImpl implements OrderService {
         Order order = findOrderById(id);
 
         return orderMapper.orderToOrderDTO(order);
+    }
+
+
+    public PageResponse<OrderListViewCustomerDTO> getPaginatedOrdersCustomer(OrderSearchCriteria criteria) {
+        // Handle sort field
+        if (criteria.getSortBy() != null && criteria.getSortBy().name().equalsIgnoreCase("time")) {
+            if (criteria.getStatus() == null || criteria.getStatus() == OrderStatus.PENDING) {
+                criteria.setSortBy(OrderListSortField.ORDER_TIME);
+            } else if (criteria.getStatus() == OrderStatus.CONFIRMED) {
+                criteria.setSortBy(OrderListSortField.CONFIRM_TIME);
+            } else if (criteria.getStatus() == OrderStatus.SHIPPING) {
+                criteria.setSortBy(OrderListSortField.SHIP_TIME);
+            } else if (criteria.getStatus() == OrderStatus.DELIVERED) {
+                criteria.setSortBy(OrderListSortField.DELIVER_TIME);
+            } else if (criteria.getStatus() == OrderStatus.CANCELLED) {
+                criteria.setSortBy(OrderListSortField.CANCEL_TIME);
+            }
+        }
+        if (criteria.getBranchId() != null) {
+            branchService.findBranchById(criteria.getBranchId());
+        }
+        // Validate maxPrice must be bigger or greater than minPrice
+        if (criteria.getStartDate() != null && criteria.getEndDate() != null && criteria.getStartDate().isAfter(criteria.getEndDate())) {
+            throw InvalidFieldsException.fromFieldError("endDate", "Ngày bắt đầu không thể lớn hơn ngày kết thúc");
+        }
+
+        List<OrderListViewCustomerDTO> list = orderDAO.getPaginatedOrdersForCustomer(criteria);
+
+//        Long totalItems = orderDAO.getTotalOrders(criteria);
+        Long totalItems = 10L;
+
+        PageResponse<OrderListViewCustomerDTO> page = new PageResponse<>();
+        page.setItems(list);
+        page.setNumPages((int) ((totalItems - 1) / criteria.getLimit()) + 1);
+        page.setLimit(criteria.getLimit());
+        page.setTotalItems(Math.toIntExact(totalItems));
+        page.setOffset(criteria.getOffset());
+        return page;
     }
 
 
