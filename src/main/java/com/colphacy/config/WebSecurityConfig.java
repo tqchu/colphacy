@@ -77,6 +77,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/docs.json/**").permitAll()
                 .antMatchers(("/api/orders/purchase")).hasAuthority("CUSTOMER")
                 .antMatchers(("/api/orders/cancel/**")).hasAuthority("CUSTOMER")
+                .antMatchers(("/api/orders/customer/**")).hasAuthority("CUSTOMER")
                 .antMatchers(("/api/orders/**")).hasAnyAuthority("ADMIN", "STAFF")
                 .antMatchers(("/api/products/best-sellers")).permitAll()
                 .antMatchers(("/api/products/customers/**")).permitAll()
