@@ -158,40 +158,55 @@ public class OrderDAOImpl implements OrderDAO {
     private String getPaginatedOrdersByCriteriaForCustomer(OrderSearchCriteria criteria) {
 
         String sql = """
-                SELECT o.id                     as id,
-                       p.id                     as product_id,
-                       p.name                   as product_name,
-                       od.price                 as product_price,
-                       od.quantity              as product_quantity,
-                       min(pi.url)              as product_image,
-                       o.order_time             as order_time,
-                       o.ship_time              as ship_time,
-                       o.confirm_time           as confirm_time,
-                       o.deliver_time           as deliver_time,
-                       o.cancel_time            as cancel_time,
-                       SUM(od.price * quantity) as total
-                FROM orders o
-                    JOIN customer c ON c.id = o.customer_id AND customer_id = :customerId
-                    JOIN
-                     (SELECT MIN(id) as id, order_id
-                      FROM order_item
-                      GROUP BY order_id)
-                         f_od ON o.id = f_od.order_id
-                    JOIN order_item od
-                        ON od.id = f_od.id
-                    JOIN product p ON p.id = od.product_id
-                    """;
+                WITH first_products AS (SELECT o.id as order_id,
+                                               p.id,
+                                               p.name,
+                                               od.price,
+                                               od.quantity,
+                                               f_pi.url
+                                     FROM orders o
+                                              JOIN customer c ON c.id = o.customer_id AND customer_id = :customerId
+                                              JOIN
+                                          (SELECT MIN(id) as id, order_id
+                                           FROM order_item
+                                           GROUP BY order_id) f_od ON o.id = f_od.order_id
+                                              JOIN order_item od
+                                                   ON od.id = f_od.id
+                                              JOIN product p ON p.id = od.product_id
+                                              """;
         boolean hasKeywordCondition = criteria.getKeyword() != null;
         if (hasKeywordCondition) {
             sql += " AND unaccent(lower(p.name)) LIKE unaccent(lower('%' || :keyword || '%')) ";
         }
-
-        sql += " JOIN product_image pi ON p.id = pi.product_id";
+        sql += """
+                JOIN (SELECT MIN(url) as url, product_id
+                      FROM product_image
+                      GROUP BY product_id) f_pi
+                     ON f_pi.product_id = p.id)
+                SELECT o.id                        as id,
+                       fp.id                       as product_id,
+                       fp.name                     as product_name,
+                       fp.price                    as product_price,
+                       fp.quantity                 as product_quantity,
+                       fp.url                      as product_image,
+                       o.order_time                as order_time,
+                       o.ship_time                 as ship_time,
+                       o.confirm_time              as confirm_time,
+                       o.deliver_time              as deliver_time,
+                       o.cancel_time               as cancel_time,
+                       SUM(od.price * od.quantity) as total
+                FROM orders o
+                         JOIN customer c ON c.id = o.customer_id AND customer_id = :customerId
+                         JOIN order_item od
+                              ON od.order_id = o.id
+                         JOIN first_products fp
+                              ON fp.order_id = o.id
+                """;
         // Add the date range and branch id conditions if they are present
         sql += " WHERE o.status = :status ";
 
         // Add the grouping and ordering clauses
-        sql += " GROUP BY o.id, p.id, p.name, od.price, od.quantity, o.order_time, o.ship_time, o.confirm_time, o.deliver_time, o.cancel_time" +
+        sql += " GROUP BY o.id, fp.id, fp.price, fp.name, fp.quantity, fp.url, o.order_time, o.ship_time, o.confirm_time, o.deliver_time, o.cancel_time " +
                 " ORDER BY " + criteria.getSortBy() + " " + criteria.getOrder() + " LIMIT :limit OFFSET :offset";
         return sql;
     }
@@ -199,10 +214,10 @@ public class OrderDAOImpl implements OrderDAO {
     private void createAndInsertTempTable(List<CartItemDTO> sets) {
         entityManager.createNativeQuery(
                         """
-                                CREATE TEMPORARY TABLE IF NOT EXISTS temp_sets (
-                                                                        product_id INT,
-                                                                        unit_id INT,
-                                                                        quantity INT
+                                CREATE TEMPORARY TABLE IF NOT EXISTS temp_sets(
+                                        product_id INT,
+                                        unit_id INT,
+                                        quantity INT
                                 );
                                 TRUNCATE temp_sets;
                                 """
@@ -222,58 +237,58 @@ public class OrderDAOImpl implements OrderDAO {
     public List<ProductOrderItem> findAvailableProducts(List<CartItemDTO> items, double receiverLat, double receiverLong) {
         createAndInsertTempTable(items);
         String queryString = """
-                WITH quantity_sum AS (SELECT t.product_id,
-                                              t.unit_id,
-                                              t.branch_id,
-                                              t.quantity,
-                                              SUM(t.quantity)
-                                              OVER (PARTITION BY t.product_id, t.unit_id, t.branch_id ORDER BY t.branch_id ASC, t.expiration_date ASC ROWS UNBOUNDED PRECEDING) as running_total,
-                                              t.expiration_date,
-                                              s.quantity as n
-                                      FROM available_stock_view t
-                                               JOIN temp_sets s ON t.product_id = s.product_id AND t.unit_id = s.unit_id),
-                      max_running_total AS (SELECT product_id,
-                                                   unit_id,
-                                                   branch_id,
-                                                   quantity,
-                                                   MAX(running_total) OVER (PARTITION BY product_id, unit_id, branch_id) as max_running_total
-                                            FROM quantity_sum)
+                WITH quantity_sum AS(SELECT t.product_id,
+                        t.unit_id,
+                        t.branch_id,
+                        t.quantity,
+                        SUM(t.quantity)
+                        OVER(PARTITION BY t.product_id, t.unit_id, t.branch_id ORDER BY t.branch_id ASC, t.expiration_date ASC ROWS UNBOUNDED PRECEDING)as running_total,
+                        t.expiration_date,
+                        s.quantity as n
+                        FROM available_stock_view t
+                        JOIN temp_sets s ON t.product_id = s.product_id AND t.unit_id = s.unit_id),
+                        max_running_total AS(SELECT product_id,
+                        unit_id,
+                        branch_id,
+                        quantity,
+                        MAX(running_total)OVER(PARTITION BY product_id, unit_id, branch_id)as max_running_total
+                        FROM quantity_sum)
                 SELECT qs.product_id as product_id,
-                       qs.unit_id as unit_id,
-                       qs.branch_id as branch_id,
-                       CASE
-                           WHEN qs.running_total < qs.n THEN qs.quantity
-                           ELSE qs.n - (qs.running_total - qs.quantity) END as quantity,
-                       qs.expiration_date as expiration_date,
-                       pu.sale_price as price,
-                       pu.ratio as ratio
+                        qs.unit_id as unit_id,
+                qs.branch_id as branch_id,
+                        CASE
+                WHEN qs.running_total<qs.n THEN qs.quantity
+                ELSE qs.n - (qs.running_total - qs.quantity) END as quantity,
+                        qs.expiration_date as expiration_date,
+                pu.sale_price as price,
+                        pu.ratio as ratio
                 FROM quantity_sum qs
-                         JOIN max_running_total mrt
-                              ON mrt.branch_id = qs.branch_id
-                                  AND mrt.product_id = qs.product_id
-                                  AND mrt.unit_id = qs.unit_id
-                                  AND mrt.quantity = qs.quantity
-                        JOIN product_unit pu
-                            ON qs.product_id = pu.product_id AND qs.unit_id = pu.unit_id
+                JOIN max_running_total mrt
+                ON mrt.branch_id = qs.branch_id
+                AND mrt.product_id = qs.product_id
+                AND mrt.unit_id = qs.unit_id
+                AND mrt.quantity = qs.quantity
+                JOIN product_unit pu
+                ON qs.product_id = pu.product_id AND qs.unit_id = pu.unit_id
                 WHERE qs.branch_id = (SELECT qs.branch_id
-                                      FROM quantity_sum qs
-                                               JOIN max_running_total mrt
-                                                    ON mrt.branch_id = qs.branch_id
-                                                        AND mrt.product_id = qs.product_id
-                                                        AND mrt.unit_id = qs.unit_id
-                                                        AND mrt.quantity = qs.quantity
-                                               JOIN public.branch b ON qs.branch_id = b.id
-                                      WHERE mrt.max_running_total >= qs.n
-                                        AND ((qs.n - (qs.running_total - qs.quantity)) > 0)
-                                      GROUP BY qs.branch_id, b.latitude, b.longitude
-                                      HAVING COUNT(distinct (qs.product_id, qs.unit_id, qs.branch_id)) = :size
-                                      ORDER BY (6371 * acos(cos(radians(:receiverLat)) * cos(radians(b.latitude))
-                                                                * cos(radians(b.longitude) - radians(:receiverLong)) +
-                                                            sin(radians(:receiverLat))
-                                                                * sin(radians(b.latitude))))
-                                      LIMIT 1)
-                  AND mrt.max_running_total >= qs.n
-                  AND ((qs.n - (qs.running_total - qs.quantity)) > 0)
+                FROM quantity_sum qs
+                JOIN max_running_total mrt
+                ON mrt.branch_id = qs.branch_id
+                AND mrt.product_id = qs.product_id
+                AND mrt.unit_id = qs.unit_id
+                AND mrt.quantity = qs.quantity
+                JOIN public.branch b ON qs.branch_id = b.id
+                WHERE mrt.max_running_total >= qs.n
+                AND((qs.n - (qs.running_total - qs.quantity)) > 0)
+                GROUP BY qs.branch_id, b.latitude, b.longitude
+                HAVING COUNT (distinct(qs.product_id, qs.unit_id, qs.branch_id)) = :size
+                ORDER BY (6371 * acos(cos(radians(:receiverLat)) *cos(radians(b.latitude))
+                        * cos(radians(b.longitude) - radians(:receiverLong))+
+                        sin(radians(:receiverLat))
+                                                                        *sin(radians(b.latitude))))
+                LIMIT 1)
+                AND mrt.max_running_total >= qs.n
+                AND((qs.n - (qs.running_total - qs.quantity)) > 0)
                 """;
 
         Query query = entityManager.createNativeQuery(queryString);
