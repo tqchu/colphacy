@@ -158,20 +158,17 @@ public class OrderDAOImpl implements OrderDAO {
     private String getPaginatedOrdersByCriteriaForCustomer(OrderSearchCriteria criteria) {
 
         String sql = """
-                WITH first_products AS (SELECT o.id as order_id,
-                                               p.id,
-                                               p.name,
-                                               od.price,
-                                               od.quantity,
-                                               f_pi.url
+                WITH first_products AS (SELECT DISTINCT  ON (o.id)
+                                                o.id as order_id,
+                                                p.id,
+                                                p.name,
+                                                od.price,
+                                                od.quantity,
+                                                f_pi.url
                                      FROM orders o
                                               JOIN customer c ON c.id = o.customer_id AND customer_id = :customerId
-                                              JOIN
-                                          (SELECT MIN(id) as id, order_id
-                                           FROM order_item
-                                           GROUP BY order_id) f_od ON o.id = f_od.order_id
                                               JOIN order_item od
-                                                   ON od.id = f_od.id
+                                                   ON od.order_id = o.id
                                               JOIN product p ON p.id = od.product_id
                                               """;
         boolean hasKeywordCondition = criteria.getKeyword() != null;
