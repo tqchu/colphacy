@@ -163,7 +163,7 @@ public class ProductDAOImpl implements ProductDAO {
                 }
             }
             if (hasKeywordCondition) {
-                sql += " unaccent(lower(p.name)) LIKE unaccent(lower('%' || :keyword || '%')) or unaccent(lower(p.short_description)) LIKE unaccent(lower('%' || :keyword || '%')) or unaccent(lower(p.full_description)) LIKE unaccent(lower('%' || :keyword || '%')) ";
+                sql += " (unaccent(lower(p.name)) LIKE unaccent(lower('%' || :keyword || '%')) or unaccent(lower(p.short_description)) LIKE unaccent(lower('%' || :keyword || '%')) or unaccent(lower(p.full_description)) LIKE unaccent(lower('%' || :keyword || '%')) )";
                 if (hasMinPriceCondition || hasMaxPriceCondition) {
                     sql += " AND ";
                 }
@@ -240,7 +240,7 @@ public class ProductDAOImpl implements ProductDAO {
                 }
             }
             if (hasKeywordCondition) {
-                sql += " unaccent(lower(p.name)) LIKE unaccent(lower('%' || :keyword || '%')) or unaccent(lower(p.short_description)) LIKE unaccent(lower('%' || :keyword || '%')) or unaccent(lower(p.full_description)) LIKE unaccent(lower('%' || :keyword || '%')) ";
+                sql += " (unaccent(lower(p.name)) LIKE unaccent(lower('%' || :keyword || '%')) or unaccent(lower(p.short_description)) LIKE unaccent(lower('%' || :keyword || '%')) or unaccent(lower(p.full_description)) LIKE unaccent(lower('%' || :keyword || '%'))) ";
                 if (hasMinPriceCondition || hasMaxPriceCondition) {
                     sql += " AND ";
                 }
