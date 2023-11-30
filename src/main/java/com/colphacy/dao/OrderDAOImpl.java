@@ -1,6 +1,7 @@
 package com.colphacy.dao;
 
 import com.colphacy.dto.cart.CartItemDTO;
+import com.colphacy.dto.order.OrderListViewCustomerDTO;
 import com.colphacy.dto.order.OrderListViewDTO;
 import com.colphacy.dto.order.OrderSearchCriteria;
 import com.colphacy.dto.product.ProductOrderItem;
@@ -49,6 +50,32 @@ public class OrderDAOImpl implements OrderDAO {
         // Execute the query and return the result list, with each result transformed into an OrderListViewDTO object
         return query.unwrap(org.hibernate.query.Query.class)
                 .setResultTransformer(new AliasToBeanResultTransformer(OrderListViewDTO.class))
+                .getResultList();
+    }
+
+    @Override
+    public List<OrderListViewCustomerDTO> getPaginatedOrdersForCustomer(OrderSearchCriteria criteria) {
+        // Get the native SQL query
+        String sql = getPaginatedOrdersByCriteriaForCustomer(criteria);
+
+        // Create a Query object using the SQL query
+        Query query = entityManager.createNativeQuery(sql);
+
+        // Set the parameters based on the criteria
+        boolean hasKeywordCondition = criteria.getKeyword() != null;
+
+        if (hasKeywordCondition) {
+            query.setParameter("keyword", criteria.getKeyword());
+        }
+
+        query.setParameter("customerId", criteria.getCustomerId());
+        query.setParameter("status", criteria.getStatus().name());
+        query.setParameter("limit", criteria.getLimit());
+        query.setParameter("offset", criteria.getOffset());
+
+        // Execute the query and return the result list, with each result transformed into an OrderListViewDTO object
+        return query.unwrap(org.hibernate.query.Query.class)
+                .setResultTransformer(new AliasToBeanResultTransformer(OrderListViewCustomerDTO.class))
                 .getResultList();
     }
 
@@ -125,6 +152,47 @@ public class OrderDAOImpl implements OrderDAO {
 
         // Add the grouping and ordering clauses
         sql += " GROUP BY o.id, c.id, o.order_time ORDER BY " + criteria.getSortBy() + " " + criteria.getOrder() + " LIMIT :limit OFFSET :offset";
+        return sql;
+    }
+
+    private String getPaginatedOrdersByCriteriaForCustomer(OrderSearchCriteria criteria) {
+
+        String sql = """
+                SELECT o.id                     as id,
+                       p.id                     as product_id,
+                       p.name                   as product_name,
+                       od.price                 as product_price,
+                       od.quantity              as product_quantity,
+                       min(pi.url)              as product_image,
+                       o.order_time             as order_time,
+                       o.ship_time              as ship_time,
+                       o.confirm_time           as confirm_time,
+                       o.deliver_time           as deliver_time,
+                       o.cancel_time            as cancel_time,
+                       SUM(od.price * quantity) as total
+                FROM orders o
+                    JOIN customer c ON c.id = o.customer_id AND customer_id = :customerId
+                    JOIN
+                     (SELECT MIN(id) as id, order_id
+                      FROM order_item
+                      GROUP BY order_id)
+                         f_od ON o.id = f_od.order_id
+                    JOIN order_item od
+                        ON od.id = f_od.id
+                    JOIN product p ON p.id = od.product_id
+                    """;
+        boolean hasKeywordCondition = criteria.getKeyword() != null;
+        if (hasKeywordCondition) {
+            sql += " AND unaccent(lower(p.name)) LIKE unaccent(lower('%' || :keyword || '%')) ";
+        }
+
+        sql += " JOIN product_image pi ON p.id = pi.product_id";
+        // Add the date range and branch id conditions if they are present
+        sql += " WHERE o.status = :status ";
+
+        // Add the grouping and ordering clauses
+        sql += " GROUP BY o.id, p.id, p.name, od.price, od.quantity, o.order_time, o.ship_time, o.confirm_time, o.deliver_time, o.cancel_time" +
+                " ORDER BY " + criteria.getSortBy() + " " + criteria.getOrder() + " LIMIT :limit OFFSET :offset";
         return sql;
     }
 
