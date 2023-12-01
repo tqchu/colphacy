@@ -86,6 +86,6 @@ public class BranchController {
     @Operation(summary = "Get branch's details", security = {@SecurityRequirement(name = "bearer-key")})
     @GetMapping("/{id}")
     public BranchDetailDTO getBranchDetail(@PathVariable long id) {
-        return branchService.findBranchById(id);
+        return branchService.findBranchDetailDTOById(id);
     }
 }

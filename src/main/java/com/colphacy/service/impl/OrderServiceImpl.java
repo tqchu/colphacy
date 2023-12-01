@@ -13,7 +13,9 @@ import com.colphacy.model.*;
 import com.colphacy.payload.response.PageResponse;
 import com.colphacy.repository.*;
 import com.colphacy.service.BranchService;
+import com.colphacy.service.CustomerService;
 import com.colphacy.service.OrderService;
+import com.colphacy.service.ReceiverService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -51,18 +53,22 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private CartDAO cartDAO;
+    @Autowired
+    private CustomerService customerService;
+    @Autowired
+    private ReceiverService receiverService;
 
     @Transactional
     @Override
-    public OrderDTO createOrder(OrderCreateDTO orderCreateDTO, Customer customer) {
-        Optional<Receiver> receiverOptional = receiverRepository.findByIdAndCustomerId(orderCreateDTO.getReceiverId(), customer.getId());
+    public OrderDTO purchase(OrderPurchaseDTO orderPurchaseDTO, Customer customer) {
+        Optional<Receiver> receiverOptional = receiverRepository.findByIdAndCustomerId(orderPurchaseDTO.getReceiverId(), customer.getId());
 
         if (receiverOptional.isEmpty()) {
             throw new RecordNotFoundException("Thông tin người nhận không đúng");
         }
         Receiver receiver = receiverOptional.get();
 
-        orderCreateDTO.getItems().forEach(item ->
+        orderPurchaseDTO.getItems().forEach(item ->
                 {
                     if (!productRepository.existsById(item.getProductId())) {
                         throw new RecordNotFoundException("Sản phẩm không tồn tại");
@@ -76,7 +82,7 @@ public class OrderServiceImpl implements OrderService {
                 }
         );
 
-        List<ProductOrderItem> availableProducts = orderDAO.findAvailableProducts(orderCreateDTO.getItems(), receiver.getAddress().getLatitude(), receiver.getAddress().getLongitude());
+        List<ProductOrderItem> availableProducts = orderDAO.findAvailableProducts(orderPurchaseDTO.getItems(), receiver.getAddress().getLatitude(), receiver.getAddress().getLongitude());
 
         if (availableProducts.isEmpty()) {
             throw new RecordNotFoundException("Sản phẩm đã hết hàng");
@@ -86,7 +92,7 @@ public class OrderServiceImpl implements OrderService {
         order.setReceiver(receiver);
         order.setCustomer(customer);
 
-        List<OrderItem> items = availableProducts.stream().map(orderItemMapper::productOrderItemToOrderItemDTO).toList();
+        List<OrderItem> items = availableProducts.stream().map(orderItemMapper::productOrderItemToOrderItem).toList();
         order.setOrderItems(items);
         Long branchId = availableProducts.get(0).getBranchId();
         Branch branch = new Branch();
@@ -95,7 +101,7 @@ public class OrderServiceImpl implements OrderService {
         Order savedOrder = orderRepository.save(order);
 
         // remove bought items from cart
-        List<CartItemTuple> cartItemTuples = orderCreateDTO.getItems().stream()
+        List<CartItemTuple> cartItemTuples = orderPurchaseDTO.getItems().stream()
                 .map(item -> {
                     CartItemTuple tuple = new CartItemTuple();
                     tuple.setCustomerId(customer.getId());
@@ -105,6 +111,49 @@ public class OrderServiceImpl implements OrderService {
                 }).toList();
         cartDAO.deleteByCustomerIdAndProductIdAndUnitId(cartItemTuples);
         return orderMapper.orderToOrderDTO(savedOrder);
+    }
+
+    @Transactional
+    public OrderDTO createOrder(OrderCreateDTO orderDTO, Employee employee) {
+        // validate branch or select branch
+        Branch branch = employee.getBranch();
+
+        Order order = new Order();
+        if (branch != null) {
+            order.setBranch(branch);
+        } else {
+            branch = branchService.findBranchById(orderDTO.getBranchId());
+            order.setBranch(branch);
+        }
+        List<ProductOrderItem> availableProducts = orderDAO.findAvailableProductsForABranch(orderDTO.getItems(), branch.getId());
+
+        if (availableProducts.isEmpty()) {
+            throw new RecordNotFoundException("Sản phẩm đã hết hàng");
+        }
+
+        List<OrderItem> items = availableProducts.stream().map(orderItemMapper::productOrderItemToOrderItem).toList();
+        order.setOrderItems(items);
+
+        Customer customer = customerService.findById(orderDTO.getCustomerId());
+        order.setCustomer(customer);
+
+        order.setOrderTime(LocalDateTime.now());
+        order.setStatus(OrderStatus.PENDING);
+        // Find receiver by customerId and branchId
+        Receiver receiver = receiverService.findByCustomerIdAndBranchId(customer.getId(), branch.getId());
+        if (receiver == null) {
+            receiver = new Receiver();
+            receiver.setName(customer.getFullName());
+            receiver.setPhone(customer.getPhone());
+            receiver.setAddress(branch.getAddress());
+            receiver.setBranchId(branch.getId());
+            receiver.setCustomer(customer);
+            receiver.setIsPrimary(false);
+            receiverRepository.save(receiver);
+        }
+        order.setReceiver(receiver);
+        orderRepository.save(order);
+        return orderMapper.orderToOrderDTO(order);
     }
 
     @Override
@@ -125,7 +174,7 @@ public class OrderServiceImpl implements OrderService {
             }
         }
         if (criteria.getBranchId() != null) {
-            branchService.findBranchById(criteria.getBranchId());
+            branchService.findBranchDetailDTOById(criteria.getBranchId());
         }
         // Validate maxPrice must be bigger or greater than minPrice
         if (criteria.getStartDate() != null && criteria.getEndDate() != null && criteria.getStartDate().isAfter(criteria.getEndDate())) {
@@ -217,7 +266,7 @@ public class OrderServiceImpl implements OrderService {
             }
         }
         if (criteria.getBranchId() != null) {
-            branchService.findBranchById(criteria.getBranchId());
+            branchService.findBranchDetailDTOById(criteria.getBranchId());
         }
         // Validate maxPrice must be bigger or greater than minPrice
         if (criteria.getStartDate() != null && criteria.getEndDate() != null && criteria.getStartDate().isAfter(criteria.getEndDate())) {

@@ -125,9 +125,18 @@ public class BranchServiceImpl implements BranchService {
     }
 
     @Override
-    public BranchDetailDTO findBranchById(long id) {
-        Branch branch = findById(id);
+    public BranchDetailDTO findBranchDetailDTOById(long id) {
+        Branch branch = findBranchById(id);
         return branchMapper.branchToBranchDetailDTO(branch);
+    }
+
+    @Override
+    public Branch findBranchById(long id) {
+        Optional<Branch> optionalBranch = branchRepository.findById(id);
+        if (optionalBranch.isEmpty())
+            throw new RecordNotFoundException("Không tìm thấy chi nhánh với id " + id);
+
+        return optionalBranch.get();
     }
 
     private PageResponse<BranchListViewDTO> getBranchListViewDTOPageResponse(int offset, Page<Branch> branchPage) {
@@ -136,13 +145,5 @@ public class BranchServiceImpl implements BranchService {
         PageResponse<BranchListViewDTO> pageResponse = PageResponseUtils.getPageResponse(offset, branchDTOPage);
 
         return pageResponse;
-    }
-
-    private Branch findById(Long id) {
-        Optional<Branch> optionalBranch = branchRepository.findById(id);
-        if (optionalBranch.isEmpty())
-            throw new RecordNotFoundException("Không tìm thấy chi nhánh với id " + id);
-
-        return optionalBranch.get();
     }
 }

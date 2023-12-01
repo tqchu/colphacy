@@ -1,5 +1,6 @@
 package com.colphacy.mapper;
 
+import com.colphacy.dto.cart.CartItemDTO;
 import com.colphacy.dto.orderItem.OrderItemDTO;
 import com.colphacy.dto.product.ProductOrderItem;
 import com.colphacy.model.OrderItem;
@@ -12,6 +13,10 @@ public interface OrderItemMapper {
 
     @Mapping(source = "productId", target = "product.id")
     @Mapping(source = "unitId", target = "unit.id")
-    OrderItem productOrderItemToOrderItemDTO(ProductOrderItem orderItem);
+    OrderItem productOrderItemToOrderItem(ProductOrderItem orderItem);
+
+    @Mapping(source = "productId", target = "product.id")
+    @Mapping(source = "unitId", target = "unit.id")
+    OrderItem cartItemDTOToOrderItem(CartItemDTO cartItem);
 
 }

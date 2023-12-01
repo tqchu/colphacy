@@ -3,6 +3,7 @@ package com.colphacy.model;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -21,6 +22,8 @@ public class Receiver {
     @ManyToOne
     @JoinColumn(name = "customer_id")
     private Customer customer;
+
+    private Long branchId;
 
     @NotNull
     @NotBlank
