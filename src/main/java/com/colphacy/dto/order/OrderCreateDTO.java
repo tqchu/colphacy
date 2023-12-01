@@ -12,8 +12,10 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 public class OrderCreateDTO {
+    private Long branchId;
+
     @NotNull
-    private Long receiverId;
+    private Long customerId;
 
     @NotNull
     @Size(min = 1)

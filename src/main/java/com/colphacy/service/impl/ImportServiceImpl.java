@@ -49,7 +49,7 @@ public class ImportServiceImpl implements ImportService {
     @Transactional
     public ImportDTO createImport(ImportDTO importDTO, Long employeeId) {
         importDTO.setId(null);
-        branchService.findBranchById(importDTO.getBranch().getId());
+        branchService.findBranchDetailDTOById(importDTO.getBranch().getId());
         providerService.findById(importDTO.getProvider().getId());
 
         importDTO.getImportDetails().forEach(importDetail -> {
@@ -94,7 +94,7 @@ public class ImportServiceImpl implements ImportService {
         Import existingImport = findImportById(importDTO.getId());
 
         // Validate branch for employee?
-        branchService.findBranchById(importDTO.getBranch().getId());
+        branchService.findBranchDetailDTOById(importDTO.getBranch().getId());
         providerService.findById(importDTO.getProvider().getId());
 
         importDTO.getImportDetails().forEach(importDetail -> {
@@ -121,7 +121,7 @@ public class ImportServiceImpl implements ImportService {
     @Override
     public PageResponse<ImportListViewDTO> getPaginatedImports(ImportSearchCriteria criteria) {
         if (criteria.getBranchId() != null) {
-            branchService.findBranchById(criteria.getBranchId());
+            branchService.findBranchDetailDTOById(criteria.getBranchId());
         }
         // Validate maxPrice must be bigger or greater than minPrice
         if (criteria.getStartDate() != null && criteria.getEndDate() != null && criteria.getStartDate().isAfter(criteria.getEndDate())) {

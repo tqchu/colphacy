@@ -74,6 +74,11 @@ public class ReceiverServiceImpl implements ReceiverService {
         receiverRepository.save(receiver);
     }
 
+    @Override
+    public Receiver findByCustomerIdAndBranchId(Long customerId, Long branchId) {
+        return receiverRepository.findByCustomerIdAndBranchId(customerId, branchId);
+    }
+
     private Receiver findByReceiverIdAndCustomerId(Long receiverId, Long customerId) {
         return receiverRepository.findByIdAndCustomerId(receiverId, customerId).orElseThrow(() -> new RecordNotFoundException("Người nhận không tồn tại"));
     }
