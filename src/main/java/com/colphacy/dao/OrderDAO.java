@@ -15,4 +15,6 @@ public interface OrderDAO {
     List<OrderListViewCustomerDTO> getPaginatedOrdersForCustomer(OrderSearchCriteria criteria);
 
     List<ProductOrderItem> findAvailableProducts(List<CartItemDTO> items, double receiverLat, double receiverLong);
+
+    List<ProductOrderItem> findAvailableProductsForABranch(List<CartItemDTO> items, Long branchId);
 }

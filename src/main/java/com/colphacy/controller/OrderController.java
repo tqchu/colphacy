@@ -2,8 +2,10 @@ package com.colphacy.controller;
 
 import com.colphacy.dto.order.*;
 import com.colphacy.model.Customer;
+import com.colphacy.model.Employee;
 import com.colphacy.payload.response.PageResponse;
 import com.colphacy.service.CustomerService;
+import com.colphacy.service.EmployeeService;
 import com.colphacy.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -22,15 +24,24 @@ public class OrderController {
 
     @Autowired
     private CustomerService customerService;
+    @Autowired
+    private EmployeeService employeeService;
 
     @Value("${colphacy.api.default-page-size}")
     private Integer defaultPageSize;
 
     @Operation(summary = "Create a new order", security = {@SecurityRequirement(name = "bearer-key")})
     @PostMapping("/purchase")
-    public OrderDTO create(@RequestBody @Valid OrderCreateDTO orderCreateDTO, Principal principal) {
+    public OrderDTO purchase(@RequestBody @Valid OrderPurchaseDTO orderPurchaseDTO, Principal principal) {
         Customer customer = customerService.getCurrentlyLoggedInCustomer(principal);
-        return orderService.createOrder(orderCreateDTO, customer);
+        return orderService.purchase(orderPurchaseDTO, customer);
+    }
+
+    @Operation(summary = "Create a new order", security = {@SecurityRequirement(name = "bearer-key")})
+    @PostMapping("")
+    public OrderDTO create(@RequestBody @Valid OrderCreateDTO orderCreateDTO, Principal principal) {
+        Employee employee = employeeService.getCurrentlyLoggedInEmployee(principal);
+        return orderService.createOrder(orderCreateDTO, employee);
     }
 
     @Operation(summary = "Get paginated order history by status", security = {@SecurityRequirement(name = "bearer-key")})

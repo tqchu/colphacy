@@ -3,6 +3,7 @@ package com.colphacy.service;
 import com.colphacy.dto.SlugDTO;
 import com.colphacy.dto.branch.BranchDetailDTO;
 import com.colphacy.dto.branch.BranchListViewDTO;
+import com.colphacy.model.Branch;
 import com.colphacy.model.BranchStatus;
 import com.colphacy.payload.response.PageResponse;
 
@@ -23,5 +24,7 @@ public interface BranchService {
 
     List<BranchStatus> getAllStatuses();
 
-    BranchDetailDTO findBranchById(long id);
+    BranchDetailDTO findBranchDetailDTOById(long id);
+
+    Branch findBranchById(long id);
 }
