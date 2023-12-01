@@ -2,6 +2,7 @@ package com.colphacy.service;
 
 import com.colphacy.dto.receiver.ReceiverDTO;
 import com.colphacy.model.Customer;
+import com.colphacy.model.Receiver;
 
 import java.util.List;
 
@@ -15,4 +16,6 @@ public interface ReceiverService {
     ReceiverDTO update(ReceiverDTO receiverDTO, Long customerId);
 
     void delete(Long receiverId, Long customerId);
+
+    Receiver findByCustomerIdAndBranchId(Long customerId, Long branchId);
 }

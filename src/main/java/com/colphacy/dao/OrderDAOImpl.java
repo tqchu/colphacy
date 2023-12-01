@@ -297,4 +297,52 @@ public class OrderDAOImpl implements OrderDAO {
                 .setResultTransformer(new AliasToBeanResultTransformer(ProductOrderItem.class))
                 .getResultList();
     }
+
+    @Override
+    public List<ProductOrderItem> findAvailableProductsForABranch(List<CartItemDTO> items, Long branchId) {
+        createAndInsertTempTable(items);
+        String queryString = """
+                WITH quantity_sum AS
+                        (SELECT t.product_id,
+                                t.unit_id,
+                                t.quantity,
+                                SUM(t.quantity)
+                                OVER(PARTITION BY t.product_id, t.unit_id ORDER BY t.expiration_date ASC ROWS UNBOUNDED PRECEDING)as running_total,
+                                t.expiration_date,
+                                s.quantity as n
+                        FROM available_stock_view t
+                             JOIN temp_sets s ON t.product_id = s.product_id AND t.unit_id = s.unit_id AND t.branch_id = :branchId),
+                    max_running_total AS
+                        (SELECT product_id,
+                                unit_id,
+                                quantity,
+                                MAX(running_total)OVER(PARTITION BY product_id, unit_id) as max_running_total
+                        FROM quantity_sum)
+                SELECT qs.product_id as product_id,
+                          qs.unit_id as unit_id,
+                       :branchId as branch_id,
+                       CASE
+                           WHEN qs.running_total<qs.n THEN qs.quantity
+                           ELSE qs.n - (qs.running_total - qs.quantity) END as quantity,
+                       qs.expiration_date as expiration_date,
+                       pu.sale_price as price,
+                       pu.ratio as ratio
+                FROM quantity_sum qs
+                         JOIN max_running_total mrt
+                              ON  mrt.product_id = qs.product_id
+                                  AND mrt.unit_id = qs.unit_id
+                                  AND mrt.quantity = qs.quantity
+                         JOIN product_unit pu
+                              ON qs.product_id = pu.product_id AND qs.unit_id = pu.unit_id
+                WHERE mrt.max_running_total >= qs.n
+                  AND((qs.n - (qs.running_total - qs.quantity)) > 0)
+                """;
+
+        Query query = entityManager.createNativeQuery(queryString);
+        query.setParameter("branchId", branchId);
+
+        return query.unwrap(org.hibernate.query.Query.class)
+                .setResultTransformer(new AliasToBeanResultTransformer(ProductOrderItem.class))
+                .getResultList();
+    }
 }
