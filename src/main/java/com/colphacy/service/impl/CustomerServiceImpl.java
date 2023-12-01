@@ -1,16 +1,24 @@
 package com.colphacy.service.impl;
 
+import com.colphacy.dto.customer.CustomerSearchCriteria;
+import com.colphacy.dto.customer.CustomerSimpleDTO;
 import com.colphacy.exception.InvalidFieldsException;
 import com.colphacy.exception.RecordNotFoundException;
+import com.colphacy.mapper.CustomerMapper;
 import com.colphacy.model.Customer;
 import com.colphacy.payload.request.ChangePasswordRequest;
 import com.colphacy.payload.request.LoginRequest;
+import com.colphacy.payload.response.PageResponse;
 import com.colphacy.repository.CustomerRepository;
 import com.colphacy.service.CustomerService;
+import com.colphacy.util.PageResponseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +30,9 @@ public class CustomerServiceImpl implements CustomerService {
     @Autowired
     private CustomerRepository customerRepository;
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private CustomerMapper customerMapper;
 
     @Autowired
     public void setPasswordEncoder(@Lazy PasswordEncoder passwordEncoder) {
@@ -80,5 +91,29 @@ public class CustomerServiceImpl implements CustomerService {
         }
 
         return customer;
+    }
+
+    @Override
+    public PageResponse<CustomerSimpleDTO> getPaginatedCustomers(CustomerSearchCriteria customerSearchCriteria) {
+        int offset = customerSearchCriteria.getOffset();
+        int limit = customerSearchCriteria.getLimit();
+        String keyword = customerSearchCriteria.getKeyword();
+        int pageNo = offset / limit;
+
+        Pageable pageable = PageRequest.of(pageNo, limit, Sort.by("id").ascending());
+
+        Page<Customer> customerPage;
+
+        if (keyword != null && !keyword.isEmpty()) {
+            customerPage = customerRepository.findAll(keyword, pageable);
+        } else {
+            customerPage = customerRepository.findAll(pageable);
+        }
+
+        Page<CustomerSimpleDTO> categoryDTOPage = customerPage.map(customer -> customerMapper.customerToCustomerSimpleDTO(customer));
+
+        PageResponse<CustomerSimpleDTO> pageResponse = PageResponseUtils.getPageResponse(offset, categoryDTOPage);
+
+        return pageResponse;
     }
 }
