@@ -125,6 +125,13 @@ public class OrderServiceImpl implements OrderService {
             branch = branchService.findBranchById(orderDTO.getBranchId());
             order.setBranch(branch);
         }
+
+        LocalDateTime now = LocalDateTime.now();
+        if (orderDTO.getOrderTime() != null) {
+            if (orderDTO.getOrderTime().isAfter(now)) {
+                throw InvalidFieldsException.fromFieldError("orderTime", "Thời gian mua hàng không hợp lệ");
+            } else order.setOrderTime(orderDTO.getOrderTime());
+        } else order.setOrderTime(now);
         List<ProductOrderItem> availableProducts = orderDAO.findAvailableProductsForABranch(orderDTO.getItems(), branch.getId());
 
         if (availableProducts.isEmpty()) {
@@ -137,7 +144,6 @@ public class OrderServiceImpl implements OrderService {
         Customer customer = customerService.findById(orderDTO.getCustomerId());
         order.setCustomer(customer);
 
-        order.setOrderTime(LocalDateTime.now());
         order.setStatus(OrderStatus.PENDING);
         // Find receiver by customerId and branchId
         Receiver receiver = receiverService.findByCustomerIdAndBranchId(customer.getId(), branch.getId());
