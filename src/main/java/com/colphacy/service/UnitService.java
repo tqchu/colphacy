@@ -1,5 +1,6 @@
 package com.colphacy.service;
 
+import com.colphacy.dto.product.ProductUnitForSaleDTO;
 import com.colphacy.dto.unit.UnitDTO;
 import com.colphacy.model.Unit;
 import com.colphacy.payload.response.PageResponse;
@@ -21,5 +22,5 @@ public interface UnitService {
 
     List<UnitDTO> findAll();
 
-    List<UnitDTO> findUnitsByProductId(Long productId);
+    List<ProductUnitForSaleDTO> findUnitsByProductId(Long productId);
 }

@@ -1,11 +1,14 @@
 package com.colphacy.service.impl;
 
+import com.colphacy.dto.product.ProductUnitForSaleDTO;
 import com.colphacy.dto.unit.UnitDTO;
 import com.colphacy.exception.InvalidFieldsException;
 import com.colphacy.exception.RecordNotFoundException;
+import com.colphacy.mapper.ProductUnitMapper;
 import com.colphacy.mapper.UnitMapper;
 import com.colphacy.model.Unit;
 import com.colphacy.payload.response.PageResponse;
+import com.colphacy.repository.ProductUnitRepository;
 import com.colphacy.repository.UnitRepository;
 import com.colphacy.service.UnitService;
 import com.colphacy.util.PageResponseUtils;
@@ -24,6 +27,14 @@ public class UnitServiceImpl implements UnitService {
     private UnitRepository unitRepository;
 
     private UnitMapper unitMapper;
+    private final ProductUnitRepository productUnitRepository;
+    @Autowired
+    private ProductUnitMapper productUnitMapper;
+
+    public UnitServiceImpl(ProductUnitRepository productUnitRepository) {
+        this.productUnitRepository = productUnitRepository;
+    }
+
     @Autowired
     public void setUnitMapper(UnitMapper unitMapper) {
         this.unitMapper = unitMapper;
@@ -104,8 +115,8 @@ public class UnitServiceImpl implements UnitService {
     }
 
     @Override
-    public List<UnitDTO> findUnitsByProductId(Long productId) {
-        return unitRepository.findAllByProductId(productId).stream().map(unit -> unitMapper.unitToUnitDTO(unit)).toList();
+    public List<ProductUnitForSaleDTO> findUnitsByProductId(Long productId) {
+        return productUnitRepository.findAllByProductId(productId).stream().map(unit -> productUnitMapper.productUnitToProductUnitForSaleDTO(unit)).toList();
     }
 
     private void validateUnitNameIsUniqueElseThrow(String name) {
