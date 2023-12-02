@@ -1,5 +1,6 @@
 package com.colphacy.controller;
 
+import com.colphacy.dto.product.ProductUnitForSaleDTO;
 import com.colphacy.dto.unit.UnitDTO;
 import com.colphacy.payload.response.PageResponse;
 import com.colphacy.service.UnitService;
@@ -69,7 +70,7 @@ public class UnitController {
 
     @Operation(summary = "Get all units of a product", security = {@SecurityRequirement(name = "bearer-key")})
     @GetMapping("/products")
-    public List<UnitDTO> findUnitsOfProduct(Long productId) {
+    public List<ProductUnitForSaleDTO> findUnitsOfProduct(Long productId) {
         return unitService.findUnitsByProductId(productId);
     }
 
