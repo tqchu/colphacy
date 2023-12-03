@@ -31,23 +31,6 @@ public interface ProductMapper {
         }
     }
 
-    default ProductCustomerListViewDTO productToProductCustomerListViewDTO(Product product) {
-        ProductCustomerListViewDTO res = new ProductCustomerListViewDTO();
-        res.setName(product.getName());
-
-        if (!product.getImages().isEmpty()) {
-            res.setImage(product.getImages().get(0).getUrl());
-        }
-
-        if (!product.getProductUnits().isEmpty()) {
-            res.setUnitName(product.getProductUnits().get(0).getUnit().getName());
-            res.setSalePrice(product.getProductUnits().get(0).getSalePrice());
-        }
-
-        res.setId(product.getId());
-        return res;
-    }
-
     default ProductCustomerListViewDTO productAndUnitToProductCustomerListViewDTO(Product product, Unit unit) {
         ProductCustomerListViewDTO res = new ProductCustomerListViewDTO();
         res.setName(product.getName());
@@ -62,6 +45,7 @@ public interface ProductMapper {
                 .orElseThrow(() -> new RecordNotFoundException("Không tìm thấy đơn vị"));
 
         res.setUnitName(productUnit.getUnit().getName());
+        res.setUnitId(productUnit.getUnit().getId());
         res.setSalePrice(productUnit.getSalePrice());
 
         res.setId(product.getId());
