@@ -56,6 +56,9 @@ public class ReceiverServiceImpl implements ReceiverService {
         existingReceiver.setPhone(receiverDTO.getPhone());
         existingReceiver.setName(receiverDTO.getName());
         existingReceiver.setAddress(receiverDTO.getAddress());
+        if (receiverDTO.getIsPrimary()) {
+            receiverRepository.resetPrimaryReceiverByCustomerId(customerId);
+        }
         existingReceiver.setIsPrimary(receiverDTO.getIsPrimary());
         Receiver receiverUpdated = receiverRepository.save(existingReceiver);
 
