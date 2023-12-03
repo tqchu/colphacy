@@ -38,6 +38,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query(value = "select * from reviews r where r.product_id= :productId and r.parent_review_id is null order by r.created_time", nativeQuery = true)
     Page<Review> findByProductIdAndAndParentReviewIsNull(Long productId, Pageable pageable);
 
-    @Query(value = "select * from reviews r where r.parent_review_id= :parentReviewId order by r.created_time", nativeQuery = true)
-    List<Review> findByParentReviewId(Long parentReviewId);
+    @Query(value = "select * from reviews r where r.parent_review_id = :parentReviewId order by r.created_time", nativeQuery = true)
+    Review findByParentReviewId(Long parentReviewId);
 }

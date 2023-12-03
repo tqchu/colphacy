@@ -14,15 +14,13 @@ import java.util.stream.Collectors;
 public interface ReviewMapper {
 
     @Mapping(target = "reviewerName", expression = "java(getReviewerName(review))")
-    @Mapping(target = "childReviews", source = "review", qualifiedByName = "mapChildReviews")
+    @Mapping(target = "childReview", source = "review", qualifiedByName = "mapChildReview")
     ReviewCustomerListDTO reviewToReviewCustomerListDTO(Review review, @Context ReviewRepository reviewRepository);
 
-    @Named("mapChildReviews")
-    default List<ReviewCustomerListDTO> mapChildReviews(Review review, @Context ReviewRepository reviewRepository) {
-        List<Review> childReviews = reviewRepository.findByParentReviewId(review.getId());
-        return childReviews.stream()
-                .map(childReview -> reviewToReviewCustomerListDTO(childReview, reviewRepository))
-                .collect(Collectors.toList());
+    @Named("mapChildReview")
+    default ReviewCustomerListDTO mapChildReview(Review review, @Context ReviewRepository reviewRepository) {
+        Review childReview = reviewRepository.findByParentReviewId(review.getId());
+        return reviewToReviewCustomerListDTO(childReview, reviewRepository);
     }
 
     default String getReviewerName(Review review) {

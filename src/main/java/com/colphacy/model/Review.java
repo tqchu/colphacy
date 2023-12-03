@@ -37,7 +37,7 @@ public class Review {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "parent_review_id")
     private Review parentReview;
 

@@ -11,6 +11,6 @@ public class ReviewCustomerListDTO {
     private Integer rating;
     private String content;
     private String reviewerName;
-    private List<ReviewCustomerListDTO> childReviews;
+    private ReviewCustomerListDTO childReview;
     private LocalDateTime createdTime;
 }
