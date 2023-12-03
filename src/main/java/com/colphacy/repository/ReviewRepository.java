@@ -17,22 +17,24 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     void create(int rating, String content, Long productId, Long customerId);
 
     @Query(value =
-            "SELECT CASE\n" +
-                    "           WHEN EXISTS (\n" +
-                    "                    SELECT 1\n" +
-                    "                    FROM orders o\n" +
-                    "                             JOIN order_item oi ON o.id = oi.order_id\n" +
-                    "                    WHERE o.customer_id = :customerId\n" +
-                    "                      AND oi.product_id = :productId\n" +
-                    "                      AND o.status = 'DELIVERED'\n" +
-                    "                )\n" +
-                    "                AND NOT EXISTS (\n" +
-                    "                    SELECT 1\n" +
-                    "                    FROM reviews r\n" +
-                    "                    WHERE r.customer_id = :customerId\n" +
-                    "                      AND r.product_id = :productId\n" +
-                    "                ) THEN true\n" +
-                    "           ELSE false END",
+            """
+                    SELECT CASE
+                           WHEN EXISTS (
+                                    SELECT 1
+                                    FROM orders o
+                                             JOIN order_item oi ON o.id = oi.order_id
+                                    WHERE o.customer_id = :customerId
+                                      AND oi.product_id = :productId
+                                      AND o.status = 'DELIVERED'
+                                )
+                                AND NOT EXISTS (
+                                    SELECT 1
+                                    FROM reviews r
+                                    WHERE r.customer_id = :customerId
+                                      AND r.product_id = :productId
+                                ) THEN true
+                           ELSE false END
+                                      """,
             nativeQuery = true)
     boolean canCustomerReviewProduct(@Param("customerId") Long customerId, @Param("productId") Long productId);
 }
