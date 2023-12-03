@@ -30,9 +30,9 @@ public class ReviewController {
      * @throws com.colphacy.exception.InvalidFieldsException if the customer can not review the product
      */
 
-    @PostMapping("/send-review")
+    @PostMapping("")
     public void sendReview(@RequestBody @Valid ReviewCustomerCreateDTO reviewCustomerCreateDTO, Principal principal) {
         Customer customer = customerService.getCurrentlyLoggedInCustomer(principal);
-        reviewService.sendReview(reviewCustomerCreateDTO, customer.getId());
+        reviewService.create(reviewCustomerCreateDTO, customer);
     }
 }

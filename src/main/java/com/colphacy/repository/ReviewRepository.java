@@ -11,11 +11,6 @@ import javax.transaction.Transactional;
 
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
-    @Modifying
-    @Transactional
-    @Query(value = "INSERT INTO reviews (rating, content, product_id, customer_id) VALUES (:rating, :content, :productId, :customerId)", nativeQuery = true)
-    void create(int rating, String content, Long productId, Long customerId);
-
     @Query(value =
             """
                     SELECT CASE
