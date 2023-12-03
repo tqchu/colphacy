@@ -3,14 +3,14 @@ package com.colphacy.dto.review;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class ReviewCustomerListDTO {
     private Long id;
-    private int rating;
+    private Integer rating;
     private String content;
-    private LocalDateTime createdTime;
-    private Long parentReviewId;
     private String reviewerName;
-    private String employeeName;
+    private List<ReviewCustomerListDTO> childReviews;
+    private LocalDateTime createdTime;
 }
