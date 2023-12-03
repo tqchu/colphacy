@@ -35,8 +35,7 @@ public interface CartItemMapper {
 
         ProductUnit productUnit = product.getProductUnits().stream()
                 .filter(pu -> pu.getUnit().equals(unit))
-                .findFirst()
-                .orElseThrow(() -> new RecordNotFoundException("Không tìm thấy đơn vị"));
+                .findFirst().get();
 
         res.setUnitName(productUnit.getUnit().getName());
         res.setUnitId(productUnit.getUnit().getId());
