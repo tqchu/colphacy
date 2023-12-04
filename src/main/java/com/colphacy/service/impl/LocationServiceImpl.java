@@ -1,9 +1,10 @@
-package com.colphacy.service;
+package com.colphacy.service.impl;
 
 import com.colphacy.dto.location.request.GHNGetDistrictsRequest;
 import com.colphacy.dto.location.request.GHNGetWardsRequest;
 import com.colphacy.dto.location.response.*;
 import com.colphacy.exception.GHNException;
+import com.colphacy.service.LocationService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
