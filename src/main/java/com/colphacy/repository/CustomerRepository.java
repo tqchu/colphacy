@@ -13,6 +13,6 @@ import java.util.Optional;
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
     Optional<Customer> findByUsername(String username);
 
-    @Query("SELECT c FROM customer c WHERE LOWER(unaccent('unaccent', c.fullName)) LIKE %:keyword% OR LOWER(unaccent('unaccent', c.phone)) LIKE %:keyword% ")
+    @Query("SELECT c FROM customer c WHERE LOWER(unaccent('unaccent', c.fullName)) LIKE unaccent(lower('%' || :keyword || '%')) OR LOWER(unaccent('unaccent', c.phone)) LIKE unaccent(lower('%' || :keyword || '%')) ")
     Page<Customer> findAll(String keyword, Pageable page);
 }
