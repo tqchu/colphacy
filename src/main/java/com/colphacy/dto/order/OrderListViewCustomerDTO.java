@@ -1,5 +1,6 @@
 package com.colphacy.dto.order;
 
+import com.colphacy.model.OrderStatus;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -8,6 +9,7 @@ import java.time.LocalDateTime;
 @Data
 public class OrderListViewCustomerDTO {
     private Long id;
+    private OrderStatus status;
     private Long productId;
     private String productName;
     private Double productPrice;

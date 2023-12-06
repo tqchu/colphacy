@@ -19,7 +19,7 @@ public class OrderSearchCriteria {
 
     private Integer branchId;
 
-    private OrderStatus status = OrderStatus.PENDING;
+    private OrderStatus status;
 
     private OrderListSortField sortBy = OrderListSortField.TIME;
     private SortOrder order = SortOrder.DESC;
