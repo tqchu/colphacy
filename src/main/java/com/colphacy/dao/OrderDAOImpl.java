@@ -370,6 +370,69 @@ public class OrderDAOImpl implements OrderDAO {
         return ((Number) query.getSingleResult()).longValue();
     }
 
+    @Override
+    public Long getTotalOrders(OrderSearchCriteria criteria) {
+        String sql = getCountOrdersQuery(criteria);
+
+        Query query = entityManager.createNativeQuery(sql);
+
+        if (criteria.getKeyword() != null) {
+            query.setParameter("keyword", criteria.getKeyword());
+        }
+        if (criteria.getStartDate() != null) {
+            query.setParameter("startDate", criteria.getStartDate());
+
+        }
+        if (criteria.getEndDate() != null) {
+            query.setParameter("endDate", criteria.getEndDate());
+
+        }
+        if (criteria.getBranchId() != null) {
+            query.setParameter("branchId", criteria.getBranchId());
+
+        }
+        query.setParameter("status", criteria.getStatus().name());
+
+        return ((Number) query.getSingleResult()).longValue();
+    }
+
+    private String getCountOrdersQuery(OrderSearchCriteria criteria) {
+        String sql =
+                """
+                        SELECT COUNT(*)
+                        FROM (SELECT DISTINCT o.id
+                              FROM orders o
+                                       JOIN order_item id ON o.id = id.order_id
+                                       JOIN customer c ON c.id = o.customer_id
+                                       JOIN product p ON p.id = id.product_id
+                                       JOIN receiver r ON r.id = o.receiver_id  
+                                       """;
+        if (criteria.getKeyword() != null) {
+            sql += """
+                    AND (unaccent(lower(p.name)) LIKE unaccent(lower('%' || :keyword || '%'))
+                         OR unaccent(lower(c.full_name)) LIKE unaccent(lower('%' || :keyword || '%'))
+                         OR c.phone LIKE '%' || :keyword || '%'
+                         OR r.phone LIKE '%' || :keyword || '%')
+                    """;
+        }
+        sql +=
+                """ 
+                        WHERE o.status = :status
+                        """;
+        if (criteria.getStartDate() != null) {
+            sql += " AND order_time >= :startDate ";
+        }
+        if (criteria.getEndDate() != null) {
+            sql += " AND order_time <= :endDate ";
+        }
+        if (criteria.getBranchId() != null) {
+            sql += " AND o.branch_id = :branchId ";
+        }
+        sql += ")AS temp";
+        return sql;
+
+    }
+
     private String getCountOrdersForCustomerQuery(OrderSearchCriteria criteria) {
         String sql =
                 """

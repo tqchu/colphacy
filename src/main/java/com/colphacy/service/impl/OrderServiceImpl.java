@@ -189,8 +189,7 @@ public class OrderServiceImpl implements OrderService {
 
         List<OrderListViewDTO> list = orderDAO.getPaginatedOrders(criteria);
 
-//        Long totalItems = orderDAO.getTotalOrders(criteria);
-        Long totalItems = 10L;
+        Long totalItems = orderDAO.getTotalOrders(criteria);
 
         PageResponse<OrderListViewDTO> page = new PageResponse<>();
         page.setItems(list);
