@@ -46,16 +46,41 @@ public class StockDAOImpl implements StockDAO {
                 .getResultList();
     }
 
+    @Override
+    public Long getTotalStock(StockSearchCriteria criteria) {
+        String sql = getTotalStockQuery(criteria);
+
+        Query query = entityManager.createNativeQuery(sql);
+
+        if (criteria.getKeyword() != null) {
+            query.setParameter("keyword", criteria.getKeyword());
+        }
+
+        return ((Number) query.getSingleResult()).longValue();
+    }
+
+    public String getTotalStockQuery(StockSearchCriteria criteria) {
+        String sql =
+                """
+                        SELECT COUNT(*)
+                        FROM product p
+                                """;
+        if (criteria.getKeyword() != null) {
+            sql += " WHERE unaccent (lower(p.name)) LIKE unaccent (lower('%' || :keyword || '%')) ";
+        }
+        return sql;
+    }
+
     private String getStockViewQuery(StockSearchCriteria criteria) {
         String sql =
                 """
                         WITH imported_quantity AS (SELECT pu.product_id,
                                                           pu.unit_id,
                                                           id.expiration_date,
-                                                          sum(id.quantity) AS imported_quantity
+                                                          SUM(COALESCE(id.quantity, 0)) AS imported_quantity
                                                    FROM import i
                                                             JOIN import_detail id ON i.id = id.import_id
-                                                            JOIN product_unit pu ON pu.unit_id = id.unit_id AND pu.product_id = id.product_id
+                                                            RIGHT JOIN product_unit pu ON pu.unit_id = id.unit_id AND pu.product_id = id.product_id
                                                             """;
         if (criteria.getKeyword() != null) {
             sql += """
@@ -72,10 +97,10 @@ public class StockDAOImpl implements StockDAO {
                         sold_quantity AS (SELECT oi.product_id,
                                                  oi.unit_id,
                                                  oi.expiration_date,
-                                                 sum(oi.quantity) AS ordered_quantity
+                                                 SUM(COALESCE(oi.quantity, 0)) AS ordered_quantity
                                           FROM orders o
                                                    JOIN order_item oi ON o.id = oi.order_id
-                                                   JOIN product_unit pu ON pu.unit_id = oi.unit_id AND pu.product_id = oi.product_id 
+                                                   RIGHT JOIN product_unit pu ON pu.unit_id = oi.unit_id AND pu.product_id = oi.product_id 
                                                    """;
         if (criteria.getKeyword() != null) {
             sql +=

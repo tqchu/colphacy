@@ -19,19 +19,14 @@ public class StockServiceImpl implements StockService {
 
     @Override
     public PageResponse<StockListViewDTO> getStockView(StockSearchCriteria criteria, Employee employee) {
-        // Validate
-        // Preprocessing
-        // Preprocess branchId
         if (employee.getRole().getName().equals(RoleName.STAFF)) {
             criteria.setBranchId(employee.getBranch().getId());
         }
 
         // Process
         List<StockListViewDTO> list = stockDAO.getStockView(criteria);
-        // Return response
 
-        //        Long totalItems = orderDAO.getTotalOrders(criteria);
-        Long totalItems = 10L;
+        Long totalItems = stockDAO.getTotalStock(criteria);
 
         PageResponse<StockListViewDTO> page = new PageResponse<>();
         page.setItems(list);
