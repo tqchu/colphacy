@@ -23,7 +23,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.math.BigInteger;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -101,15 +102,15 @@ public class ReviewServiceImpl implements ReviewService {
 
         for (Object[] row : result.getContent()) {
             ReviewAdminListViewDTO dto = new ReviewAdminListViewDTO();
-            dto.setId((Long) row[0]);
-            dto.setProduct(new ProductSimpleDTO((Long)row[1], (String)row[2], (String)row[3]));
+            dto.setId(((BigInteger) row[0]).longValue());
+            dto.setProduct(new ProductSimpleDTO(((BigInteger) row[1]).longValue(), (String)row[2], (String)row[3]));
             dto.setCustomerName((String) row[4]);
-            dto.setCustomerId((Long) row[5]);
+            dto.setCustomerId(((BigInteger) row[5]).longValue());
             dto.setRating((Integer) row[6]);
             dto.setContent((String) row[7]);
-            dto.setCreatedTime((LocalDateTime) row[8]);
+            dto.setCreatedTime(((Timestamp) row[8]).toLocalDateTime());
             if (row[9] != null) {
-                dto.setRepliedReview(new ReviewReplyAdminListViewDTO((Long) row[9], (String) row[10], (LocalDateTime) row[11], (Long) row[12], (String) row[13]));
+                dto.setRepliedReview(new ReviewReplyAdminListViewDTO(((BigInteger) row[9]).longValue(), (String) row[10], ((Timestamp) row[11]).toLocalDateTime(), ((BigInteger) row[12]).longValue(), (String) row[13]));
             }
             resultList.add(dto);
         }
