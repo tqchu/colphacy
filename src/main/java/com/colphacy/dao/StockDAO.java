@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface StockDAO {
     List<StockListViewDTO> getStockView(StockSearchCriteria criteria);
+
+    Long getTotalStock(StockSearchCriteria criteria);
 }
