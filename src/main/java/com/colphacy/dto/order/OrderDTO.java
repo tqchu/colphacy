@@ -15,6 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderDTO {
+    private Integer id;
     private ReceiverDTO receiver;
     private LocalDateTime orderTime;
     private LocalDateTime confirmTime;
