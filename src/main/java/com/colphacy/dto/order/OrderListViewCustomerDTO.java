@@ -18,5 +18,6 @@ public class OrderListViewCustomerDTO {
     private LocalDateTime confirmTime;
     private LocalDateTime deliverTime;
     private LocalDateTime cancelTime;
+    private Integer shippingFee = 0;
     private Double total;
 }
