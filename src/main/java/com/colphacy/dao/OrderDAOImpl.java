@@ -69,7 +69,9 @@ public class OrderDAOImpl implements OrderDAO {
         }
 
         query.setParameter("customerId", criteria.getCustomerId());
-        query.setParameter("status", criteria.getStatus().name());
+        if (criteria.getStatus() != null) {
+            query.setParameter("status", criteria.getStatus().name());
+        }
         query.setParameter("limit", criteria.getLimit());
         query.setParameter("offset", criteria.getOffset());
 
@@ -191,6 +193,7 @@ public class OrderDAOImpl implements OrderDAO {
                        o.confirm_time              as confirm_time,
                        o.deliver_time              as deliver_time,
                        o.cancel_time               as cancel_time,
+                       o.status                    as status,
                        SUM(od.price * od.quantity) as total
                 FROM orders o
                          JOIN customer c ON c.id = o.customer_id AND customer_id = :customerId
@@ -200,10 +203,12 @@ public class OrderDAOImpl implements OrderDAO {
                               ON fp.order_id = o.id
                 """;
         // Add the date range and branch id conditions if they are present
-        sql += " WHERE o.status = :status ";
+        if (criteria.getStatus() != null) {
+            sql += " WHERE o.status = :status ";
+        }
 
         // Add the grouping and ordering clauses
-        sql += " GROUP BY o.id, fp.id, fp.price, fp.name, fp.quantity, fp.url, o.order_time, o.ship_time, o.confirm_time, o.deliver_time, o.cancel_time " +
+        sql += " GROUP BY o.id, fp.id, fp.price, fp.name, fp.quantity, fp.url, o.order_time, o.ship_time, o.confirm_time, o.deliver_time, o.cancel_time, o.status " +
                 " ORDER BY " + criteria.getSortBy() + " " + criteria.getOrder() + " LIMIT :limit OFFSET :offset";
         return sql;
     }
