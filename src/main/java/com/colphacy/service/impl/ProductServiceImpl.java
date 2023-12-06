@@ -78,6 +78,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public PageResponse<ProductAdminListViewDTO> getPaginatedProductsAdmin(String keyword, Integer categoryId, int offset, int limit, String sortBy, String order) {
+        if (categoryId != null) {
+            categoryService.findById(Long.valueOf(categoryId));
+        }
         if (sortBy != null && List.of("salePrice", "importPrice").contains(sortBy)) {
             if (sortBy.equals("salePrice")) {
                 sortBy = "sale_price";
