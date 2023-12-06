@@ -17,4 +17,6 @@ public interface OrderDAO {
     List<ProductOrderItem> findAvailableProducts(List<CartItemDTO> items, double receiverLat, double receiverLong);
 
     List<ProductOrderItem> findAvailableProductsForABranch(List<CartItemDTO> items, Long branchId);
+
+    Long getTotalOrdersForCustomer(OrderSearchCriteria criteria);
 }

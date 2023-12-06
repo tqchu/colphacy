@@ -351,4 +351,44 @@ public class OrderDAOImpl implements OrderDAO {
                 .setResultTransformer(new AliasToBeanResultTransformer(ProductOrderItem.class))
                 .getResultList();
     }
+
+    @Override
+    public Long getTotalOrdersForCustomer(OrderSearchCriteria criteria) {
+        String sql = getCountOrdersForCustomerQuery(criteria);
+
+        Query query = entityManager.createNativeQuery(sql);
+
+        query.setParameter("customerId", criteria.getCustomerId());
+
+        if (criteria.getKeyword() != null) {
+            query.setParameter("keyword", criteria.getKeyword());
+        }
+        if (criteria.getStatus() != null) {
+            query.setParameter("status", criteria.getStatus().name());
+        }
+
+        return ((Number) query.getSingleResult()).longValue();
+    }
+
+    private String getCountOrdersForCustomerQuery(OrderSearchCriteria criteria) {
+        String sql =
+                """
+                        SELECT COUNT(*)
+                            FROM (SELECT DISTINCT o.id
+                                  FROM orders o
+                                           JOIN customer c ON c.id = o.customer_id AND customer_id = :customerId
+                                           JOIN order_item od
+                                                ON od.order_id = o.id
+                                           JOIN product p
+                                                ON p.id = od.product_id
+                                     """;
+        if (criteria.getKeyword() != null) {
+            sql += "AND unaccent (lower(p.name)) LIKE unaccent (lower('%' || :keyword || '%'))";
+        }
+        if (criteria.getStatus() != null) {
+            sql += " WHERE o.status = :status";
+        }
+        sql += ") as temp";
+        return sql;
+    }
 }
