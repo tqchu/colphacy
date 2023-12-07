@@ -53,6 +53,9 @@ public class ReviewServiceImpl implements ReviewService {
         review.setContent(reviewCustomerCreateDTO.getContent());
         review.setRating(reviewCustomerCreateDTO.getRating());
         reviewRepository.save(review);
+
+        // set the product in order has been reviewed
+        reviewRepository.updateIsReviewed(customer.getId(), product.getId());
     }
 
     @Override
