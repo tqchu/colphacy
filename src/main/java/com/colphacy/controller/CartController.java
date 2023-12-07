@@ -45,9 +45,9 @@ public class CartController {
 
     @Operation(summary = "Add products to cart", security = {@SecurityRequirement(name = "bearer-key")})
     @PostMapping("")
-    public void addProductsToCart(@RequestBody @Valid CartDTO cartDTO, Principal principal) {
+    public List<CartItemListViewDTO> addProductsToCart(@RequestBody @Valid CartDTO cartDTO, Principal principal) {
         Customer customer = customerService.getCurrentlyLoggedInCustomer(principal);
-        cartItemService.addItemsToCart(cartDTO, customer);
+        return cartItemService.addItemsToCart(cartDTO, customer);
     }
 
     @Operation(summary = "Update quantity of product in cart", security = {@SecurityRequirement(name = "bearer-key")})
