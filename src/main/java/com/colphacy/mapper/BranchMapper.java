@@ -3,6 +3,7 @@ package com.colphacy.mapper;
 import com.colphacy.dto.branch.BranchDetailDTO;
 import com.colphacy.dto.branch.BranchListViewDTO;
 import com.colphacy.dto.branch.BranchSimpleDTO;
+import com.colphacy.dto.branch.FlattenedBranchDTO;
 import com.colphacy.model.Branch;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -21,4 +22,8 @@ public interface BranchMapper {
 
     @Mapping(target = "address", expression = "java(null)")
     Branch branchSimpleDTOToBranch(BranchSimpleDTO branchSimpleDTO);
+
+
+    @Mapping(target = "address", expression = "java(branch.toString())")
+    BranchSimpleDTO flattenedBranchDTOToBranchSimpleDTO(FlattenedBranchDTO branch);
 }

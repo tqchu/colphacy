@@ -1,7 +1,7 @@
 package com.colphacy.dao;
 
 import com.colphacy.dto.branch.FindNearestBranchCriteria;
-import com.colphacy.model.Branch;
+import com.colphacy.dto.branch.FlattenedBranchDTO;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
@@ -17,14 +17,14 @@ public class BranchDAOImpl implements BranchDAO {
 
 
     @Override
-    public List<Branch> findNearestBranches(FindNearestBranchCriteria criteria) {
+    public List<FlattenedBranchDTO> findNearestBranches(FindNearestBranchCriteria criteria) {
         // Get the native SQL query
         String sql = """
-                SELECT b.*
-                FROM branch b
-                ORDER BY  acos(cos(radians(:latitude)) *cos(radians(b.latitude)) * cos(radians(b.longitude) - radians(:longitude))+
+                SELECT id, street_address, ward, district, province
+                FROM branch
+                ORDER BY  acos(cos(radians(:latitude)) *cos(radians(latitude)) * cos(radians(longitude) - radians(:longitude))+
                    sin(radians(:latitude))
-                            *sin(radians(b.latitude)))
+                            *sin(radians(latitude)))
                 LIMIT :limit OFFSET :offset
                 """;
 
@@ -38,7 +38,7 @@ public class BranchDAOImpl implements BranchDAO {
 
         // Execute the query and return the result list, with each result transformed into an OrderListViewDTO object
         return query.unwrap(org.hibernate.query.Query.class)
-                .setResultTransformer(new AliasToBeanResultTransformer(Branch.class))
+                .setResultTransformer(new AliasToBeanResultTransformer(FlattenedBranchDTO.class))
                 .getResultList();
     }
 }
