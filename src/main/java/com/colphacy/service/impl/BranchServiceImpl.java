@@ -1,5 +1,6 @@
 package com.colphacy.service.impl;
 
+import com.colphacy.dao.BranchDAO;
 import com.colphacy.dto.SlugDTO;
 import com.colphacy.dto.branch.BranchDetailDTO;
 import com.colphacy.dto.branch.BranchListViewDTO;
@@ -36,6 +37,8 @@ import java.util.Optional;
 public class BranchServiceImpl implements BranchService {
     @Autowired
     private BranchRepository branchRepository;
+    @Autowired
+    private BranchDAO branchDAO;
     @Autowired
     private BranchMapper branchMapper;
     @Autowired
@@ -145,10 +148,14 @@ public class BranchServiceImpl implements BranchService {
     public PageResponse<BranchSimpleDTO> findNearestBranch(FindNearestBranchCriteria criteria) {
         Integer offset = criteria.getOffset();
         Integer limit = criteria.getLimit();
-        int pageNo = offset / limit;
-        Pageable pageable = PageRequest.of(pageNo, limit);
-        Page<BranchSimpleDTO> page = branchRepository.findNearestBranches(criteria.getLatitude(), criteria.getLongitude(), pageable).map(branchMapper::branchToBranchSimpleDTO);
-        return PageResponseUtils.getPageResponse(offset, page);
+        List<Branch> branches = branchDAO.findNearestBranches(criteria);
+        PageResponse<BranchSimpleDTO> result = new PageResponse<>();
+        result.setOffset(offset);
+        result.setLimit(limit);
+        result.setTotalItems(10);
+        result.setNumPages(1);
+        result.setItems(branches.stream().map(branch -> branchMapper.branchToBranchSimpleDTO(branch)).toList());
+        return result;
     }
 
     private PageResponse<BranchListViewDTO> getBranchListViewDTOPageResponse(int offset, Page<Branch> branchPage) {
