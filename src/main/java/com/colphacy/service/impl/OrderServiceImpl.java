@@ -98,6 +98,7 @@ public class OrderServiceImpl implements OrderService {
         Branch branch = new Branch();
         branch.setId(branchId);
         order.setBranch(branch);
+        order.setNote(orderPurchaseDTO.getNote());
         Order savedOrder = orderRepository.save(order);
 
         // remove bought items from cart
@@ -158,6 +159,7 @@ public class OrderServiceImpl implements OrderService {
             receiverRepository.save(receiver);
         }
         order.setReceiver(receiver);
+        order.setNote(orderDTO.getNote());
         orderRepository.save(order);
         return orderMapper.orderToOrderDTO(order);
     }
