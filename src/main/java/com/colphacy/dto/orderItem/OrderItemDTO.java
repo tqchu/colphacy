@@ -13,4 +13,5 @@ public class OrderItemDTO {
     private Double price;
     private LocalDate expirationDate;
     private Integer quantity;
+    private boolean isReviewed;
 }

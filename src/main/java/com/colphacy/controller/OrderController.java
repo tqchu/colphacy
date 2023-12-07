@@ -71,19 +71,19 @@ public class OrderController {
         orderService.updateOrder(order);
     }
 
-    @Operation(summary = "Get paginated order history by status", security = {@SecurityRequirement(name = "bearer-key")})
+    @Operation(summary = "Cancel order", security = {@SecurityRequirement(name = "bearer-key")})
     @PutMapping("/cancel/{id}")
     public void cancelOrder(@PathVariable Long id) {
         orderService.cancelOrder(id);
     }
 
-    @Operation(summary = "Get order's detail", security = {@SecurityRequirement(name = "bearer-key")})
+    @Operation(summary = "Get order's detail by admin", security = {@SecurityRequirement(name = "bearer-key")})
     @GetMapping("/{id}")
     public OrderDTO getOrder(@PathVariable Long id) {
         return orderService.findOrderDTOById(id);
     }
 
-    @Operation(summary = "Get order's detail", security = {@SecurityRequirement(name = "bearer-key")})
+    @Operation(summary = "Get order's detail by customer", security = {@SecurityRequirement(name = "bearer-key")})
     @GetMapping("/customer/{id}")
     public OrderDTO getOrderDetailCustomer(@PathVariable Long id) {
         return orderService.findOrderDTOById(id);
