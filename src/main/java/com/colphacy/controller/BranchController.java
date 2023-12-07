@@ -92,7 +92,7 @@ public class BranchController {
     }
 
     @Operation(summary = "Get nearest branches", security = {@SecurityRequirement(name = "bearer-key")})
-    @GetMapping("")
+    @GetMapping("/nearest")
     public PageResponse<BranchSimpleDTO> findNearestBranches(FindNearestBranchCriteria criteria
     ) {
         if (criteria.getLimit() == null) {
