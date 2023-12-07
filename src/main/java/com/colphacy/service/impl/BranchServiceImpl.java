@@ -3,6 +3,8 @@ package com.colphacy.service.impl;
 import com.colphacy.dto.SlugDTO;
 import com.colphacy.dto.branch.BranchDetailDTO;
 import com.colphacy.dto.branch.BranchListViewDTO;
+import com.colphacy.dto.branch.BranchSimpleDTO;
+import com.colphacy.dto.branch.FindNearestBranchCriteria;
 import com.colphacy.exception.InvalidFieldsException;
 import com.colphacy.exception.RecordNotFoundException;
 import com.colphacy.mapper.BranchMapper;
@@ -137,6 +139,16 @@ public class BranchServiceImpl implements BranchService {
             throw new RecordNotFoundException("Không tìm thấy chi nhánh với id " + id);
 
         return optionalBranch.get();
+    }
+
+    @Override
+    public PageResponse<BranchSimpleDTO> findNearestBranch(FindNearestBranchCriteria criteria) {
+        Integer offset = criteria.getOffset();
+        Integer limit = criteria.getLimit();
+        int pageNo = offset / limit;
+        Pageable pageable = PageRequest.of(pageNo, limit);
+        Page<BranchSimpleDTO> page = branchRepository.findNearestBranches(criteria.getLatitude(), criteria.getLongitude(), pageable).map(branchMapper::branchToBranchSimpleDTO);
+        return PageResponseUtils.getPageResponse(offset, page);
     }
 
     private PageResponse<BranchListViewDTO> getBranchListViewDTOPageResponse(int offset, Page<Branch> branchPage) {
