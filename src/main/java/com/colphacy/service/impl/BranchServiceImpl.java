@@ -2,10 +2,7 @@ package com.colphacy.service.impl;
 
 import com.colphacy.dao.BranchDAO;
 import com.colphacy.dto.SlugDTO;
-import com.colphacy.dto.branch.BranchDetailDTO;
-import com.colphacy.dto.branch.BranchListViewDTO;
-import com.colphacy.dto.branch.BranchSimpleDTO;
-import com.colphacy.dto.branch.FindNearestBranchCriteria;
+import com.colphacy.dto.branch.*;
 import com.colphacy.exception.InvalidFieldsException;
 import com.colphacy.exception.RecordNotFoundException;
 import com.colphacy.mapper.BranchMapper;
@@ -148,13 +145,14 @@ public class BranchServiceImpl implements BranchService {
     public PageResponse<BranchSimpleDTO> findNearestBranch(FindNearestBranchCriteria criteria) {
         Integer offset = criteria.getOffset();
         Integer limit = criteria.getLimit();
-        List<Branch> branches = branchDAO.findNearestBranches(criteria);
+        List<FlattenedBranchDTO> branches = branchDAO.findNearestBranches(criteria);
         PageResponse<BranchSimpleDTO> result = new PageResponse<>();
         result.setOffset(offset);
         result.setLimit(limit);
-        result.setTotalItems(10);
-        result.setNumPages(1);
-        result.setItems(branches.stream().map(branch -> branchMapper.branchToBranchSimpleDTO(branch)).toList());
+        int totalItems = (int) branchRepository.count();
+        result.setTotalItems(totalItems);
+        result.setNumPages(((totalItems - 1) / criteria.getLimit()) + 1);
+        result.setItems(branches.stream().map(branch -> branchMapper.flattenedBranchDTOToBranchSimpleDTO(branch)).toList());
         return result;
     }
 
