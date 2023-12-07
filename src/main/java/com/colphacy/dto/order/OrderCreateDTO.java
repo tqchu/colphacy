@@ -23,4 +23,6 @@ public class OrderCreateDTO {
     @NotNull
     @Size(min = 1)
     private List<@Valid CartItemDTO> items;
+
+    private String note;
 }
