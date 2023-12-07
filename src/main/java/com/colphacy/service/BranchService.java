@@ -3,6 +3,8 @@ package com.colphacy.service;
 import com.colphacy.dto.SlugDTO;
 import com.colphacy.dto.branch.BranchDetailDTO;
 import com.colphacy.dto.branch.BranchListViewDTO;
+import com.colphacy.dto.branch.BranchSimpleDTO;
+import com.colphacy.dto.branch.FindNearestBranchCriteria;
 import com.colphacy.model.Branch;
 import com.colphacy.model.BranchStatus;
 import com.colphacy.payload.response.PageResponse;
@@ -27,4 +29,6 @@ public interface BranchService {
     BranchDetailDTO findBranchDetailDTOById(long id);
 
     Branch findBranchById(long id);
+
+    PageResponse<BranchSimpleDTO> findNearestBranch(FindNearestBranchCriteria criteria);
 }

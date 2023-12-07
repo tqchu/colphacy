@@ -285,10 +285,10 @@ public class OrderDAOImpl implements OrderDAO {
                 AND((qs.n - (qs.running_total - qs.quantity)) > 0)
                 GROUP BY qs.branch_id, b.latitude, b.longitude
                 HAVING COUNT (distinct(qs.product_id, qs.unit_id, qs.branch_id)) = :size
-                ORDER BY (6371 * acos(cos(radians(:receiverLat)) *cos(radians(b.latitude))
+                ORDER BY acos(cos(radians(:receiverLat)) *cos(radians(b.latitude))
                         * cos(radians(b.longitude) - radians(:receiverLong))+
                         sin(radians(:receiverLat))
-                                                                        *sin(radians(b.latitude))))
+                                                                        *sin(radians(b.latitude)))
                 LIMIT 1)
                 AND mrt.max_running_total >= qs.n
                 AND((qs.n - (qs.running_total - qs.quantity)) > 0)
