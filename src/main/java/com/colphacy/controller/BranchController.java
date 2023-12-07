@@ -91,7 +91,7 @@ public class BranchController {
         return branchService.findBranchDetailDTOById(id);
     }
 
-    @Operation(summary = "Get nearest branches", security = {@SecurityRequirement(name = "bearer-key")})
+    @Operation(summary = "Get nearest branches")
     @GetMapping("/nearest")
     public PageResponse<BranchSimpleDTO> findNearestBranches(FindNearestBranchCriteria criteria
     ) {
