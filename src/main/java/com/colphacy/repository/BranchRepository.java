@@ -27,12 +27,4 @@ public interface BranchRepository extends JpaRepository<Branch, Long> {
     @Query("SELECT b FROM Branch b WHERE LOWER(unaccent('unaccent', b.address.province)) LIKE :province")
     Page<Branch> findBranchesInProvince(@Param("province") String provinceSlug, Pageable pageable);
 
-    @Query("""
-            SELECT b
-                FROM Branch b
-                ORDER BY  acos(cos(radians(:latitude)) *cos(radians(b.address.latitude)) * cos(radians(b.address.longitude) - radians(:longitude))+
-               sin(radians(:latitude))
-                        *sin(radians(b.address.latitude)))
-                        """)
-    Page<Branch> findNearestBranches(Double latitude, Double longitude, Pageable page);
 }
