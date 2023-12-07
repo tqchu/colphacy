@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -85,15 +86,16 @@ public class CartItemServiceImpl implements CartItemService {
     }
 
     @Override
-    public void addItemsToCart(CartDTO cartDTO, Customer customer) {
+    public List<CartItemListViewDTO> addItemsToCart(CartDTO cartDTO, Customer customer) {
+        List<CartItemListViewDTO> result = new ArrayList<>();
         cartDTO.getItems().forEach(item -> {
-                    addItem(customer, item);
+            result.add(cartItemMapper.cartItemToCartItemListViewDTO(addItem(customer, item)));
                 }
         );
-
+        return result;
     }
 
-    private void addItem(Customer customer, @Valid @NotNull CartItemDTO item) {
+    private CartItem addItem(Customer customer, @Valid @NotNull CartItemDTO item) {
         Integer addedQuantity = item.getQuantity();
         Product product = productRepository.findById(item.getProductId()).orElseThrow(() -> new RecordNotFoundException("Không thể tìm thấy sản phẩm"));
         Unit unit = unitRepository.findById(item.getUnitId()).orElseThrow(() -> new RecordNotFoundException("Không thể tìm thấy đơn vị"));
@@ -115,5 +117,6 @@ public class CartItemServiceImpl implements CartItemService {
         }
 
         cartItemRepository.save(cartItem);
+        return cartItem;
     }
 }

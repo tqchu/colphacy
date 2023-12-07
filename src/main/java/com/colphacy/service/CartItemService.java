@@ -16,5 +16,5 @@ public interface CartItemService {
 
     void removeProductFromCart(Long cartId, Long customerId);
 
-    void addItemsToCart(CartDTO cartDTO, Customer customer);
+    List<CartItemListViewDTO> addItemsToCart(CartDTO cartDTO, Customer customer);
 }
