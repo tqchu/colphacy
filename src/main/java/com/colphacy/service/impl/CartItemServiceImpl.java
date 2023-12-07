@@ -1,5 +1,6 @@
 package com.colphacy.service.impl;
 
+import com.colphacy.dto.cart.CartDTO;
 import com.colphacy.dto.cart.CartItemDTO;
 import com.colphacy.dto.cart.CartItemListViewDTO;
 import com.colphacy.exception.RecordNotFoundException;
@@ -13,6 +14,8 @@ import com.colphacy.service.CartItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Service
@@ -58,10 +61,42 @@ public class CartItemServiceImpl implements CartItemService {
     }
 
     @Override
-    public void addItem(CartItemDTO cartItemDTO, Customer customer) {
-        Integer addedQuantity = cartItemDTO.getQuantity();
-        Product product = productRepository.findById(cartItemDTO.getProductId()).orElseThrow(() -> new RecordNotFoundException("Không thể tìm thấy sản phẩm"));
-        Unit unit = unitRepository.findById(cartItemDTO.getUnitId()).orElseThrow(() -> new RecordNotFoundException("Không thể tìm thấy đơn vị"));
+    public void addItemToCart(CartItemDTO cartItemDTO, Customer customer) {
+        addItem(customer, cartItemDTO);
+    }
+
+    @Override
+    public void updateQuantity(Long cartId, Long customerId, Integer quantity) {
+        CartItem cartItem = cartItemRepository.findByIdAndCustomerId(cartId, customerId);
+        if (cartItem == null) {
+            throw new RecordNotFoundException("Đơn hàng không tồn tại");
+        }
+        cartItemRepository.updateQuantity(cartId, customerId, quantity);
+    }
+
+    @Override
+    public void removeProductFromCart(Long cartId, Long customerId) {
+        CartItem cartItem = cartItemRepository.findByIdAndCustomerId(cartId, customerId);
+
+        if (cartItem == null) {
+            throw new RecordNotFoundException("Đơn hàng không tồn tại");
+        }
+        cartItemRepository.deleteByIdAndCustomerId(cartId, customerId);
+    }
+
+    @Override
+    public void addItemsToCart(CartDTO cartDTO, Customer customer) {
+        cartDTO.getItems().forEach(item -> {
+                    addItem(customer, item);
+                }
+        );
+
+    }
+
+    private void addItem(Customer customer, @Valid @NotNull CartItemDTO item) {
+        Integer addedQuantity = item.getQuantity();
+        Product product = productRepository.findById(item.getProductId()).orElseThrow(() -> new RecordNotFoundException("Không thể tìm thấy sản phẩm"));
+        Unit unit = unitRepository.findById(item.getUnitId()).orElseThrow(() -> new RecordNotFoundException("Không thể tìm thấy đơn vị"));
         ProductUnit productUnit = productUnitRepository.findByProductIdAndUnitId(product.getId(), unit.getId());
         if (productUnit == null) {
             throw new RecordNotFoundException("Sản phẩm không có đơn vị này");
@@ -75,29 +110,10 @@ public class CartItemServiceImpl implements CartItemService {
             cartItem = new CartItem();
             cartItem.setProduct(product);
             cartItem.setCustomer(customer);
-            cartItem.setQuantity(cartItemDTO.getQuantity());
+            cartItem.setQuantity(item.getQuantity());
             cartItem.setUnit(unit);
         }
 
         cartItemRepository.save(cartItem);
-    }
-
-    @Override
-    public void updateQuantity(Long cartId, Long customerId, Integer quantity) {
-        CartItem cartItem = cartItemRepository.findByIdAndCustomerId(cartId, customerId);
-        if (cartItem == null) {
-            throw new RecordNotFoundException("Đơn hàng không tồn tại");
-        }
-        cartItemRepository.updateQuantity(cartId, customerId, quantity);
-    }
-
-    @Override
-    public  void removeProductFromCart(Long cartId, Long customerId) {
-        CartItem cartItem = cartItemRepository.findByIdAndCustomerId(cartId, customerId);
-
-        if (cartItem == null) {
-            throw new RecordNotFoundException("Đơn hàng không tồn tại");
-        }
-        cartItemRepository.deleteByIdAndCustomerId(cartId, customerId);
     }
 }
