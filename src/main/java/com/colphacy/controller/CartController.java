@@ -1,5 +1,6 @@
 package com.colphacy.controller;
 
+import com.colphacy.dto.cart.CartDTO;
 import com.colphacy.dto.cart.CartItemDTO;
 import com.colphacy.dto.cart.CartItemListViewDTO;
 import com.colphacy.dto.cart.CartItemUpdateDTO;
@@ -39,7 +40,14 @@ public class CartController {
     @PostMapping("/add")
     public void addProductToCart(@RequestBody @Valid CartItemDTO cartItemDTO, Principal principal) {
         Customer customer = customerService.getCurrentlyLoggedInCustomer(principal);
-        cartItemService.addItem(cartItemDTO, customer);
+        cartItemService.addItemToCart(cartItemDTO, customer);
+    }
+
+    @Operation(summary = "Add products to cart", security = {@SecurityRequirement(name = "bearer-key")})
+    @PostMapping("")
+    public void addProductsToCart(@RequestBody @Valid CartDTO cartDTO, Principal principal) {
+        Customer customer = customerService.getCurrentlyLoggedInCustomer(principal);
+        cartItemService.addItemsToCart(cartDTO, customer);
     }
 
     @Operation(summary = "Update quantity of product in cart", security = {@SecurityRequirement(name = "bearer-key")})
