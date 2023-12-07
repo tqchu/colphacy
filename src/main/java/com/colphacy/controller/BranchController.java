@@ -3,6 +3,8 @@ package com.colphacy.controller;
 import com.colphacy.dto.SlugDTO;
 import com.colphacy.dto.branch.BranchDetailDTO;
 import com.colphacy.dto.branch.BranchListViewDTO;
+import com.colphacy.dto.branch.BranchSimpleDTO;
+import com.colphacy.dto.branch.FindNearestBranchCriteria;
 import com.colphacy.model.BranchStatus;
 import com.colphacy.payload.response.PageResponse;
 import com.colphacy.service.BranchService;
@@ -87,5 +89,15 @@ public class BranchController {
     @GetMapping("/{id}")
     public BranchDetailDTO getBranchDetail(@PathVariable long id) {
         return branchService.findBranchDetailDTOById(id);
+    }
+
+    @Operation(summary = "Get nearest branches", security = {@SecurityRequirement(name = "bearer-key")})
+    @GetMapping("")
+    public PageResponse<BranchSimpleDTO> findNearestBranches(FindNearestBranchCriteria criteria
+    ) {
+        if (criteria.getLimit() == null) {
+            criteria.setLimit(defaultPageSize);
+        }
+        return branchService.findNearestBranch(criteria);
     }
 }
