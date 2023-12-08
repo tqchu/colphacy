@@ -1,17 +1,21 @@
 package com.colphacy.service.impl;
 
 import com.colphacy.dto.customer.CustomerSearchCriteria;
+import com.colphacy.dto.customer.CustomerSignUpDTO;
 import com.colphacy.dto.customer.CustomerSimpleDTO;
 import com.colphacy.exception.InvalidFieldsException;
 import com.colphacy.exception.RecordNotFoundException;
 import com.colphacy.mapper.CustomerMapper;
 import com.colphacy.model.Customer;
+import com.colphacy.model.VerificationToken;
 import com.colphacy.payload.request.ChangePasswordRequest;
 import com.colphacy.payload.request.LoginRequest;
 import com.colphacy.payload.response.PageResponse;
 import com.colphacy.repository.CustomerRepository;
+import com.colphacy.repository.VerificationTokenRepository;
 import com.colphacy.service.CustomerService;
 import com.colphacy.util.PageResponseUtils;
+import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
@@ -23,6 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.util.Calendar;
 import java.util.Optional;
 
 @Service
@@ -33,6 +38,9 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Autowired
     private CustomerMapper customerMapper;
+
+    @Autowired
+    private VerificationTokenRepository verificationTokenRepository;
 
     @Autowired
     public void setPasswordEncoder(@Lazy PasswordEncoder passwordEncoder) {
@@ -76,6 +84,9 @@ public class CustomerServiceImpl implements CustomerService {
         if (!passwordEncoder.matches(loginRequest.getPassword(), customer.getPassword())) {
             throw InvalidFieldsException.fromFieldError("password", "Mật khẩu không đúng");
         }
+        if (!customer.isActive()) {
+            throw InvalidFieldsException.fromFieldError("isActive", "Tài khoản chưa được kích hoạt");
+        }
         return customer;
     }
 
@@ -115,5 +126,49 @@ public class CustomerServiceImpl implements CustomerService {
         PageResponse<CustomerSimpleDTO> pageResponse = PageResponseUtils.getPageResponse(offset, categoryDTOPage);
 
         return pageResponse;
+    }
+
+    @Override
+    public Customer register(CustomerSignUpDTO customerSignUpDTO) {
+        if (customerRepository.existsByUsernameIgnoreCase(customerSignUpDTO.getUsername())) {
+            throw InvalidFieldsException.fromFieldError("username", "Tên tài khoản đã tồn tại");
+        }
+
+        if (customerRepository.existsByPhone(customerSignUpDTO.getPhone())) {
+            throw InvalidFieldsException.fromFieldError("phone", "Số điện thoại đã được đăng ký");
+        }
+
+        if (customerRepository.existsByEmailIgnoreCase(customerSignUpDTO.getEmail())) {
+            throw InvalidFieldsException.fromFieldError("email", "Email đã được đăng ký");
+        }
+        Customer customer = new Customer();
+        customer.setFullName(customerSignUpDTO.getUsername());
+        customer.setUsername(customerSignUpDTO.getUsername());
+        customer.setEmail(customerSignUpDTO.getEmail());
+        customer.setPhone(customerSignUpDTO.getPhone());
+        String encodedPassword = passwordEncoder.encode(customerSignUpDTO.getPassword());
+        customer.setPassword(encodedPassword);
+        customer.setActive(false);
+        customerRepository.save(customer);
+
+        return customer;
+    }
+
+    @Override
+    public void saveCustomerVerificationToken(Customer customer, String token) {
+        VerificationToken verificationToken = new VerificationToken(token, customer);
+        verificationTokenRepository.save(verificationToken);
+    }
+
+    @Override
+    public boolean validateToken(VerificationToken verificationToken) {
+        Customer customer = verificationToken.getCustomer();
+        long remainingTime = verificationToken.getRemainingTime();
+        if (remainingTime <= 0){
+            return false;
+        }
+        customer.setActive(true);
+        customerRepository.save(customer);
+        return true;
     }
 }
