@@ -1,11 +1,9 @@
 package com.colphacy.repository;
 
-import com.colphacy.dto.review.ReviewAdminListViewDTO;
 import com.colphacy.model.Review;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -22,13 +20,9 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
                                     WHERE o.customer_id = :customerId
                                       AND oi.product_id = :productId
                                       AND o.status = 'DELIVERED'
+                                      AND oi.is_reviewed is false
                                 )
-                                AND NOT EXISTS (
-                                    SELECT 1
-                                    FROM reviews r
-                                    WHERE r.customer_id = :customerId
-                                      AND r.product_id = :productId
-                                ) THEN true
+                                THEN true
                            ELSE false END
                                       """,
             nativeQuery = true)
