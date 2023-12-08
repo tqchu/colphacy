@@ -195,7 +195,8 @@ public class OrderDAOImpl implements OrderDAO {
                        o.cancel_time               as cancel_time,
                        o.status                    as status,
                        COUNT(od.order_id)          as total_items,
-                       SUM(od.price * od.quantity) as total
+                       SUM(od.price * od.quantity) as total,
+                       bool_or(od.is_reviewed) as is_reviewed
                 FROM orders o
                          JOIN customer c ON c.id = o.customer_id AND customer_id = :customerId
                          JOIN order_item od

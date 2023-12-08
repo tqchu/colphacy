@@ -12,6 +12,7 @@ import com.colphacy.model.Customer;
 import com.colphacy.model.Product;
 import com.colphacy.model.Review;
 import com.colphacy.payload.response.PageResponse;
+import com.colphacy.repository.OrderItemRepository;
 import com.colphacy.repository.ProductRepository;
 import com.colphacy.repository.ReviewRepository;
 import com.colphacy.service.ReviewService;
@@ -41,6 +42,9 @@ public class ReviewServiceImpl implements ReviewService {
     @Autowired
     private ReviewMapper reviewMapper;
 
+    @Autowired
+    private OrderItemRepository orderItemRepository;
+
     @Override
     public void create(ReviewCustomerCreateDTO reviewCustomerCreateDTO, Customer customer) {
         Product product = productRepository.findById(reviewCustomerCreateDTO.getProductId()).orElseThrow(()  -> new RecordNotFoundException("Sản phẩm không tồn tại"));
@@ -53,6 +57,9 @@ public class ReviewServiceImpl implements ReviewService {
         review.setContent(reviewCustomerCreateDTO.getContent());
         review.setRating(reviewCustomerCreateDTO.getRating());
         reviewRepository.save(review);
+
+        // set the product in order has been reviewed
+        orderItemRepository.updateIsReviewedToTrue(customer.getId(), product.getId());
     }
 
     @Override

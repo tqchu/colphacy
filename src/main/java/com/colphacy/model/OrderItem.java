@@ -44,4 +44,6 @@ public class OrderItem {
 
     @NotNull
     private LocalDate expirationDate;
+
+    private boolean isReviewed;
 }
