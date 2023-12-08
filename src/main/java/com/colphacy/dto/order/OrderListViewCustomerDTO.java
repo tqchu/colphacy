@@ -23,4 +23,5 @@ public class OrderListViewCustomerDTO {
     private Integer shippingFee = 0;
     private Double total;
     private Integer totalItems;
+    private boolean isReviewed;
 }
