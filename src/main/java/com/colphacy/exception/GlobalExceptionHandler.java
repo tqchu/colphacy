@@ -184,7 +184,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         LOGGER.error("An error occurred: ", ex);
         LOGGER.error("TraceId: {}", traceId);
         Map<String, String> error = new HashMap<>();
-        error.put(DEFAULT_ERROR_NAME, "Có lỗi xảy ra");
+        error.put(DEFAULT_ERROR_NAME, "Có lỗi xảy ra " + ex.getMessage());
         error.put("traceId", traceId);
         return new ResponseEntity<>(error, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
