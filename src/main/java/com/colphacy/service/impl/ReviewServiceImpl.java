@@ -116,7 +116,9 @@ public class ReviewServiceImpl implements ReviewService {
             dto.setRating((Integer) row[6]);
             dto.setContent((String) row[7]);
             dto.setCreatedTime(((Timestamp) row[8]).toLocalDateTime());
-            if (row[9] != null) {
+            if (row[9] == null || row[12] == null || row[13] == null) {
+                dto.setRepliedReview(null);
+            } else {
                 dto.setRepliedReview(new ReviewReplyAdminListViewDTO(((BigInteger) row[9]).longValue(), (String) row[10], ((Timestamp) row[11]).toLocalDateTime(), ((BigInteger) row[12]).longValue(), (String) row[13]));
             }
             resultList.add(dto);
