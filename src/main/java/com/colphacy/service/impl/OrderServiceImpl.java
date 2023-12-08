@@ -167,6 +167,9 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public PageResponse<OrderListViewDTO> getPaginatedOrders(OrderSearchCriteria criteria) {
         criteria.setCustomerId(null);
+        if (criteria.getStatus() == null) {
+            criteria.setStatus(OrderStatus.PENDING);
+        }
         // Handle sort field
         if (criteria.getSortBy() != null && criteria.getSortBy().name().equalsIgnoreCase("time")) {
             if (criteria.getStatus() == null || criteria.getStatus() == OrderStatus.PENDING) {
