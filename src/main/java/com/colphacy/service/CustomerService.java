@@ -30,5 +30,5 @@ public interface CustomerService {
 
     void saveCustomerVerificationToken(Customer customer, String token);
 
-    boolean validateToken(VerificationToken verificationToken);
+    boolean verifyToken(String token);
 }

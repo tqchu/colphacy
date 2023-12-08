@@ -120,6 +120,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (!passwordEncoder.matches(loginRequest.getPassword(), employee.getPassword())) {
             throw InvalidFieldsException.fromFieldError("password", "Mật khẩu không đúng");
         }
+
+        if (!employee.isActive()) {
+            throw InvalidFieldsException.fromFieldError("isActive", "Tài khoản đã bị khóa, vui lòng liên hệ đến nhà thuốc để xử lý");
+        }
+
         return employee;
     }
 

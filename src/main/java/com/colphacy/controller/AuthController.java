@@ -6,14 +6,12 @@ import com.colphacy.event.RegistrationCompleteEvent;
 import com.colphacy.exception.RecordNotFoundException;
 import com.colphacy.model.Customer;
 import com.colphacy.model.Employee;
-import com.colphacy.model.VerificationToken;
 import com.colphacy.payload.request.LoginRequest;
 import com.colphacy.payload.response.CustomerLoginResponse;
 import com.colphacy.payload.response.EmployeeLoginResponse;
 import com.colphacy.service.AuthenticationService;
 import com.colphacy.service.CustomerService;
 import com.colphacy.service.EmployeeService;
-import com.colphacy.service.VerificationTokenService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,10 +40,6 @@ public class AuthController {
 
     @Autowired
     private RegistrationCompleteEventListener eventListener;
-
-    @Autowired
-    private VerificationTokenService tokenService;
-
 
     @Operation(summary = "Employee login")
     @PostMapping("/employee/login")
@@ -81,14 +75,7 @@ public class AuthController {
 
     @GetMapping("/verifyEmail")
     public boolean verifyToken(@RequestParam("token") String tokenRequest){
-        VerificationToken verificationToken = tokenService.findByToken(tokenRequest);
-        if(verificationToken == null){
-            throw new RecordNotFoundException("Liên kết xác nhận không đúng");
-        }
-        if (verificationToken.getCustomer().isActive()){
-            return false;
-        }
-        return customerService.validateToken(verificationToken);
+        return customerService.verifyToken(tokenRequest);
     }
 
     public String applicationUrl(HttpServletRequest request) {

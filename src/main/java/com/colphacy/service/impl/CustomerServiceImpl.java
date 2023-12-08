@@ -15,6 +15,7 @@ import com.colphacy.repository.CustomerRepository;
 import com.colphacy.repository.VerificationTokenRepository;
 import com.colphacy.service.CustomerService;
 import com.colphacy.util.PageResponseUtils;
+import lombok.extern.slf4j.Slf4j;
 import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -30,6 +31,7 @@ import java.security.Principal;
 import java.util.Calendar;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class CustomerServiceImpl implements CustomerService {
     @Autowired
@@ -84,8 +86,13 @@ public class CustomerServiceImpl implements CustomerService {
         if (!passwordEncoder.matches(loginRequest.getPassword(), customer.getPassword())) {
             throw InvalidFieldsException.fromFieldError("password", "Mật khẩu không đúng");
         }
+
         if (!customer.isActive()) {
-            throw InvalidFieldsException.fromFieldError("isActive", "Tài khoản chưa được kích hoạt");
+            throw InvalidFieldsException.fromFieldError("isActive", "Tài khoản đã bị khóa, vui lòng liên hệ đến nhà thuốc để xử lý");
+        }
+
+        if (!customer.isVerified()) {
+            throw InvalidFieldsException.fromFieldError("isVerified", "Tài khoản chưa được kích hoạt");
         }
         return customer;
     }
@@ -141,6 +148,7 @@ public class CustomerServiceImpl implements CustomerService {
         if (customerRepository.existsByEmailIgnoreCase(customerSignUpDTO.getEmail())) {
             throw InvalidFieldsException.fromFieldError("email", "Email đã được đăng ký");
         }
+
         Customer customer = new Customer();
         customer.setFullName(customerSignUpDTO.getUsername());
         customer.setUsername(customerSignUpDTO.getUsername());
@@ -148,7 +156,7 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setPhone(customerSignUpDTO.getPhone());
         String encodedPassword = passwordEncoder.encode(customerSignUpDTO.getPassword());
         customer.setPassword(encodedPassword);
-        customer.setActive(false);
+        customer.setVerified(false);
         customerRepository.save(customer);
 
         return customer;
@@ -161,13 +169,22 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public boolean validateToken(VerificationToken verificationToken) {
+    public boolean verifyToken(String token) {
+        VerificationToken verificationToken = verificationTokenRepository.findByToken(token);
+        if(verificationToken == null){
+            throw new RecordNotFoundException("Liên kết xác nhận không đúng");
+        }
         Customer customer = verificationToken.getCustomer();
+        if (customer.isVerified()){
+            log.info("Tài khoản đã được kích hoạt");
+            return false;
+        }
+
         long remainingTime = verificationToken.getRemainingTime();
         if (remainingTime <= 0){
             return false;
         }
-        customer.setActive(true);
+        customer.setVerified(true);
         customerRepository.save(customer);
         return true;
     }

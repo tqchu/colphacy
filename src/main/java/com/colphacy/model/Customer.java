@@ -59,6 +59,8 @@ public class Customer implements UserDetails {
     @Email
     private String email;
 
+    private boolean isVerified = false;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(new SimpleGrantedAuthority("CUSTOMER"));
