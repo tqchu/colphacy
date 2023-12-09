@@ -1,0 +1,10 @@
+ALTER TABLE customer
+    DROP COLUMN IF EXISTS street_address,
+    DROP COLUMN IF EXISTS ward,
+    DROP COLUMN IF EXISTS district,
+    DROP COLUMN IF EXISTS province,
+    DROP COLUMN IF EXISTS latitude,
+    DROP COLUMN IF EXISTS longtitude,
+
+    ALTER COLUMN gender DROP NOT NULL,
+    ADD COLUMN IF NOT EXISTS email VARCHAR(50);
