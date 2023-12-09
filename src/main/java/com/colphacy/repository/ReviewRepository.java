@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query(value =
@@ -92,4 +94,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
                 WHERE r.parent_review_id IS NULL
             """, nativeQuery = true)
     Page<Object[]> findAllReviews(Pageable pageable);
+
+    Optional<Review> findByIdAndParentReviewIsNull(Long id);
 }
