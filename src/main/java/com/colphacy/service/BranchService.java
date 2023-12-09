@@ -31,4 +31,6 @@ public interface BranchService {
     Branch findBranchById(long id);
 
     PageResponse<BranchSimpleDTO> findNearestBranch(FindNearestBranchCriteria criteria);
+
+    void delete(Long id);
 }
