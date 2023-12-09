@@ -101,6 +101,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/receivers/**").hasAuthority(("CUSTOMER"))
                 .antMatchers(HttpMethod.GET, "/api/reviews/product/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/reviews").hasAuthority("CUSTOMER")
+                .antMatchers("/api/reviews/reply").hasAnyAuthority("ADMIN", "STAFF")
                 .anyRequest().authenticated();
         http.exceptionHandling()
                 .authenticationEntryPoint(
