@@ -156,6 +156,12 @@ public class BranchServiceImpl implements BranchService {
         return result;
     }
 
+    @Override
+    public void delete(Long id) {
+        findBranchById(id);
+        branchRepository.deleteById(id);
+    }
+
     private PageResponse<BranchListViewDTO> getBranchListViewDTOPageResponse(int offset, Page<Branch> branchPage) {
         Page<BranchListViewDTO> branchDTOPage = branchPage.map(branch -> branchMapper.branchToBranchListViewDTO(branch));
 

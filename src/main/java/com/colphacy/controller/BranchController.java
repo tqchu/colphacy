@@ -100,4 +100,11 @@ public class BranchController {
         }
         return branchService.findNearestBranch(criteria);
     }
+
+    @Operation(summary = "Delete a branch", security = {@SecurityRequirement(name = "bearer-key")})
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable("id") Long id) {
+        branchService.delete(id);
+    }
+
 }
