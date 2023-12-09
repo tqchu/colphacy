@@ -129,9 +129,10 @@ public class OrderServiceImpl implements OrderService {
 
         LocalDateTime now = LocalDateTime.now();
         if (orderDTO.getOrderTime() != null) {
-            if (orderDTO.getOrderTime().isAfter(now)) {
-                throw InvalidFieldsException.fromFieldError("orderTime", "Thời gian mua hàng không hợp lệ");
-            } else order.setOrderTime(orderDTO.getOrderTime());
+//            if (orderDTO.getOrderTime().isAfter(now)) {
+////                throw InvalidFieldsException.fromFieldError("orderTime", "Thời gian mua hàng không hợp lệ");
+//            } else order.setOrderTime(orderDTO.getOrderTime());
+            order.setOrderTime(orderDTO.getOrderTime());
         } else order.setOrderTime(now);
         List<ProductOrderItem> availableProducts = orderDAO.findAvailableProductsForABranch(orderDTO.getItems(), branch.getId());
 
