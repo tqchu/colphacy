@@ -89,4 +89,10 @@ public class ReviewController {
         Employee employee = employeeService.getCurrentlyLoggedInEmployee(principal);
         reviewService.replyReviewForAdmin(reviewReplyAdminCreateDTO, employee);
     }
+
+    @Operation(summary = "Admin delete review", security = {@SecurityRequirement(name = "bearer-key")})
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable("id") Long id) {
+        reviewService.delete(id);
+    }
 }
