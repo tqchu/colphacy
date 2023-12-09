@@ -153,6 +153,15 @@ public class ReviewServiceImpl implements ReviewService {
         reviewRepository.save(replyReview);
     }
 
+    @Override
+    public void delete(Long id) {
+        Optional<Review> reviewOptional = reviewRepository.findById(id);
+        if (reviewOptional.isEmpty()) {
+            throw new RecordNotFoundException("Đánh giá không tồn tại");
+        }
+        reviewRepository.deleteById(id);
+    }
+
     private boolean canCustomerReviewProduct(Long customerId, Long productId) {
         return reviewRepository.canCustomerReviewProduct(customerId, productId);
     }
