@@ -13,4 +13,6 @@ public interface ReviewService {
     PageResponse<ReviewAdminListViewDTO> getAllReviews(String keyword, int offset, Integer limit, String sortBy, String order);
 
     void replyReviewForAdmin(ReviewReplyAdminCreateDTO reviewReplyAdminCreateDTO, Employee employee);
+
+    void delete(Long id);
 }
