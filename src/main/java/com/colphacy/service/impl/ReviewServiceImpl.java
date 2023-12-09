@@ -1,14 +1,12 @@
 package com.colphacy.service.impl;
 
 import com.colphacy.dto.product.ProductSimpleDTO;
-import com.colphacy.dto.review.ReviewAdminListViewDTO;
-import com.colphacy.dto.review.ReviewCustomerCreateDTO;
-import com.colphacy.dto.review.ReviewCustomerListViewDTO;
-import com.colphacy.dto.review.ReviewReplyAdminListViewDTO;
+import com.colphacy.dto.review.*;
 import com.colphacy.exception.InvalidFieldsException;
 import com.colphacy.exception.RecordNotFoundException;
 import com.colphacy.mapper.ReviewMapper;
 import com.colphacy.model.Customer;
+import com.colphacy.model.Employee;
 import com.colphacy.model.Product;
 import com.colphacy.model.Review;
 import com.colphacy.payload.response.PageResponse;
@@ -26,9 +24,11 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 
 @Service
@@ -131,6 +131,26 @@ public class ReviewServiceImpl implements ReviewService {
         page.setTotalItems(Math.toIntExact(result.getTotalElements()));
         page.setOffset(offset);
         return page;
+    }
+
+    @Override
+    public void replyReviewForAdmin(ReviewReplyAdminCreateDTO reviewReplyAdminCreateDTO, Employee employee) {
+        Optional<Review> reviewOptional = reviewRepository.findByIdAndParentReviewIsNull(reviewReplyAdminCreateDTO.getReviewId());
+        if (reviewOptional.isEmpty()) {
+            throw new RecordNotFoundException("Đánh giá không tồn tại");
+        }
+        Review childReview = reviewRepository.findByParentReviewId(reviewReplyAdminCreateDTO.getReviewId());
+        if (childReview != null) {
+            throw InvalidFieldsException.fromFieldError("reviewId", "Đánh giá đã được phản hồi");
+        }
+        Review replyReview = new Review();
+        replyReview.setContent(reviewReplyAdminCreateDTO.getContent());
+        replyReview.setParentReview(reviewOptional.get());
+        replyReview.setProduct(reviewOptional.get().getProduct());
+        replyReview.setCustomer(reviewOptional.get().getCustomer());
+        replyReview.setCreatedTime(LocalDateTime.now());
+        replyReview.setEmployee(employee);
+        reviewRepository.save(replyReview);
     }
 
     private boolean canCustomerReviewProduct(Long customerId, Long productId) {

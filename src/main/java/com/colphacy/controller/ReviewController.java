@@ -1,11 +1,12 @@
 package com.colphacy.controller;
 
-import com.colphacy.dto.review.ReviewAdminListViewDTO;
-import com.colphacy.dto.review.ReviewCustomerCreateDTO;
-import com.colphacy.dto.review.ReviewCustomerListViewDTO;
+import com.azure.core.annotation.Post;
+import com.colphacy.dto.review.*;
 import com.colphacy.model.Customer;
+import com.colphacy.model.Employee;
 import com.colphacy.payload.response.PageResponse;
 import com.colphacy.service.CustomerService;
+import com.colphacy.service.EmployeeService;
 import com.colphacy.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -27,6 +28,9 @@ public class ReviewController {
     private ReviewService reviewService;
 
     private final Integer defaultPageSize;
+
+    @Autowired
+    private EmployeeService employeeService;
 
     @Autowired
     public ReviewController(Integer defaultPageSize) {
@@ -77,5 +81,12 @@ public class ReviewController {
             limit = defaultPageSize;
         }
         return reviewService.getAllReviews(keyword, offset, limit, sortBy, order);
+    }
+
+    @Operation(summary = "Admin reply review", security = {@SecurityRequirement(name = "bearer-key")})
+    @PostMapping("/reply")
+    public void reply(@RequestBody ReviewReplyAdminCreateDTO reviewReplyAdminCreateDTO, Principal principal) {
+        Employee employee = employeeService.getCurrentlyLoggedInEmployee(principal);
+        reviewService.replyReviewForAdmin(reviewReplyAdminCreateDTO, employee);
     }
 }
