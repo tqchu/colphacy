@@ -1,8 +1,10 @@
 package com.colphacy.service;
 
 import com.colphacy.dto.customer.CustomerSearchCriteria;
+import com.colphacy.dto.customer.CustomerSignUpDTO;
 import com.colphacy.dto.customer.CustomerSimpleDTO;
 import com.colphacy.model.Customer;
+import com.colphacy.model.VerificationToken;
 import com.colphacy.payload.request.ChangePasswordRequest;
 import com.colphacy.payload.request.LoginRequest;
 import com.colphacy.payload.response.PageResponse;
@@ -23,4 +25,10 @@ public interface CustomerService {
     Customer getCurrentlyLoggedInCustomer(Principal principal);
 
     PageResponse<CustomerSimpleDTO> getPaginatedCustomers(CustomerSearchCriteria customerSearchCriteria);
+
+    Customer register(CustomerSignUpDTO customerSignUpDTO);
+
+    void saveCustomerVerificationToken(Customer customer, String token);
+
+    boolean verifyToken(String token);
 }
