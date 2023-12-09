@@ -9,6 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -49,15 +50,16 @@ public class Customer implements UserDetails {
     @NotNull
     private boolean isActive = true;
 
-    @NotNull
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
-    @Embedded
-    private Address address;
-
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
     private List<Receiver> receiver;
+
+    @Email
+    private String email;
+
+    private boolean isVerified = false;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
