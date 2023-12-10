@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Data
 @NoArgsConstructor
@@ -13,5 +13,5 @@ import java.time.LocalDateTime;
 public class CustomerLoginResponse {
     private CustomerDetailDTO userProfile;
     private String accessToken;
-    private LocalDateTime expirationTime;
+    private ZonedDateTime expirationTime;
 }

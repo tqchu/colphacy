@@ -20,7 +20,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
@@ -72,7 +73,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public EmployeeLoginResponse loginByEmployee(LoginRequest loginRequest) {
         Employee employee = employeeService.authenticate(loginRequest);
-        LocalDateTime expirationDate = LocalDateTime.now().plusSeconds(expireDuration / 1000);
+        ZonedDateTime expirationDate = ZonedDateTime.now(ZoneOffset.UTC).plusSeconds(expireDuration / 1000);
         String accessToken = jwtUtil.generateAccessToken(employee.getId(), employee.getRole().getName().toString(), expirationDate);
         EmployeeDetailDTO employeeDetailDTO = employeeMapper.employeeToEmployeeDetailDTO(employee);
         return new EmployeeLoginResponse(employeeDetailDTO, accessToken, expirationDate);
@@ -81,7 +82,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public CustomerLoginResponse loginByCustomer(LoginRequest loginRequest) {
         Customer customer = customerService.authenticate(loginRequest);
-        LocalDateTime expirationDate = LocalDateTime.now().plusSeconds(expireDuration / 1000);
+        ZonedDateTime expirationDate = ZonedDateTime.now(ZoneOffset.UTC).plusSeconds(expireDuration / 1000);
         String accessToken = jwtUtil.generateAccessToken(customer.getId(), "CUSTOMER", expirationDate);
         CustomerDetailDTO customerDetailDTO = customerMapper.customerToCustomerDetailDTO(customer);
         return new CustomerLoginResponse(customerDetailDTO, accessToken, expirationDate);
