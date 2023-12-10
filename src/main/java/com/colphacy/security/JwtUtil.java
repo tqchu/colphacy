@@ -8,8 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.Charset;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 @Component
@@ -20,12 +19,12 @@ public class JwtUtil {
     @Value("${app.jwt.secret}")
     private String secretKey;
 
-    public String generateAccessToken(Long id, String authority, LocalDateTime expirationDate) {
+    public String generateAccessToken(Long id, String authority, ZonedDateTime expirationDate) {
         return Jwts.builder()
                 .setSubject(String.valueOf(id))
                 .claim("authority", authority)
                 .setIssuedAt(new Date())
-                .setExpiration(Date.from(expirationDate.toInstant(ZoneOffset.ofHours(0))))
+                .setExpiration(Date.from(expirationDate.toInstant()))
                 .signWith(SignatureAlgorithm.HS512, secretKey.getBytes(Charset.forName("UTF-8")))
                 .compact();
     }
