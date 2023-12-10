@@ -2,14 +2,14 @@ package com.colphacy.dto.imports;
 
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Data
 public class ImportListViewDTO {
     private Long id;
     private String invoiceNumber;
 
-    private LocalDateTime importTime;
+    private ZonedDateTime importTime;
 
     private Double total;
 

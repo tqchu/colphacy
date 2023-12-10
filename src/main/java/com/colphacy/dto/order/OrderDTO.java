@@ -8,7 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Data
@@ -17,11 +17,11 @@ import java.util.List;
 public class OrderDTO {
     private Integer id;
     private ReceiverDTO receiver;
-    private LocalDateTime orderTime;
-    private LocalDateTime confirmTime;
-    private LocalDateTime shipTime;
-    private LocalDateTime deliverTime;
-    private LocalDateTime cancelTime;
+    private ZonedDateTime orderTime;
+    private ZonedDateTime confirmTime;
+    private ZonedDateTime shipTime;
+    private ZonedDateTime deliverTime;
+    private ZonedDateTime cancelTime;
     private OrderStatus status;
     private List<OrderItemDTO> orderItems;
     private Branch branch;

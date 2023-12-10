@@ -7,7 +7,7 @@ import lombok.Data;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Data
@@ -20,7 +20,7 @@ public class ImportDTO {
     @NotNull(message = "Phải có số hóa đơn")
     private String invoiceNumber;
     @NotNull(message = "Phải có thông tin về thời gian nhập hàng")
-    private LocalDateTime importTime;
+    private ZonedDateTime importTime;
 
     @NotNull
     private ProviderSimpleDTO provider;
