@@ -9,7 +9,7 @@ import javax.persistence.*;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Entity(name = "reviews")
 @AllArgsConstructor
@@ -22,7 +22,7 @@ public class Review {
     private Long id;
 
     private String content;
-    private LocalDateTime createdTime = LocalDateTime.now();
+    private ZonedDateTime createdTime = ZonedDateTime.now();
 
     @Min(1)
     @Max(5)

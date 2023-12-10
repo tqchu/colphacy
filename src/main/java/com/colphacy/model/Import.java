@@ -8,7 +8,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +32,7 @@ public class Import {
     private String invoiceNumber;
 
     @NotNull
-    private LocalDateTime importTime;
+    private ZonedDateTime importTime;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)

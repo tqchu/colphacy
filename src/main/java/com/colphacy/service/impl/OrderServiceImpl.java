@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -127,7 +127,7 @@ public class OrderServiceImpl implements OrderService {
             order.setBranch(branch);
         }
 
-        LocalDateTime now = LocalDateTime.now();
+        ZonedDateTime now = ZonedDateTime.now();
         if (orderDTO.getOrderTime() != null) {
 //            if (orderDTO.getOrderTime().isAfter(now)) {
 ////                throw InvalidFieldsException.fromFieldError("orderTime", "Thời gian mua hàng không hợp lệ");
@@ -222,7 +222,7 @@ public class OrderServiceImpl implements OrderService {
         if (orderDTO.getToStatus() == OrderStatus.CANCELLED && order.getStatus() != OrderStatus.PENDING) {
             throw InvalidFieldsException.fromFieldError("toStatus", "Không thể hủy đơn hàng ở trạng thái này");
         }
-        LocalDateTime now = LocalDateTime.now();
+        ZonedDateTime now = ZonedDateTime.now();
         if (order.getStatus() == OrderStatus.PENDING) {
             if (orderDTO.getToStatus() == OrderStatus.CANCELLED) {
                 order.setCancelTime(now);
@@ -248,7 +248,7 @@ public class OrderServiceImpl implements OrderService {
         if (order.getStatus() != OrderStatus.PENDING) {
             throw InvalidFieldsException.fromFieldError("error", "Không thể hủy đơn hàng ở trạng thái này");
         }
-        order.setCancelTime(LocalDateTime.now());
+        order.setCancelTime(ZonedDateTime.now());
         order.setStatus(OrderStatus.CANCELLED);
         orderRepository.save(order);
     }
