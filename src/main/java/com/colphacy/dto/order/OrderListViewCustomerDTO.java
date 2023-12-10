@@ -3,7 +3,7 @@ package com.colphacy.dto.order;
 import com.colphacy.model.OrderStatus;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 
 @Data
@@ -15,11 +15,11 @@ public class OrderListViewCustomerDTO {
     private Double productPrice;
     private Integer productQuantity;
     private String productImage;
-    private LocalDateTime orderTime;
-    private LocalDateTime shipTime;
-    private LocalDateTime confirmTime;
-    private LocalDateTime deliverTime;
-    private LocalDateTime cancelTime;
+    private ZonedDateTime orderTime;
+    private ZonedDateTime shipTime;
+    private ZonedDateTime confirmTime;
+    private ZonedDateTime deliverTime;
+    private ZonedDateTime cancelTime;
     private Integer shippingFee = 0;
     private Double total;
     private Integer totalItems;

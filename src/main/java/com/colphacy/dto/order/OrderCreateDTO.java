@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Data
@@ -15,7 +15,7 @@ import java.util.List;
 public class OrderCreateDTO {
     private Long branchId;
 
-    private LocalDateTime orderTime;
+    private ZonedDateTime orderTime;
 
     @NotNull
     private Long customerId;

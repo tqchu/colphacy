@@ -6,7 +6,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,11 +29,11 @@ public class Order {
     private Receiver receiver;
 
     @NotNull
-    private LocalDateTime orderTime = LocalDateTime.now();
-    private LocalDateTime confirmTime;
-    private LocalDateTime shipTime;
-    private LocalDateTime deliverTime;
-    private LocalDateTime cancelTime;
+    private ZonedDateTime orderTime = ZonedDateTime.now();
+    private ZonedDateTime confirmTime;
+    private ZonedDateTime shipTime;
+    private ZonedDateTime deliverTime;
+    private ZonedDateTime cancelTime;
 
     @NotNull
     @Enumerated(EnumType.STRING)

@@ -4,6 +4,7 @@ import com.google.common.base.CaseFormat;
 import org.hibernate.transform.ResultTransformer;
 import org.springframework.beans.PropertyAccessorFactory;
 
+import java.time.ZoneOffset;
 import java.util.List;
 
 public class AliasToBeanResultTransformer implements ResultTransformer {
@@ -26,12 +27,14 @@ public class AliasToBeanResultTransformer implements ResultTransformer {
 
                     // Check if the tuple element is of type java.sql.Timestamp
                     if (tuple[i] instanceof java.sql.Timestamp) {
-                        // Convert java.sql.Timestamp to java.time.LocalDateTime
+                        // Convert java.sql.Timestamp to java.time.ZonedDateTime
+                        // Your existing code
                         java.sql.Timestamp sqlTimestamp = (java.sql.Timestamp) tuple[i];
-                        java.time.LocalDateTime localDateTime = sqlTimestamp.toLocalDateTime();
+                        java.time.Instant instant = sqlTimestamp.toInstant();
+                        java.time.ZonedDateTime zonedDateTime = instant.atZone(ZoneOffset.UTC);
 
-                        // Set the property value as LocalDateTime
-                        PropertyAccessorFactory.forDirectFieldAccess(result).setPropertyValue(camelCaseAlias, localDateTime);
+                        // Set the property value as ZonedDateTime
+                        PropertyAccessorFactory.forDirectFieldAccess(result).setPropertyValue(camelCaseAlias, zonedDateTime);
                     } else if (tuple[i] instanceof java.sql.Date) {
                         // Convert java.sql.Date to java.time.LocalDate
                         java.sql.Date sqlDate = (java.sql.Date) tuple[i];

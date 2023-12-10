@@ -3,7 +3,7 @@ package com.colphacy.dto.review;
 import com.colphacy.dto.product.ProductSimpleDTO;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Data
 public class ReviewAdminListViewDTO {
@@ -13,6 +13,6 @@ public class ReviewAdminListViewDTO {
     private String content;
     private Long customerId;
     private String customerName;
-    private LocalDateTime createdTime;
+    private ZonedDateTime createdTime;
     private ReviewReplyAdminListViewDTO repliedReview;
 }

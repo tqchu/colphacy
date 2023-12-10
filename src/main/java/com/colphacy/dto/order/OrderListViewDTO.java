@@ -2,16 +2,16 @@ package com.colphacy.dto.order;
 
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Data
 public class OrderListViewDTO {
     private Long id;
     private String customer;
-    private LocalDateTime orderTime;
-    private LocalDateTime confirmTime;
-    private LocalDateTime shipTime;
-    private LocalDateTime deliverTime;
-    private LocalDateTime cancelTime;
+    private ZonedDateTime orderTime;
+    private ZonedDateTime confirmTime;
+    private ZonedDateTime shipTime;
+    private ZonedDateTime deliverTime;
+    private ZonedDateTime cancelTime;
     private Double total;
 }
