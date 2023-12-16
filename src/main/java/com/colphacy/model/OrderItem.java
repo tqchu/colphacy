@@ -22,11 +22,11 @@ public class OrderItem {
     @JoinColumn(name = "order_id")
     private Order order;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "product_id")
     private Product product;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "unit_id")
     private Unit unit;
 
