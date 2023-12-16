@@ -199,13 +199,14 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerDetailDTO updateProfile(Long id, CustomerDetailDTO customerDetailDTO) {
         Customer customer = findById(id);
 
-        if (!customerDetailDTO.getUsername().equals(customer.getUsername()) && customerRepository.existsByUsernameIgnoreCase(customer.getUsername())) {
+        if (!customerDetailDTO.getUsername().equals(customer.getUsername()) && customerRepository.existsByUsernameIgnoreCase(customerDetailDTO.getUsername())) {
             throw InvalidFieldsException.fromFieldError("username", "Tên người dùng đã được sử dụng");
         }
 
         customer.setFullName(customerDetailDTO.getFullName());
         customer.setGender(customerDetailDTO.getGender());
         customer.setUsername(customer.getUsername());
+        customerRepository.save(customer);
 
         return customerMapper.customerToCustomerDetailDTO(customer);
     }
