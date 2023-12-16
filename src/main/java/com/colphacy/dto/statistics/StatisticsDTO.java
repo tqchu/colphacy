@@ -1,8 +1,5 @@
-package com.colphacy.controller;
+package com.colphacy.dto.statistics;
 
-import com.colphacy.dto.statistics.ImportRevenueStatisticsDTO;
-import com.colphacy.dto.statistics.OrderStatisticsDTO;
-import com.colphacy.dto.statistics.SoldProductDTO;
 import lombok.Data;
 
 import java.util.List;
