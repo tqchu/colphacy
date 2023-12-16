@@ -21,7 +21,7 @@ public class CustomerDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<Customer> optionalCustomer = customerService.findByUsername(username);
+        Optional<Customer> optionalCustomer = customerService.findByUsernameIgnoreCase(username);
         if (optionalCustomer.isEmpty()) {
             throw new UsernameNotFoundException("Tài khoản không tồn tại");
         }
