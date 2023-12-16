@@ -1,5 +1,6 @@
 package com.colphacy.controller;
 
+import com.colphacy.dto.CustomerDetailDTO;
 import com.colphacy.dto.customer.CustomerSearchCriteria;
 import com.colphacy.dto.customer.CustomerSimpleDTO;
 import com.colphacy.model.Customer;
@@ -60,5 +61,20 @@ public class CustomerController {
             customerSearchCriteria.setLimit(defaultPageSize);
         }
         return customerService.getPaginatedCustomers(customerSearchCriteria);
+    }
+
+    @Operation(summary = "Customers get their profile", security = {@SecurityRequirement(name = "bearer-key")})
+    @GetMapping("/profile")
+    public CustomerDetailDTO getProfile(Principal principal) {
+        Customer customer = customerService.getCurrentlyLoggedInCustomer(principal);
+
+        return customerService.findCustomerDetailDTOById(customer.getId());
+    }
+
+    @Operation(summary = "Customers update their information", security = {@SecurityRequirement(name = "bearer-key")})
+    @PutMapping("/profile")
+    public CustomerDetailDTO updateProfile(Principal principal, @Valid @RequestBody CustomerDetailDTO customerDetailDTO) {
+        Customer customer = customerService.getCurrentlyLoggedInCustomer(principal);
+        return customerService.updateProfile(customer.getId(), customerDetailDTO);
     }
 }

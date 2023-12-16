@@ -1,5 +1,6 @@
 package com.colphacy.service.impl;
 
+import com.colphacy.dto.CustomerDetailDTO;
 import com.colphacy.dto.customer.CustomerSearchCriteria;
 import com.colphacy.dto.customer.CustomerSignUpDTO;
 import com.colphacy.dto.customer.CustomerSimpleDTO;
@@ -16,7 +17,6 @@ import com.colphacy.repository.VerificationTokenRepository;
 import com.colphacy.service.CustomerService;
 import com.colphacy.util.PageResponseUtils;
 import lombok.extern.slf4j.Slf4j;
-import net.bytebuddy.utility.RandomString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
@@ -28,7 +28,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
-import java.util.Calendar;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -49,8 +49,8 @@ public class CustomerServiceImpl implements CustomerService {
         this.passwordEncoder = passwordEncoder;
     }
     @Override
-    public Optional<Customer> findByUsername(String username) {
-        return customerRepository.findByUsername(username);
+    public Optional<Customer> findByUsernameIgnoreCase(String username) {
+        return customerRepository.findByUsernameIgnoreCase(username);
     }
 
     @Override
@@ -77,7 +77,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public Customer authenticate(LoginRequest loginRequest) {
-        Optional<Customer> optionalCustomer = customerRepository.findByUsername(loginRequest.getUsername());
+        Optional<Customer> optionalCustomer = customerRepository.findByUsernameIgnoreCase(loginRequest.getUsername());
         if (optionalCustomer.isEmpty()) {
             throw InvalidFieldsException.fromFieldError("username", "Tên người dùng không tồn tại");
         }
@@ -187,5 +187,26 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setVerified(true);
         customerRepository.save(customer);
         return true;
+    }
+
+    @Override
+    public CustomerDetailDTO findCustomerDetailDTOById(Long id) {
+        Customer customer = findById(id);
+        return customerMapper.customerToCustomerDetailDTO(customer);
+    }
+
+    @Override
+    public CustomerDetailDTO updateProfile(Long id, CustomerDetailDTO customerDetailDTO) {
+        Customer customer = findById(id);
+
+        if (!customerDetailDTO.getUsername().equals(customer.getUsername()) && customerRepository.existsByUsernameIgnoreCase(customer.getUsername())) {
+            throw InvalidFieldsException.fromFieldError("username", "Tên người dùng đã được sử dụng");
+        }
+
+        customer.setFullName(customerDetailDTO.getFullName());
+        customer.setGender(customerDetailDTO.getGender());
+        customer.setUsername(customer.getUsername());
+
+        return customerMapper.customerToCustomerDetailDTO(customer);
     }
 }
