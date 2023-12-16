@@ -16,4 +16,6 @@ public class CustomerDetailDTO {
     private boolean isActive = true;
 
     private Gender gender;
+
+    private String email;
 }
