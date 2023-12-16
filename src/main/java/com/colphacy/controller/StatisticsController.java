@@ -1,6 +1,7 @@
 package com.colphacy.controller;
 
 import com.colphacy.dto.statistics.ProductsStatisticsDTO;
+import com.colphacy.dto.statistics.StatisticsDTO;
 import com.colphacy.service.StatisticsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.Positive;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/statistics")
@@ -43,5 +45,12 @@ public class StatisticsController {
         return statisticsService.getStatistics(branchId, month, year, timeZone);
     }
 
+    @Operation(summary = "Get available years", security = {@SecurityRequirement(name = "bearer-key")})
+    @GetMapping("/available-years")
+    public List<Integer> getAvailableYears(
+            int timeZone
+    ) {
+        return statisticsService.getAvailableYears(timeZone);
+    }
 
 }
