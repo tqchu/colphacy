@@ -134,6 +134,9 @@ public class OrderServiceImpl implements OrderService {
 //            } else order.setOrderTime(orderDTO.getOrderTime());
             order.setOrderTime(orderDTO.getOrderTime());
         } else order.setOrderTime(now);
+        order.setConfirmTime(now);
+        order.setShipTime(now);
+        order.setDeliverTime(now);
         List<ProductOrderItem> availableProducts = orderDAO.findAvailableProductsForABranch(orderDTO.getItems(), branch.getId());
 
         if (availableProducts.isEmpty()) {
@@ -146,7 +149,7 @@ public class OrderServiceImpl implements OrderService {
         Customer customer = customerService.findById(orderDTO.getCustomerId());
         order.setCustomer(customer);
 
-        order.setStatus(OrderStatus.PENDING);
+        order.setStatus(OrderStatus.DELIVERED);
         // Find receiver by customerId and branchId
         Receiver receiver = receiverService.findByCustomerIdAndBranchId(customer.getId(), branch.getId());
         if (receiver == null) {
