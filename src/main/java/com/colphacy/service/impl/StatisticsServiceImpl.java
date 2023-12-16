@@ -1,9 +1,9 @@
 package com.colphacy.service.impl;
 
-import com.colphacy.controller.StatisticsDTO;
 import com.colphacy.dto.statistics.*;
 import com.colphacy.exception.InvalidFieldsException;
 import com.colphacy.model.OrderStatus;
+import com.colphacy.repository.ImportRepository;
 import com.colphacy.service.BranchService;
 import com.colphacy.service.StatisticsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +20,9 @@ import java.util.Map;
 public class StatisticsServiceImpl implements StatisticsService {
     @Autowired
     private BranchService branchService;
+
+    @Autowired
+    private ImportRepository importRepository;
 
     @Override
     public ProductsStatisticsDTO getProductStatistics(Integer branchId) {
@@ -127,5 +130,11 @@ public class StatisticsServiceImpl implements StatisticsService {
         result.setPnl(pnl);
 
         return result;
+    }
+
+    @Override
+    public List<Integer> getAvailableYears(int timeZone) {
+        String timeZoneStr = (timeZone > 0 ? "+" : "") + timeZone;
+        return importRepository.getAvailableYear(timeZoneStr);
     }
 }
