@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
-    Optional<Customer> findByUsername(String username);
+    Optional<Customer> findByUsernameIgnoreCase(String username);
 
     @Query("SELECT c FROM customer c WHERE LOWER(unaccent('unaccent', c.fullName)) LIKE unaccent(lower('%' || :keyword || '%')) OR LOWER(unaccent('unaccent', c.phone)) LIKE unaccent(lower('%' || :keyword || '%')) ")
     Page<Customer> findAll(String keyword, Pageable page);
