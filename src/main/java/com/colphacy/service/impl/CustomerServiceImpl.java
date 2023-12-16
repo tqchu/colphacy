@@ -205,7 +205,7 @@ public class CustomerServiceImpl implements CustomerService {
 
         customer.setFullName(customerDetailDTO.getFullName());
         customer.setGender(customerDetailDTO.getGender());
-        customer.setUsername(customer.getUsername());
+        customer.setUsername(customerDetailDTO.getUsername());
         customerRepository.save(customer);
 
         return customerMapper.customerToCustomerDetailDTO(customer);
