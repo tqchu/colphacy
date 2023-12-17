@@ -3,6 +3,7 @@ package com.colphacy.service;
 import com.colphacy.dto.order.*;
 import com.colphacy.model.Customer;
 import com.colphacy.model.Employee;
+import com.colphacy.model.Order;
 import com.colphacy.payload.response.PageResponse;
 
 public interface OrderService {
@@ -12,11 +13,13 @@ public interface OrderService {
 
     PageResponse<OrderListViewDTO> getPaginatedOrders(OrderSearchCriteria criteria);
 
-    void updateOrder(OrderUpdateDTO order);
+    Order updateOrder(OrderUpdateDTO order);
 
-    void cancelOrder(Long id);
+    Order cancelOrder(Long id);
 
     OrderDTO findOrderDTOById(Long id);
 
     PageResponse<OrderListViewCustomerDTO> getPaginatedOrdersCustomer(OrderSearchCriteria criteria);
+
+    OrderDTO findOrderDTOByIdAndCustomerId(Long orderId, Long customerId);
 }

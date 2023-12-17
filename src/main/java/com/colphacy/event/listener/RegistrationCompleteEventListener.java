@@ -45,7 +45,7 @@ public class RegistrationCompleteEventListener implements ApplicationListener<Re
     public void sendVerificationEmail(String url) throws MessagingException, UnsupportedEncodingException {
         String subject = "Xác nhận đăng ký";
         String senderName = "Hệ thống nhà thuốc Colphacy";
-        String mailContent = "<p> Xin chào anh/chị <b>" + customer.getFullName() + "</b>, </p>" +
+        String mailContent = "<p> Xin chào <b>" + customer.getFullName() + "</b>, </p>" +
                 "<p>Cảm ơn anh/chị đã đăng ký với <b>Colphacy</b> <br>" + "" +
                 "Vui lòng nhấn vào link dưới đây để hoàn tất đăng ký</p>" +
                 "<a href=\"" + url + "\">Xác nhận đăng ký</a>" +
