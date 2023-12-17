@@ -101,6 +101,9 @@ public class StatisticsServiceImpl implements StatisticsService {
         orders.setRevenue(30000000);
         orders.setTotalNumOrders(90);
         orders.setSoldProducts(30);
+        orders.setOrderChangePercent(10.5);
+        orders.setRevenueChangePercent(-12.5);
+        orders.setSoldProductChangePercent(0);
         Map<OrderStatus, Integer> orderNumMaps = new HashMap<>();
         orderNumMaps.put(OrderStatus.PENDING, 10);
         orderNumMaps.put(OrderStatus.CONFIRMED, 15);
