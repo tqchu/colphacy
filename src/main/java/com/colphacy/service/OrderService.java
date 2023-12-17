@@ -15,11 +15,13 @@ public interface OrderService {
 
     Order updateOrder(OrderUpdateDTO order);
 
-    Order cancelOrder(Long id);
+    Order cancelOrder(Long id, Long customerId);
 
     OrderDTO findOrderDTOById(Long id);
 
     PageResponse<OrderListViewCustomerDTO> getPaginatedOrdersCustomer(OrderSearchCriteria criteria);
 
     OrderDTO findOrderDTOByIdAndCustomerId(Long orderId, Long customerId);
+
+    Order completeOrder(Long id, Long customerId);
 }
