@@ -1,8 +1,11 @@
 package com.colphacy.controller;
 
 import com.colphacy.dto.order.*;
+import com.colphacy.event.ChangeOrderStatusEvent;
+import com.colphacy.event.RegistrationCompleteEvent;
 import com.colphacy.model.Customer;
 import com.colphacy.model.Employee;
+import com.colphacy.model.Order;
 import com.colphacy.payload.response.PageResponse;
 import com.colphacy.service.CustomerService;
 import com.colphacy.service.EmployeeService;
@@ -11,6 +14,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -30,11 +34,16 @@ public class OrderController {
     @Value("${colphacy.api.default-page-size}")
     private Integer defaultPageSize;
 
+    @Autowired
+    private ApplicationEventPublisher publisher;
+
     @Operation(summary = "Create a new order", security = {@SecurityRequirement(name = "bearer-key")})
     @PostMapping("/purchase")
     public OrderDTO purchase(@RequestBody @Valid OrderPurchaseDTO orderPurchaseDTO, Principal principal) {
         Customer customer = customerService.getCurrentlyLoggedInCustomer(principal);
-        return orderService.purchase(orderPurchaseDTO, customer);
+        OrderDTO orderDTO = orderService.purchase(orderPurchaseDTO, customer);
+        publisher.publishEvent(new ChangeOrderStatusEvent(customer, orderDTO.getId().longValue(), orderDTO.getStatus()));
+        return orderDTO;
     }
 
     @Operation(summary = "Create a new order", security = {@SecurityRequirement(name = "bearer-key")})
@@ -67,14 +76,16 @@ public class OrderController {
 
     @Operation(summary = "Update order's status", security = {@SecurityRequirement(name = "bearer-key")})
     @PutMapping("")
-    public void updateStatus(@RequestBody @Valid OrderUpdateDTO order) {
-        orderService.updateOrder(order);
+    public void updateStatus(@RequestBody @Valid OrderUpdateDTO orderUpdateDTO) {
+        Order order = orderService.updateOrder(orderUpdateDTO);
+        publisher.publishEvent(new ChangeOrderStatusEvent(order.getCustomer(), order.getId(), order.getStatus()));
     }
 
     @Operation(summary = "Cancel order", security = {@SecurityRequirement(name = "bearer-key")})
     @PutMapping("/cancel/{id}")
     public void cancelOrder(@PathVariable Long id) {
-        orderService.cancelOrder(id);
+        Order order = orderService.cancelOrder(id);
+        publisher.publishEvent(new ChangeOrderStatusEvent(order.getCustomer(), order.getId(), order.getStatus()));
     }
 
     @Operation(summary = "Get order's detail by admin", security = {@SecurityRequirement(name = "bearer-key")})
@@ -85,7 +96,8 @@ public class OrderController {
 
     @Operation(summary = "Get order's detail by customer", security = {@SecurityRequirement(name = "bearer-key")})
     @GetMapping("/customer/{id}")
-    public OrderDTO getOrderDetailCustomer(@PathVariable Long id) {
-        return orderService.findOrderDTOById(id);
+    public OrderDTO getOrderDetailCustomer(@PathVariable Long id, Principal principal) {
+        Customer customer = customerService.getCurrentlyLoggedInCustomer(principal);
+        return orderService.findOrderDTOByIdAndCustomerId(id, customer.getId());
     }
 }
