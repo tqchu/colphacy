@@ -219,7 +219,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void updateOrder(OrderUpdateDTO orderDTO) {
+    public Order updateOrder(OrderUpdateDTO orderDTO) {
         Order order = findOrderById(orderDTO.getId());
 
         if (orderDTO.getToStatus() == OrderStatus.CANCELLED && order.getStatus() != OrderStatus.PENDING) {
@@ -241,11 +241,11 @@ public class OrderServiceImpl implements OrderService {
             order.setDeliverTime(now);
             order.setStatus(OrderStatus.DELIVERED);
         }
-        orderRepository.save(order);
+        return orderRepository.save(order);
     }
 
     @Override
-    public void cancelOrder(Long id) {
+    public Order cancelOrder(Long id) {
         Order order = findOrderById(id);
 
         if (order.getStatus() != OrderStatus.PENDING) {
@@ -253,7 +253,7 @@ public class OrderServiceImpl implements OrderService {
         }
         order.setCancelTime(ZonedDateTime.now());
         order.setStatus(OrderStatus.CANCELLED);
-        orderRepository.save(order);
+        return orderRepository.save(order);
     }
 
     @Override
@@ -301,5 +301,19 @@ public class OrderServiceImpl implements OrderService {
         return page;
     }
 
+    @Override
+    public OrderDTO findOrderDTOByIdAndCustomerId(Long orderId, Long customerId) {
+        Order order = findOrderByIdAndCustomerId(orderId, customerId);
 
+        return orderMapper.orderToOrderDTO(order);
+    }
+
+    private Order findOrderByIdAndCustomerId(Long orderId, Long customerId) {
+        Optional<Order> optionalOrder = orderRepository.findByIdAndCustomerId(orderId, customerId);
+        if (optionalOrder.isEmpty()) {
+            throw new RecordNotFoundException("Không tìm thấy đơn hàng có id = " + orderId);
+        }
+
+        return optionalOrder.get();
+    }
 }
