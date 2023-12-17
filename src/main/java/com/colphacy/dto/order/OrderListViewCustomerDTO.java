@@ -19,6 +19,7 @@ public class OrderListViewCustomerDTO {
     private ZonedDateTime shipTime;
     private ZonedDateTime confirmTime;
     private ZonedDateTime deliverTime;
+    private ZonedDateTime completeTime;
     private ZonedDateTime cancelTime;
     private Integer shippingFee = 0;
     private Double total;

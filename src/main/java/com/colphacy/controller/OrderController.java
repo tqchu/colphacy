@@ -53,7 +53,7 @@ public class OrderController {
         return orderService.createOrder(orderCreateDTO, employee);
     }
 
-    @Operation(summary = "Get paginated order history by status", security = {@SecurityRequirement(name = "bearer-key")})
+    @Operation(summary = "Admin get paginated order history by status", security = {@SecurityRequirement(name = "bearer-key")})
     @GetMapping("")
     public PageResponse<OrderListViewDTO> getPaginatedOrders(OrderSearchCriteria criteria) {
         if (criteria.getLimit() == null) {
@@ -62,7 +62,7 @@ public class OrderController {
         return orderService.getPaginatedOrders(criteria);
     }
 
-    @Operation(summary = "Get paginated order history by status for customer", security = {@SecurityRequirement(name = "bearer-key")})
+    @Operation(summary = "Customer get paginated their order history by status", security = {@SecurityRequirement(name = "bearer-key")})
     @GetMapping("/customer")
     public PageResponse<OrderListViewCustomerDTO> getPaginatedOrdersCustomer(OrderSearchCriteria criteria, Principal principal) {
         Customer customer = customerService.getCurrentlyLoggedInCustomer(principal);
@@ -83,8 +83,9 @@ public class OrderController {
 
     @Operation(summary = "Cancel order", security = {@SecurityRequirement(name = "bearer-key")})
     @PutMapping("/cancel/{id}")
-    public void cancelOrder(@PathVariable Long id) {
-        Order order = orderService.cancelOrder(id);
+    public void cancelOrder(@PathVariable Long id, Principal principal) {
+        Customer customer = customerService.getCurrentlyLoggedInCustomer(principal);
+        Order order = orderService.cancelOrder(id, customer.getId());
         publisher.publishEvent(new ChangeOrderStatusEvent(order.getCustomer(), order.getId(), order.getStatus()));
     }
 
@@ -99,5 +100,13 @@ public class OrderController {
     public OrderDTO getOrderDetailCustomer(@PathVariable Long id, Principal principal) {
         Customer customer = customerService.getCurrentlyLoggedInCustomer(principal);
         return orderService.findOrderDTOByIdAndCustomerId(id, customer.getId());
+    }
+
+    @Operation(summary = "The customer confirms that the order has been completed", security = {@SecurityRequirement(name = "bearer-key")})
+    @PutMapping("/customer/complete/{id}")
+    public void completeOrder(@PathVariable Long id, Principal principal) {
+        Customer customer = customerService.getCurrentlyLoggedInCustomer(principal);
+        Order order = orderService.completeOrder(id, customer.getId());
+        publisher.publishEvent(new ChangeOrderStatusEvent(order.getCustomer(), order.getId(), order.getStatus()));
     }
 }
