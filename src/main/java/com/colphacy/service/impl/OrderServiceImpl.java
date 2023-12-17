@@ -186,6 +186,8 @@ public class OrderServiceImpl implements OrderService {
                 criteria.setSortBy(OrderListSortField.DELIVER_TIME);
             } else if (criteria.getStatus() == OrderStatus.CANCELLED) {
                 criteria.setSortBy(OrderListSortField.CANCEL_TIME);
+            } else if (criteria.getStatus() == OrderStatus.COMPLETED) {
+                criteria.setSortBy(OrderListSortField.COMPLETE_TIME);
             }
         }
         if (criteria.getBranchId() != null) {
@@ -245,8 +247,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Order cancelOrder(Long id) {
-        Order order = findOrderById(id);
+    public Order cancelOrder(Long id, Long customerId) {
+        Order order = findOrderByIdAndCustomerId(id, customerId);
 
         if (order.getStatus() != OrderStatus.PENDING) {
             throw InvalidFieldsException.fromFieldError("error", "Không thể hủy đơn hàng ở trạng thái này");
@@ -277,6 +279,8 @@ public class OrderServiceImpl implements OrderService {
                 criteria.setSortBy(OrderListSortField.DELIVER_TIME);
             } else if (criteria.getStatus() == OrderStatus.CANCELLED) {
                 criteria.setSortBy(OrderListSortField.CANCEL_TIME);
+            } else if (criteria.getStatus() == OrderStatus.COMPLETED) {
+                criteria.setSortBy(OrderListSortField.COMPLETE_TIME);
             }
         }
         if (criteria.getBranchId() != null) {
@@ -306,6 +310,18 @@ public class OrderServiceImpl implements OrderService {
         Order order = findOrderByIdAndCustomerId(orderId, customerId);
 
         return orderMapper.orderToOrderDTO(order);
+    }
+
+    @Override
+    public Order completeOrder(Long id, Long customerId) {
+        Order order = findOrderByIdAndCustomerId(id, customerId);
+        if (order.getStatus() == OrderStatus.SHIPPING || order.getStatus() == OrderStatus.DELIVERED) {
+            order.setCompleteTime(ZonedDateTime.now());
+            order.setStatus(OrderStatus.COMPLETED);
+            return orderRepository.save(order);
+        } else {
+            throw InvalidFieldsException.fromFieldError("error", "Không thể hoàn thành đơn hàng ở trạng thái này");
+        }
     }
 
     private Order findOrderByIdAndCustomerId(Long orderId, Long customerId) {

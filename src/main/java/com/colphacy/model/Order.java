@@ -33,6 +33,7 @@ public class Order {
     private ZonedDateTime confirmTime;
     private ZonedDateTime shipTime;
     private ZonedDateTime deliverTime;
+    private ZonedDateTime completeTime;
     private ZonedDateTime cancelTime;
 
     @NotNull
