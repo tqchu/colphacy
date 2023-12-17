@@ -2,7 +2,6 @@ package com.colphacy.controller;
 
 import com.colphacy.dto.order.*;
 import com.colphacy.event.ChangeOrderStatusEvent;
-import com.colphacy.event.RegistrationCompleteEvent;
 import com.colphacy.model.Customer;
 import com.colphacy.model.Employee;
 import com.colphacy.model.Order;
