@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -54,11 +53,8 @@ public class StatisticsServiceImpl implements StatisticsService {
             month = now.getMonthValue();
             year = now.getYear();
         } else {
-            if (month == null) {
-                month = 1;
-            }
             try {
-                ZonedDateTime inputDate = ZonedDateTime.of(year, month, 1, 0, 0, 0, 0, ZoneId.of("GMT+" + timeZone));
+                ZonedDateTime inputDate = ZonedDateTime.of(year, 1, 1, 0, 0, 0, 0, ZoneId.of("GMT+" + timeZone));
                 if (inputDate.isAfter(now)) {
                     throw InvalidFieldsException.fromFieldError("error", "Thời gian không hợp lệ");
                 }
@@ -75,9 +71,6 @@ public class StatisticsServiceImpl implements StatisticsService {
         SoldProductsRevenueDTO soldProductsRevenueDTO = statisticsDAO.getSoldProductsAndRevenue(branchId, month, year, timeZoneStr);
         orders.setRevenue(soldProductsRevenueDTO.getRevenue());
         orders.setSoldProducts(soldProductsRevenueDTO.getTotalSoldProducts());
-        orders.setOrderChangePercent(10.5);
-        orders.setRevenueChangePercent(-12.5);
-        orders.setSoldProductChangePercent(0);
 
 
         Map<OrderStatus, Integer> orderNumMaps = statisticsDAO.getOrderStatistics(branchId, month, year, timeZoneStr);
@@ -86,27 +79,39 @@ public class StatisticsServiceImpl implements StatisticsService {
                 orderNumMaps.put(orderStatus, 0);
             }
         }
+        Integer lastMonth = month != null ? month : null;
+        Integer lastYear = year;
+
+        if (month != null) {
+            if (month == 1) {
+                lastMonth = 12;
+                lastYear -= 1;
+            } else {
+                lastMonth -= 1;
+            }
+        } else {
+            year -= 1;
+        }
+        SoldProductsRevenueDTO lastSoldProductsRevenueDTO = statisticsDAO.getSoldProductsAndRevenue(branchId, lastMonth, lastYear, timeZoneStr);
+
+        Map<OrderStatus, Integer> lastOrderNumMaps = statisticsDAO.getOrderStatistics(branchId, lastMonth, lastYear, timeZoneStr);
 
         orders.setNumOrdersMap(orderNumMaps);
-        orders.setTotalNumOrders(orderNumMaps.values().stream().mapToInt(Integer::intValue).sum());
+        int totalNumOrders = orderNumMaps.values().stream().mapToInt(Integer::intValue).sum();
+        orders.setTotalNumOrders(totalNumOrders);
+
+        int lastTotalNumOrders = lastOrderNumMaps.values().stream().mapToInt(Integer::intValue).sum();
+
+        orders.setOrderChangePercent(totalNumOrders - lastTotalNumOrders);
+        orders.setRevenueChangePercent(soldProductsRevenueDTO.getRevenue() - lastSoldProductsRevenueDTO.getRevenue());
+        orders.setSoldProductChangePercent(soldProductsRevenueDTO.getTotalSoldProducts() - lastSoldProductsRevenueDTO.getTotalSoldProducts());
+
         result.setOrders(orders);
 
         ImportRevenueStatisticsDTO pnl = new ImportRevenueStatisticsDTO();
-        pnl.setImportAmount(9000000);
-        pnl.setRevenue(10000000);
-        List<ImportRevenueStatisticsPointDTO> points = new ArrayList<>();
-        points.add(new ImportRevenueStatisticsPointDTO(1000, 2000));
-        points.add(new ImportRevenueStatisticsPointDTO(10000, 25000));
-        points.add(new ImportRevenueStatisticsPointDTO(15000, 24000));
-        points.add(new ImportRevenueStatisticsPointDTO(20000, 12000));
-        points.add(new ImportRevenueStatisticsPointDTO(10000, 28000));
-        points.add(new ImportRevenueStatisticsPointDTO(18000, 22000));
-        points.add(new ImportRevenueStatisticsPointDTO(21000, 12000));
-        points.add(new ImportRevenueStatisticsPointDTO(31000, 22000));
-        points.add(new ImportRevenueStatisticsPointDTO(20000, 12000));
-        points.add(new ImportRevenueStatisticsPointDTO(18000, 16000));
-        points.add(new ImportRevenueStatisticsPointDTO(40000, 32000));
-        points.add(new ImportRevenueStatisticsPointDTO(10000, 8000));
+        List<ImportRevenueStatisticsPointDTO> points = statisticsDAO.getPnlPoints(branchId, month, year, timeZoneStr);
+        pnl.setRevenue(points.stream().mapToLong(ImportRevenueStatisticsPointDTO::getRevenue).sum());
+        pnl.setImportAmount(points.stream().mapToLong(ImportRevenueStatisticsPointDTO::getImportAmount).sum());
         pnl.setPoints(points);
         result.setPnl(pnl);
 
