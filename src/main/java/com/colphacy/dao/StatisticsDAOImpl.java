@@ -1,5 +1,6 @@
 package com.colphacy.dao;
 
+import com.colphacy.dto.statistics.ImportRevenueStatisticsPointDTO;
 import com.colphacy.dto.statistics.SoldProductDTO;
 import com.colphacy.dto.statistics.SoldProductsRevenueDTO;
 import com.colphacy.model.OrderStatus;
@@ -8,6 +9,8 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -251,5 +254,137 @@ public class StatisticsDAOImpl implements StatisticsDAO {
         return statistics;
 
 
+    }
+
+    @Override
+    public List<ImportRevenueStatisticsPointDTO> getPnlPoints(Integer branchId, Integer month, Integer year, String timeZoneStr) {
+        Query query;
+        if (month != null) {
+            query = getQueryStatisticsForMonth(branchId, month, year, timeZoneStr);
+        } else {
+            query = getQueryStatisticsForYear(branchId, year, timeZoneStr);
+        }
+        query.setParameter("year", year);
+        query.setParameter("timeZone", timeZoneStr);
+
+        if (branchId != null)
+            query.setParameter("branchId", branchId);
+        return query.unwrap(org.hibernate.query.Query.class)
+                .setResultTransformer(new AliasToBeanResultTransformer(ImportRevenueStatisticsPointDTO.class))
+                .getResultList();
+    }
+
+    private Query getQueryStatisticsForYear(Integer branchId, Integer year, String timeZoneStr) {
+        String sql =
+                """                
+                        WITH import_amount AS (
+                        SELECT
+                            EXTRACT(MONTH FROM (import_time AT TIME ZONE 'UTC') AT TIME ZONE :timeZone) AS month,
+                            sum(id.quantity * id.import_price) AS amount
+                        FROM import i
+                                 JOIN import_detail id ON i.id = id.import_id
+                        WHERE EXTRACT(YEAR FROM (import_time AT TIME ZONE 'UTC') AT TIME ZONE :timeZone) = :year
+                          """;
+        if (branchId != null) {
+            sql += " AND i.branch_id = :branchId ";
+        }
+        sql += """
+                    GROUP BY month
+                ),
+                     months AS (
+                         SELECT generate_series(1, :monthInYears) as month
+                     ),
+                     revenue AS (
+                         SELECT
+                             EXTRACT(MONTH FROM (order_time AT TIME ZONE 'UTC') AT TIME ZONE :timeZone) AS month,
+                             sum(oi.quantity * oi.price) AS amount
+                         FROM orders o
+                                  JOIN order_item oi ON o.id = oi.order_id
+                               """;
+        if (branchId != null) {
+            sql += " AND o.branch_id = :branchId";
+        }
+        sql +=
+                """
+                                 WHERE o.status <> 'CANCELLED'
+                                   AND EXTRACT(YEAR FROM (order_time AT TIME ZONE 'UTC') AT TIME ZONE :timeZone) = :year
+                                 GROUP BY month
+                             )
+                        SELECT
+                            COALESCE(ia.amount, 0) AS import_amount,
+                            COALESCE(r.amount, 0) AS revenue
+                        FROM months m
+                                 LEFT JOIN import_amount ia ON m.month = ia.month
+                                 LEFT JOIN revenue r ON m.month = r.month
+                                 ORDER BY m.month;
+                            """;
+        ZonedDateTime now = ZonedDateTime.now();
+        int monthInYears = 12;
+        if (year == now.getYear()) {
+            monthInYears = now.getMonthValue();
+        }
+        Query query = entityManager.createNativeQuery(sql);
+        query.setParameter("monthInYears", monthInYears);
+        return query;
+    }
+
+    private Query getQueryStatisticsForMonth(Integer branchId, Integer month, Integer year, String timeZoneStr) {
+        String sql =
+                """                
+                        WITH import_amount AS (
+                        SELECT
+                            EXTRACT(DAY FROM (import_time AT TIME ZONE 'UTC') AT TIME ZONE :timeZone) AS day,
+                            sum(id.quantity * id.import_price) AS amount
+                        FROM import i
+                                 JOIN import_detail id ON i.id = id.import_id
+                        WHERE EXTRACT(YEAR FROM (import_time AT TIME ZONE 'UTC') AT TIME ZONE :timeZone) = :year
+                          AND EXTRACT(MONTH FROM (import_time AT TIME ZONE 'UTC') AT TIME ZONE :timeZone) = :month
+                          """;
+        if (branchId != null) {
+            sql += " AND i.branch_id = :branchId ";
+        }
+        sql += """
+                    GROUP BY day
+                ),
+                     days AS (
+                         SELECT generate_series(1, :daysInMonth) as day
+                     ),
+                     revenue AS (
+                         SELECT
+                             EXTRACT(DAY FROM (order_time AT TIME ZONE 'UTC') AT TIME ZONE :timeZone) AS day,
+                             sum(oi.quantity * oi.price) AS amount
+                         FROM orders o
+                                  JOIN order_item oi ON o.id = oi.order_id
+                               """;
+        if (branchId != null) {
+            sql += " AND o.branch_id = :branchId";
+        }
+        sql +=
+                """
+                                 WHERE o.status <> 'CANCELLED'
+                                   AND EXTRACT(YEAR FROM (order_time AT TIME ZONE 'UTC') AT TIME ZONE :timeZone) = :year
+                                   AND EXTRACT(MONTH FROM (order_time AT TIME ZONE 'UTC') AT TIME ZONE :timeZone) = :month
+                                 GROUP BY day
+                             )
+                        SELECT
+                            COALESCE(ia.amount, 0) AS import_amount,
+                            COALESCE(r.amount, 0) AS revenue
+                        FROM days d
+                                 LEFT JOIN import_amount ia ON d.day = ia.day
+                                 LEFT JOIN revenue r ON d.day = r.day
+                                 ORDER BY d.day;
+                            """;
+        ZonedDateTime zonedDateTime = ZonedDateTime.of(year, month, 1, 0, 0, 0, 0, ZoneId.of(timeZoneStr));
+        ZonedDateTime now = ZonedDateTime.now();
+        int daysInMonth;
+        if (month == now.getMonthValue() && year == now.getYear()) {
+            daysInMonth = now.getDayOfMonth();
+        } else {
+            daysInMonth = zonedDateTime.toLocalDate().lengthOfMonth();
+        }
+        Query query = entityManager.createNativeQuery(sql);
+        query.setParameter("daysInMonth", daysInMonth);
+        query.setParameter("month", month);
+        return query;
     }
 }
