@@ -90,7 +90,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 lastMonth -= 1;
             }
         } else {
-            year -= 1;
+            lastYear -= 1;
         }
         SoldProductsRevenueDTO lastSoldProductsRevenueDTO = statisticsDAO.getSoldProductsAndRevenue(branchId, lastMonth, lastYear, timeZoneStr);
 
