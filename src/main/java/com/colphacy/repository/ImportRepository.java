@@ -12,4 +12,6 @@ import java.util.List;
 public interface ImportRepository extends JpaRepository<Import, Long> {
     @Query(value = "SELECT DISTINCT EXTRACT(YEAR FROM (import_time AT TIME ZONE 'UTC') at time zone :timeZone) FROM Import", nativeQuery = true)
     List<Integer> getAvailableYear(@Param("timeZone") String timeZone);
+
+    boolean existsByBranchId(Long id);
 }
