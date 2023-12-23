@@ -236,6 +236,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(getError(DEFAULT_ERROR_NAME, "File không thể lớn hơn 10MB"), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(BranchHasOperatedException.class)
+    public ResponseEntity<Object> handleBranchHasOperatedException(BranchHasOperatedException ex) {
+        return new ResponseEntity<>(getError(DEFAULT_ERROR_NAME, ex.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
     @Override
     protected ResponseEntity<Object> handleBindException(
             BindException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {

@@ -3,6 +3,7 @@ package com.colphacy.service.impl;
 import com.colphacy.dao.BranchDAO;
 import com.colphacy.dto.SlugDTO;
 import com.colphacy.dto.branch.*;
+import com.colphacy.exception.BranchHasOperatedException;
 import com.colphacy.exception.InvalidFieldsException;
 import com.colphacy.exception.RecordNotFoundException;
 import com.colphacy.mapper.BranchMapper;
@@ -12,6 +13,8 @@ import com.colphacy.model.Branch;
 import com.colphacy.model.BranchStatus;
 import com.colphacy.payload.response.PageResponse;
 import com.colphacy.repository.BranchRepository;
+import com.colphacy.repository.EmployeeRepository;
+import com.colphacy.repository.ImportRepository;
 import com.colphacy.service.BranchService;
 import com.colphacy.util.PageResponseUtils;
 import com.colphacy.util.StringUtils;
@@ -40,6 +43,10 @@ public class BranchServiceImpl implements BranchService {
     private BranchMapper branchMapper;
     @Autowired
     private SlugMapper slugMapper;
+    @Autowired
+    private EmployeeRepository employeeRepository;
+    @Autowired
+    private ImportRepository importRepository;
 
     @Override
     public List<SlugDTO> getBranches() {
@@ -159,6 +166,9 @@ public class BranchServiceImpl implements BranchService {
     @Override
     public void delete(Long id) {
         findBranchById(id);
+        if (employeeRepository.existsByBranchId(id) || importRepository.existsByBranchId(id)) {
+            throw new BranchHasOperatedException();
+        }
         branchRepository.deleteById(id);
     }
 
