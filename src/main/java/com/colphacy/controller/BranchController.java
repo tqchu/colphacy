@@ -30,19 +30,19 @@ public class BranchController {
         this.defaultPageSize = defaultPageSize;
     }
 
-    @Operation(summary = "Get all provinces along with their slugs", security = {@SecurityRequirement(name = "bearer-key")})
+    @Operation(summary = "Get all provinces along with their slugs")
     @GetMapping("/provinces")
     public List<SlugDTO> getAllProvinces() {
         return branchService.getBranches();
     }
 
-    @Operation(summary = "Get all districts of a province along with their slugs", security = {@SecurityRequirement(name = "bearer-key")})
+    @Operation(summary = "Get all districts of a province along with their slugs")
     @GetMapping("/provinces/districts/{slug}")
     public List<SlugDTO> getAllDistricts(@PathVariable String slug) {
         return branchService.getAllDistricts(slug);
     }
 
-    @Operation(summary = "Get all branches by keyword", security = {@SecurityRequirement(name = "bearer-key")})
+    @Operation(summary = "Get all branches by keyword")
     @GetMapping("/search")
     public PageResponse<BranchListViewDTO> getBranchesByKeyword(String keyword,
                                                                 @RequestParam(required = false, defaultValue = "0")
@@ -55,6 +55,21 @@ public class BranchController {
     @Operation(summary = "Get all branches", security = {@SecurityRequirement(name = "bearer-key")})
     @GetMapping("")
     public PageResponse<BranchListViewDTO> getAllBranches(
+            @RequestParam(required = false) String province,
+            @RequestParam(required = false) String district,
+            @RequestParam(required = false, defaultValue = "0")
+            @Size(min = 0, message = "Số bắt đầu phải là số không âm") int offset,
+            @RequestParam(required = false)
+            @Size(min = 1, message = "Số lượng hàng mỗi trang phải lớn hơn 0") Integer limit) {
+        if (limit == null) {
+            limit = defaultPageSize;
+        }
+        return branchService.getBranches(province, district, offset, limit);
+    }
+
+    @Operation(summary = "Get all branches for all")
+    @GetMapping("/for-all")
+    public PageResponse<BranchListViewDTO> getAllBranchesForAll(
             @RequestParam(required = false) String province,
             @RequestParam(required = false) String district,
             @RequestParam(required = false, defaultValue = "0")
@@ -88,6 +103,12 @@ public class BranchController {
     @Operation(summary = "Get branch's details", security = {@SecurityRequirement(name = "bearer-key")})
     @GetMapping("/{id}")
     public BranchDetailDTO getBranchDetail(@PathVariable long id) {
+        return branchService.findBranchDetailDTOById(id);
+    }
+
+    @Operation(summary = "Get branch's details for customers")
+    @GetMapping("/for-all/{id}")
+    public BranchDetailDTO getBranchDetailForAll(@PathVariable long id) {
         return branchService.findBranchDetailDTOById(id);
     }
 
