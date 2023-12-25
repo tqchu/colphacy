@@ -22,8 +22,10 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -126,15 +128,28 @@ public class OrderServiceImpl implements OrderService {
         // asynchronous add notifications for employee
         // Query all employee
         List<Employee> employees = employeeRepository.findEmployeeByOfABranch(order.getBranch().getId());
+
+        // Create a list to hold all the CompletableFuture objects
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+
         for (Employee employee : employees) {
-            Notification notification = new Notification();
-            notification.setEmployee(employee);
-            notification.setDescription("Khách hàng " + customer.getFullName() + " đã đặt đơn hàng " + order.getId() + ", hãy xem ngay");
-            notification.setTitle("Có đơn hàng mới!");
-            notification.setImage(orderIconUrl);
-            notification.setUrl(orderManagementAdminWebUrl);
-            notificationRepository.save(notification);
+            // Run each notification creation and save operation in a separate thread
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                Notification notification = new Notification();
+                notification.setEmployee(employee);
+                notification.setDescription("Khách hàng " + customer.getFullName() + " đã đặt đơn hàng " + order.getId() + ", hãy xem ngay");
+                notification.setTitle("Có đơn hàng mới!");
+                notification.setImage(orderIconUrl);
+                notification.setUrl(orderManagementAdminWebUrl);
+                notificationRepository.save(notification);
+            });
+
+            // Add the CompletableFuture to the list
+            futures.add(future);
         }
+
+        // Wait for all the CompletableFuture objects to complete
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
 
         return orderMapper.orderToOrderDTO(savedOrder);
     }
