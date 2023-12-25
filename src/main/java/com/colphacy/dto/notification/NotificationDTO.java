@@ -19,4 +19,5 @@ public class NotificationDTO {
     private boolean read;
 
     private String image;
+    private Long employeeId;
 }
