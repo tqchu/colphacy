@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.UnsupportedEncodingException;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Component
@@ -38,22 +39,30 @@ public class ChangeOrderStatusEventListener implements ApplicationListener<Chang
     }
 
     private void sendUpdateOrderStatusEmail(String customerFullName, String customerEmail, Long orderId, OrderStatus status) throws MessagingException, UnsupportedEncodingException {
-        String subject = subjectEmail(orderId, status);
-        String senderName = "Hệ thống nhà thuốc Colphacy";
-        String detailOrderUrl = "https://colphacy-user-client.vercel.app/personal/my-order/" + orderId;
-        String mailContent = "<p> Xin chào <b>" + customerFullName + "</b>, </p>" +
-                "<p>Cảm ơn anh/chị đã mua hàng tại <b>Colphacy</b> <br>" +
-                emailContent(orderId, status) +
-                "<a href=\"" + detailOrderUrl + "\">Xem chi tiết đơn hàng</a>" +
-                "<p> Cảm ơn bạn đã mua hàng tại Colphacy !!! <br> Hệ thống cửa hàng thuốc Colphacy</p>";
+        CompletableFuture.runAsync(() -> {
+            try {
+                String subject = subjectEmail(orderId, status);
+                String senderName = "Hệ thống nhà thuốc Colphacy";
+                String detailOrderUrl = "https://colphacy-user-client.vercel.app/personal/my-order/" + orderId;
+                String mailContent = "<p> Xin chào <b>" + customerFullName + "</b>, </p>" +
+                        "<p>Cảm ơn anh/chị đã mua hàng tại <b>Colphacy</b> <br>" +
+                        emailContent(orderId, status) +
+                        "<a href=\"" + detailOrderUrl + "\">Xem chi tiết đơn hàng</a>" +
+                        "<p> Cảm ơn bạn đã mua hàng tại Colphacy !!! <br> Hệ thống cửa hàng thuốc Colphacy</p>";
 
-        MimeMessage message = mailSender.createMimeMessage();
-        var messageHelper = new MimeMessageHelper(message);
-        messageHelper.setFrom("colphacy@gmail.com", senderName);
-        messageHelper.setTo(customerEmail);
-        messageHelper.setSubject(subject);
-        messageHelper.setText(mailContent, true);
-        mailSender.send(message);
+                MimeMessage message = mailSender.createMimeMessage();
+                var messageHelper = new MimeMessageHelper(message);
+                messageHelper.setFrom("colphacy@gmail.com", senderName);
+                messageHelper.setTo(customerEmail);
+                messageHelper.setSubject(subject);
+                messageHelper.setText(mailContent, true);
+                mailSender.send(message);
+            } catch (Exception e) {
+                // Handle exception
+                e.printStackTrace();
+            }
+        });
+
     }
 
 
