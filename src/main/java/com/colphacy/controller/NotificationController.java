@@ -1,8 +1,8 @@
 package com.colphacy.controller;
 
 
+import com.colphacy.dto.notification.NotificationDTO;
 import com.colphacy.model.Employee;
-import com.colphacy.model.Notification;
 import com.colphacy.service.EmployeeService;
 import com.colphacy.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ public class NotificationController {
     @Autowired
     private EmployeeService employeeService;
     @GetMapping("/admin")
-    public Flux<ServerSentEvent<Notification>> streamEvents(Principal principal) {
+    public Flux<ServerSentEvent<NotificationDTO>> streamEvents(Principal principal) {
         Employee employee = employeeService.getCurrentlyLoggedInEmployee(principal);
 
         return notificationService.getNotificationFlux(employee.getId());

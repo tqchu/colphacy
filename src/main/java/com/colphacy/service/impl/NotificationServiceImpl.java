@@ -1,6 +1,6 @@
 package com.colphacy.service.impl;
 
-import com.colphacy.model.Notification;
+import com.colphacy.dto.notification.NotificationDTO;
 import com.colphacy.service.NotificationService;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
@@ -9,19 +9,19 @@ import reactor.core.publisher.Sinks;
 
 @Service
 public class NotificationServiceImpl implements NotificationService {
-    private final Sinks.Many<Notification> sink = Sinks.many().multicast().directBestEffort();
+    private final Sinks.Many<NotificationDTO> sink = Sinks.many().multicast().directBestEffort();
 
-    public Flux<ServerSentEvent<Notification>> getNotificationFlux(Long employeeId) {
+    public Flux<ServerSentEvent<NotificationDTO>> getNotificationFlux(Long employeeId) {
         return sink.asFlux()
-                .filter(notification -> notification.getEmployee().getId().equals(employeeId))
-                .map(notification -> ServerSentEvent.<Notification>builder()
+                .filter(notification -> notification.getEmployeeId().equals(employeeId))
+                .map(notification -> ServerSentEvent.<NotificationDTO>builder()
                         .id(String.valueOf(notification.getId()))
                         .event("notifications")
                         .data(notification)
                         .build());
     }
 
-    public void publishNotification(Notification notification) {
+    public void publishNotification(NotificationDTO notification) {
         sink.tryEmitNext(notification);
     }
 }

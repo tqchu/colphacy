@@ -7,6 +7,7 @@ import com.colphacy.dto.order.*;
 import com.colphacy.dto.product.ProductOrderItem;
 import com.colphacy.exception.InvalidFieldsException;
 import com.colphacy.exception.RecordNotFoundException;
+import com.colphacy.mapper.NotificationMapper;
 import com.colphacy.mapper.OrderItemMapper;
 import com.colphacy.mapper.OrderMapper;
 import com.colphacy.model.*;
@@ -63,7 +64,8 @@ public class OrderServiceImpl implements OrderService {
     private EmployeeRepository employeeRepository;
     @Autowired
     private NotificationService notificationService;
-
+    @Autowired
+    private NotificationMapper notificationMapper;
     @Value("${order-notification-icon-url}")
     private String orderIconUrl;
 
@@ -141,7 +143,7 @@ public class OrderServiceImpl implements OrderService {
                 notification.setImage(orderIconUrl);
                 notification.setUrl(orderManagementAdminWebUrl);
                 notificationRepository.save(notification);
-                notificationService.publishNotification(notification);
+                notificationService.publishNotification(notificationMapper.notificationToNotificationDTO(notification));
             });
 
             // Add the CompletableFuture to the list
