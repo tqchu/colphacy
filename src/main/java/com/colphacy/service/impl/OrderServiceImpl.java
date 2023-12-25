@@ -12,10 +12,7 @@ import com.colphacy.mapper.OrderMapper;
 import com.colphacy.model.*;
 import com.colphacy.payload.response.PageResponse;
 import com.colphacy.repository.*;
-import com.colphacy.service.BranchService;
-import com.colphacy.service.CustomerService;
-import com.colphacy.service.OrderService;
-import com.colphacy.service.ReceiverService;
+import com.colphacy.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -64,6 +61,8 @@ public class OrderServiceImpl implements OrderService {
     private ReceiverService receiverService;
     @Autowired
     private EmployeeRepository employeeRepository;
+    @Autowired
+    private NotificationService notificationService;
 
     @Value("${order-notification-icon-url}")
     private String orderIconUrl;
@@ -142,6 +141,7 @@ public class OrderServiceImpl implements OrderService {
                 notification.setImage(orderIconUrl);
                 notification.setUrl(orderManagementAdminWebUrl);
                 notificationRepository.save(notification);
+                notificationService.publishNotification(notification);
             });
 
             // Add the CompletableFuture to the list
