@@ -17,6 +17,7 @@ import com.colphacy.service.CustomerService;
 import com.colphacy.service.OrderService;
 import com.colphacy.service.ReceiverService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -41,6 +42,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private UnitRepository unitRepository;
+    @Autowired
+    private NotificationRepository notificationRepository;
 
     @Autowired
     private ProductUnitRepository productUnitRepository;
@@ -57,6 +60,14 @@ public class OrderServiceImpl implements OrderService {
     private CustomerService customerService;
     @Autowired
     private ReceiverService receiverService;
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Value("${order-notification-icon-url}")
+    private String orderIconUrl;
+
+    @Value("${order-management-admin-web-url}")
+    private String orderManagementAdminWebUrl;
 
     @Transactional
     @Override
@@ -111,6 +122,20 @@ public class OrderServiceImpl implements OrderService {
                     return tuple;
                 }).toList();
         cartDAO.deleteByCustomerIdAndProductIdAndUnitId(cartItemTuples);
+
+        // asynchronous add notifications for employee
+        // Query all employee
+        List<Employee> employees = employeeRepository.findEmployeeByOfABranch(order.getBranch().getId());
+        for (Employee employee : employees) {
+            Notification notification = new Notification();
+            notification.setEmployee(employee);
+            notification.setDescription("Khách hàng " + customer.getFullName() + " đã đặt đơn hàng " + order.getId() + ", hãy xem ngay");
+            notification.setTitle("Có đơn hàng mới!");
+            notification.setImage(orderIconUrl);
+            notification.setUrl(orderManagementAdminWebUrl);
+            notificationRepository.save(notification);
+        }
+
         return orderMapper.orderToOrderDTO(savedOrder);
     }
 
