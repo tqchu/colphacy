@@ -1,10 +1,10 @@
 package com.colphacy.controller;
 
-import com.colphacy.dto.vnpay.VNPayReturnResDTO;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.view.RedirectView;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -42,11 +42,10 @@ public class VNPayController {
     }
 
     @GetMapping("/return")
-    public VNPayReturnResDTO returnUrl() {
-        VNPayReturnResDTO resDTO = new VNPayReturnResDTO();
-        resDTO.setMessage("Order successful");
-        resDTO.setRspCode("00");
-        return resDTO;
+    public RedirectView returnUrl() {
+        RedirectView redirectView = new RedirectView();
+        redirectView.setUrl("https://colphacy-user-client.vercel.app/personal/my-order");
+        return redirectView;
     }
 
     @PostMapping
