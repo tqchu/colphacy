@@ -24,9 +24,10 @@ import javax.transaction.Transactional;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
@@ -473,13 +474,12 @@ public class OrderServiceImpl implements OrderService {
         vnp_Params.put("vnp_ReturnUrl", vnpayReturnUrl);
         vnp_Params.put("vnp_IpAddr", HashingUtils.getIpAddress(request));
 
-        Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-        String vnp_CreateDate = formatter.format(cld.getTime());
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("+7"));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+        String vnp_CreateDate = formatter.format(now);
         vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
 
-        cld.add(Calendar.MINUTE, 15);
-        String vnp_ExpireDate = formatter.format(cld.getTime());
+        String vnp_ExpireDate = formatter.format(now.plusMinutes(15));
         vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
 
         //Build data to hash and querystring
