@@ -38,7 +38,7 @@ public class OrderDAOImpl implements OrderDAO {
             query.setParameter("startDate", criteria.getStartDate());
         }
         if (hasEndDateCondition) {
-            query.setParameter("endDate", criteria.getEndDate().atTime(23, 59, 59));
+            query.setParameter("endDate", criteria.getEndDate());
         }
         if (hasBranchIdCondition) {
             query.setParameter("branchId", criteria.getBranchId());
