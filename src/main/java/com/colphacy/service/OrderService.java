@@ -6,8 +6,11 @@ import com.colphacy.model.Employee;
 import com.colphacy.model.Order;
 import com.colphacy.payload.response.PageResponse;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
+
 public interface OrderService {
-    OrderDTO purchase(OrderPurchaseDTO orderPurchaseDTO, Customer customer);
+    OrderDTO purchase(OrderPurchaseDTO orderPurchaseDTO, Customer customer, HttpServletRequest request) throws UnsupportedEncodingException;
 
     OrderDTO createOrder(OrderCreateDTO orderCreateDTO, Employee employee);
 
@@ -24,4 +27,10 @@ public interface OrderService {
     OrderDTO findOrderDTOByIdAndCustomerId(Long orderId, Long customerId);
 
     Order completeOrder(Long id, Long customerId);
+
+    Integer handlePaymentReturn(HttpServletRequest request);
+
+    Order findOrderById(Long id);
+
+    String getPaymentUrl(Long id, HttpServletRequest request) throws UnsupportedEncodingException;
 }

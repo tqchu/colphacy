@@ -1,6 +1,7 @@
 package com.colphacy.dto.order;
 
 import com.colphacy.dto.cart.CartItemDTO;
+import com.colphacy.model.PaymentMethod;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -25,4 +26,5 @@ public class OrderCreateDTO {
     private List<@Valid CartItemDTO> items;
 
     private String note;
+    private PaymentMethod paymentMethod = PaymentMethod.ON_DELIVERY;
 }

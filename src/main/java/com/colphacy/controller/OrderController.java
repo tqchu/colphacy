@@ -15,8 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.view.RedirectView;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.io.UnsupportedEncodingException;
 import java.security.Principal;
 
 @RestController
@@ -36,11 +39,15 @@ public class OrderController {
     @Autowired
     private ApplicationEventPublisher publisher;
 
+    // TODO: update to toPay url
+    private final String TO_PAY_ORDERS_URL = "https://colphacy-user-client.vercel.app/personal/my-order";
+    private final String ORDER_DETAIL_URL = "https://colphacy-user-client.vercel.app/personal/my-order/%s";
+
     @Operation(summary = "Create a new order", security = {@SecurityRequirement(name = "bearer-key")})
     @PostMapping("/purchase")
-    public OrderDTO purchase(@RequestBody @Valid OrderPurchaseDTO orderPurchaseDTO, Principal principal) {
+    public OrderDTO purchase(@RequestBody @Valid OrderPurchaseDTO orderPurchaseDTO, Principal principal, HttpServletRequest request) throws UnsupportedEncodingException {
         Customer customer = customerService.getCurrentlyLoggedInCustomer(principal);
-        OrderDTO orderDTO = orderService.purchase(orderPurchaseDTO, customer);
+        OrderDTO orderDTO = orderService.purchase(orderPurchaseDTO, customer, request);
         publisher.publishEvent(new ChangeOrderStatusEvent(customer, orderDTO.getId().longValue(), orderDTO.getStatus()));
         return orderDTO;
     }
@@ -107,5 +114,27 @@ public class OrderController {
         Customer customer = customerService.getCurrentlyLoggedInCustomer(principal);
         Order order = orderService.completeOrder(id, customer.getId());
         publisher.publishEvent(new ChangeOrderStatusEvent(order.getCustomer(), order.getId(), order.getStatus()));
+    }
+
+    @Operation(summary = "Handling payment returned VNPay", security = {@SecurityRequirement(name = "bearer-key")})
+    @GetMapping("/payments/return")
+    public RedirectView returnUrl(HttpServletRequest request) {
+        Integer flag = orderService.handlePaymentReturn(request);
+        RedirectView redirectView = new RedirectView();
+        switch (flag) {
+            case -1:
+                redirectView.setUrl(TO_PAY_ORDERS_URL);
+                break;
+            default:
+                redirectView.setUrl(String.format(ORDER_DETAIL_URL, request.getParameter("vnp_TxnRef")));
+        }
+
+        return redirectView;
+    }
+
+    @Operation(summary = "Get Payment URL Vnpay", security = {@SecurityRequirement(name = "bearer-key")})
+    @GetMapping("/payments/{id}")
+    public String getPaymentUrl(@PathVariable Long id, HttpServletRequest request) throws UnsupportedEncodingException {
+        return orderService.getPaymentUrl(id, request);
     }
 }
