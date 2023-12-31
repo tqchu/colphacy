@@ -246,7 +246,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             BindException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach((error) -> {
-            if (Objects.requireNonNull(error.getCodes())[error.getCodes().length - 1].equals("typeMismatch")) {
+            String errorCode = Objects.requireNonNull(error.getCodes())[error.getCodes().length - 1];
+            if (errorCode.equals("typeMismatch") || errorCode.equals("methodInvocation")) {
                 errors.put(((FieldError) error).getField(), "Giá trị không hợp lệ");
             } else {
                 String fieldName = ((FieldError) error).getField();
@@ -256,6 +257,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         });
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
+
 
 //    @ExceptionHandler({ConversionFailedException.class})
 
