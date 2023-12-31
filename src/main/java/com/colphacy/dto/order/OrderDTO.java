@@ -4,6 +4,7 @@ import com.colphacy.dto.orderItem.OrderItemDTO;
 import com.colphacy.dto.receiver.ReceiverDTO;
 import com.colphacy.model.Branch;
 import com.colphacy.model.OrderStatus;
+import com.colphacy.model.PaymentMethod;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,4 +26,8 @@ public class OrderDTO {
     private OrderStatus status;
     private List<OrderItemDTO> orderItems;
     private Branch branch;
+    private PaymentMethod paymentMethod;
+    private ZonedDateTime payTime;
+    private boolean paid;
+    private String paymentLink;
 }

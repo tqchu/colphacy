@@ -1,5 +1,6 @@
 package com.colphacy.dto.order;
 
+import com.colphacy.model.PaymentMethod;
 import lombok.Data;
 
 import java.time.ZonedDateTime;
@@ -14,4 +15,7 @@ public class OrderListViewDTO {
     private ZonedDateTime deliverTime;
     private ZonedDateTime cancelTime;
     private Double total;
+    private PaymentMethod paymentMethod;
+    private ZonedDateTime payTime;
+    private boolean paid;
 }

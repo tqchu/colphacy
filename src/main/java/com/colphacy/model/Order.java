@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +45,16 @@ public class Order {
     private List<OrderItem> orderItems;
 
     private String note;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private PaymentMethod paymentMethod = PaymentMethod.ON_DELIVERY;
+
+    @NotNull
+    private boolean paid = false;
+
+    @NotNull
+    private ZonedDateTime payTime = ZonedDateTime.now(ZoneOffset.UTC);
 
     public void addOrderItem(OrderItem orderItem) {
         orderItems.add(orderItem);

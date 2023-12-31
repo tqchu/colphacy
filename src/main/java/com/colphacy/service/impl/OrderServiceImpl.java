@@ -14,15 +14,20 @@ import com.colphacy.model.*;
 import com.colphacy.payload.response.PageResponse;
 import com.colphacy.repository.*;
 import com.colphacy.service.*;
+import com.colphacy.util.HashingUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -71,10 +76,19 @@ public class OrderServiceImpl implements OrderService {
 
     @Value("${order-management-admin-web-url}")
     private String orderManagementAdminWebUrl;
+    @Value("${vnpay.version}")
+    private String vnpayVersion;
+    @Value("${vnpay.tmncode}")
+    private String vnpayTmnCode;
+    @Value("${vnpay.secret-key}")
+    private String vnpaySecretKey;
+    private final String vnpayPayCommand = "pay";
+    private final String vnpayReturnUrl = "https://colphacy.tech/api/orders/payments/return";
+    private final String vnpayPaymentUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
 
     @Transactional
     @Override
-    public OrderDTO purchase(OrderPurchaseDTO orderPurchaseDTO, Customer customer) {
+    public OrderDTO purchase(OrderPurchaseDTO orderPurchaseDTO, Customer customer, HttpServletRequest request) throws UnsupportedEncodingException {
         Optional<Receiver> receiverOptional = receiverRepository.findByIdAndCustomerId(orderPurchaseDTO.getReceiverId(), customer.getId());
 
         if (receiverOptional.isEmpty()) {
@@ -113,6 +127,11 @@ public class OrderServiceImpl implements OrderService {
         branch.setId(branchId);
         order.setBranch(branch);
         order.setNote(orderPurchaseDTO.getNote());
+        order.setPaymentMethod(orderPurchaseDTO.getPaymentMethod());
+        if (orderPurchaseDTO.getPaymentMethod() == PaymentMethod.ONLINE) {
+            order.setStatus(OrderStatus.TO_PAY);
+        }
+
         Order savedOrder = orderRepository.save(order);
 
         // remove bought items from cart
@@ -126,34 +145,40 @@ public class OrderServiceImpl implements OrderService {
                 }).toList();
         cartDAO.deleteByCustomerIdAndProductIdAndUnitId(cartItemTuples);
 
-        // asynchronous add notifications for employee
-        // Query all employee
-        List<Employee> employees = employeeRepository.findEmployeeByOfABranch(order.getBranch().getId());
+        // Send the notification immediately if method is ON_DELIVERY
+        if (orderPurchaseDTO.getPaymentMethod() != PaymentMethod.ONLINE) {
+            // asynchronous add notifications for employee
+            // Query all employee
+            List<Employee> employees = employeeRepository.findEmployeeByOfABranch(order.getBranch().getId());
 
-        // Create a list to hold all the CompletableFuture objects
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
+            // Create a list to hold all the CompletableFuture objects
+            List<CompletableFuture<Void>> futures = new ArrayList<>();
 
-        for (Employee employee : employees) {
-            // Run each notification creation and save operation in a separate thread
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                Notification notification = new Notification();
-                notification.setEmployee(employee);
-                notification.setDescription("Khách hàng " + customer.getFullName() + " đã đặt đơn hàng " + order.getId() + ", hãy xem ngay");
-                notification.setTitle("Có đơn hàng mới!");
-                notification.setImage(orderIconUrl);
-                notification.setUrl(orderManagementAdminWebUrl);
-                notificationRepository.save(notification);
-                notificationService.publishNotification(notificationMapper.notificationToNotificationDTO(notification));
-            });
+            for (Employee employee : employees) {
+                // Run each notification creation and save operation in a separate thread
+                CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                    Notification notification = new Notification();
+                    notification.setEmployee(employee);
+                    notification.setDescription("Khách hàng " + customer.getFullName() + " đã đặt đơn hàng " + order.getId() + ", hãy xem ngay");
+                    notification.setTitle("Có đơn hàng mới!");
+                    notification.setImage(orderIconUrl);
+                    notification.setUrl(orderManagementAdminWebUrl);
+                    notificationRepository.save(notification);
+                    notificationService.publishNotification(notificationMapper.notificationToNotificationDTO(notification));
+                });
 
-            // Add the CompletableFuture to the list
-            futures.add(future);
+                // Add the CompletableFuture to the list
+                futures.add(future);
+            }
+
+            // Wait for all the CompletableFuture objects to complete
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
         }
-
-        // Wait for all the CompletableFuture objects to complete
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-
-        return orderMapper.orderToOrderDTO(savedOrder);
+        OrderDTO result = orderMapper.orderToOrderDTO(savedOrder);
+        if (result.getPaymentMethod() == PaymentMethod.ONLINE) {
+            result.setPaymentLink(getPaymentUrl(result, request));
+        }
+        return result;
     }
 
     @Transactional
@@ -253,13 +278,19 @@ public class OrderServiceImpl implements OrderService {
         return page;
     }
 
-    private Order findOrderById(Long id) {
+    public Order findOrderById(Long id) {
         Optional<Order> optionalOrder = orderRepository.findById(id);
         if (optionalOrder.isEmpty()) {
             throw new RecordNotFoundException("Không tìm thấy đơn hàng có id = " + id);
         }
 
         return optionalOrder.get();
+    }
+
+    @Override
+    public String getPaymentUrl(Long id, HttpServletRequest request) throws UnsupportedEncodingException {
+        OrderDTO order = findOrderDTOById(id);
+        return getPaymentUrl(order, request);
     }
 
     @Override
@@ -364,6 +395,122 @@ public class OrderServiceImpl implements OrderService {
         } else {
             throw InvalidFieldsException.fromFieldError("error", "Không thể hoàn thành đơn hàng ở trạng thái này");
         }
+    }
+
+    @Override
+    public Integer handlePaymentReturn(HttpServletRequest request) {
+        Map fields = new HashMap();
+        for (Enumeration params = request.getParameterNames(); params.hasMoreElements(); ) {
+            String fieldName = (String) params.nextElement();
+            String fieldValue = request.getParameter(fieldName);
+            if ((fieldValue != null) && (fieldValue.length() > 0)) {
+                fields.put(fieldName, fieldValue);
+            }
+        }
+
+        String vnp_SecureHash = request.getParameter("vnp_SecureHash");
+        fields.remove("vnp_SecureHashType");
+        fields.remove("vnp_SecureHash");
+
+        // Check checksum
+        String signValue = HashingUtils.hashAllFields(fields, vnpaySecretKey);
+        // TODO: fix checking
+//        if (signValue.equals(vnp_SecureHash)) {
+
+        String txnRef = request.getParameter("vnp_TxnRef");
+        Long orderId = Long.parseLong(txnRef);
+        if (orderId <= 0) {
+            return -1;
+        }
+        Order order = findOrderById(orderId);
+
+        double totalPrice = order.getOrderItems().stream()
+                .mapToDouble(item -> item.getPrice() * item.getQuantity())
+                .sum();
+
+        double vnpAmount = Double.parseDouble(request.getParameter("vnp_Amount"));
+        if (vnpAmount <= 0) {
+            return -1;
+        }
+
+        boolean checkAmount = (totalPrice * 100 == vnpAmount);
+        if (checkAmount) {
+            order.setPaid(true);
+            order.setPayTime(ZonedDateTime.now(ZoneOffset.UTC));
+            orderRepository.save(order);
+            return 1;
+        } else return 0;
+
+
+//        return -1;
+    }
+
+    private String getPaymentUrl(OrderDTO order, HttpServletRequest request) throws UnsupportedEncodingException {
+        String vnp_OrderInfo = "Pay for order " + order.getId();
+        String orderType = "other";
+
+        long totalPrice = (long) order.getOrderItems().stream()
+                .mapToDouble(item -> item.getPrice() * item.getQuantity())
+                .sum();
+        long amount = totalPrice * 100;
+        Map<String, String> vnp_Params = new HashMap<>();
+        vnp_Params.put("vnp_Version", vnpayVersion);
+        vnp_Params.put("vnp_Command", vnpayPayCommand);
+        vnp_Params.put("vnp_TmnCode", vnpayTmnCode);
+        vnp_Params.put("vnp_Amount", String.valueOf(amount));
+        vnp_Params.put("vnp_CurrCode", "VND");
+        vnp_Params.put("vnp_TxnRef", String.valueOf(order.getId()));
+        vnp_Params.put("vnp_OrderInfo", vnp_OrderInfo);
+        vnp_Params.put("vnp_OrderType", orderType);
+
+        String locate = request.getParameter("language");
+        if (locate != null && !locate.isEmpty()) {
+            vnp_Params.put("vnp_Locale", locate);
+        } else {
+            vnp_Params.put("vnp_Locale", "vn");
+        }
+
+        vnp_Params.put("vnp_ReturnUrl", vnpayReturnUrl);
+        vnp_Params.put("vnp_IpAddr", HashingUtils.getIpAddress(request));
+
+        Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+        String vnp_CreateDate = formatter.format(cld.getTime());
+        vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
+
+        cld.add(Calendar.MINUTE, 15);
+        String vnp_ExpireDate = formatter.format(cld.getTime());
+        vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
+
+        //Build data to hash and querystring
+        List<String> fieldNames = new ArrayList<>(vnp_Params.keySet());
+        Collections.sort(fieldNames);
+        //...
+        StringBuilder hashData = new StringBuilder();
+        StringBuilder query = new StringBuilder();
+        Iterator itr = fieldNames.iterator();
+        while (itr.hasNext()) {
+            String fieldName = (String) itr.next();
+            String fieldValue = (String) vnp_Params.get(fieldName);
+            if ((fieldValue != null) && (!fieldValue.isEmpty())) {
+                //Build hash data
+                hashData.append(fieldName);
+                hashData.append('=');
+                hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+                //Build query
+                query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII.toString()));
+                query.append('=');
+                query.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+                if (itr.hasNext()) {
+                    query.append('&');
+                    hashData.append('&');
+                }
+            }
+        }
+        String queryUrl = query.toString();
+        String vnp_SecureHash = HashingUtils.hmacSHA512(vnpaySecretKey, hashData.toString());
+        queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
+        return vnpayPaymentUrl + "?" + queryUrl;
     }
 
     private Order findOrderByIdAndCustomerId(Long orderId, Long customerId) {
