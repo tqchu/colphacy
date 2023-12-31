@@ -2,19 +2,17 @@ package com.colphacy.dto.imports;
 
 import com.colphacy.enums.SortOrder;
 import lombok.Data;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.Min;
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
 
 @Data
 public class ImportSearchCriteria {
     private String keyword;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate startDate;
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private LocalDate endDate;
+    private ZonedDateTime startDate;
+
+    private ZonedDateTime endDate;
 
     private Integer branchId;
 
