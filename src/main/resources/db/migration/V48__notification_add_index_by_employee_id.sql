@@ -1,0 +1,1 @@
+CREATE INDEX  idx_notification_employee_id ON notification (employee_id);
