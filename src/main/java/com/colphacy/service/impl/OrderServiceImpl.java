@@ -266,6 +266,9 @@ public class OrderServiceImpl implements OrderService {
             throw InvalidFieldsException.fromFieldError("endDate", "Ngày bắt đầu không thể lớn hơn ngày kết thúc");
         }
 
+        if (criteria.getEndDate() != null) {
+            criteria.setEndDate(criteria.getEndDate().plusDays(1));
+        }
         List<OrderListViewDTO> list = orderDAO.getPaginatedOrders(criteria);
 
         Long totalItems = orderDAO.getTotalOrders(criteria);
@@ -365,6 +368,9 @@ public class OrderServiceImpl implements OrderService {
             throw InvalidFieldsException.fromFieldError("endDate", "Ngày bắt đầu không thể lớn hơn ngày kết thúc");
         }
 
+        if (criteria.getEndDate() != null) {
+            criteria.setEndDate(criteria.getEndDate().plusDays(1));
+        }
         List<OrderListViewCustomerDTO> list = orderDAO.getPaginatedOrdersForCustomer(criteria);
 
         Long totalItems = orderDAO.getTotalOrdersForCustomer(criteria);

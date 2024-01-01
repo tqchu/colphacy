@@ -128,6 +128,9 @@ public class ImportServiceImpl implements ImportService {
             throw InvalidFieldsException.fromFieldError("endDate", "Ngày bắt đầu không thể lớn hơn ngày kết thúc");
         }
 
+        if (criteria.getEndDate() != null) {
+            criteria.setEndDate(criteria.getEndDate().plusDays(1));
+        }
         List<ImportListViewDTO> list = importDAO.getPaginatedImports(criteria);
 
         Long totalItems = importDAO.getTotalImports(criteria);
