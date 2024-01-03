@@ -444,7 +444,7 @@ public class OrderServiceImpl implements OrderService {
         if (checkAmount) {
             order.setPaid(true);
             order.setPayTime(ZonedDateTime.now(ZoneOffset.UTC));
-            order.setStatus(OrderStatus.CONFIRMED);
+            order.setStatus(OrderStatus.PENDING);
             orderRepository.save(order);
             return 1;
         } else return 0;
