@@ -18,8 +18,6 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
-import java.util.Optional;
-
 @Service
 public class NotificationServiceImpl implements NotificationService {
     private final Sinks.Many<NotificationDTO> sink = Sinks.many().multicast().directBestEffort();
@@ -45,12 +43,18 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public PageResponse<NotificationDTO> list(Long employeeId, int offset, Integer limit) {
+    public PageResponse<NotificationDTO> list(Long employeeId, int offset, Integer limit, Boolean isRead) {
         int pageNo = offset / limit;
 
         Pageable pageable = PageRequest.of(pageNo, limit, Sort.by("createdTime").descending());
 
-        Page<Notification> notificationPage = notificationRepository.findByEmployeeId(employeeId, pageable);
+        Page<Notification> notificationPage;
+
+        if (isRead != null) {
+            notificationPage = notificationRepository.findByEmployeeIdAndRead(employeeId, isRead, pageable);
+        } else {;
+            notificationPage = notificationRepository.findByEmployeeId(employeeId, pageable);
+        }
 
         Page<NotificationDTO> notificationDTOPage = notificationPage.map(notification -> notificationMapper.notificationToNotificationDTO(notification));
 
