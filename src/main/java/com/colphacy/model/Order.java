@@ -30,7 +30,7 @@ public class Order {
     private Receiver receiver;
 
     @NotNull
-    private ZonedDateTime orderTime = ZonedDateTime.now();
+    private ZonedDateTime orderTime = ZonedDateTime.now(ZoneOffset.UTC);
     private ZonedDateTime confirmTime;
     private ZonedDateTime shipTime;
     private ZonedDateTime deliverTime;
@@ -62,7 +62,10 @@ public class Order {
 
     private ResolveType resolveType;
 
+    private ZonedDateTime requestRefundTime;
+
     private ZonedDateTime resolveTime;
+
 
     public void addOrderItem(OrderItem orderItem) {
         orderItems.add(orderItem);

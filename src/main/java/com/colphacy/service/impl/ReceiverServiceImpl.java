@@ -11,6 +11,7 @@ import com.colphacy.service.ReceiverService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
 
@@ -73,7 +74,7 @@ public class ReceiverServiceImpl implements ReceiverService {
         }
 
         Receiver receiver = findByReceiverIdAndCustomerId(receiverId, customerId);
-        receiver.setDeletedAt(ZonedDateTime.now());
+        receiver.setDeletedAt(ZonedDateTime.now(ZoneOffset.UTC));
         receiverRepository.save(receiver);
     }
 

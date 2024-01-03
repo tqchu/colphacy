@@ -1,7 +1,10 @@
 package com.colphacy.service.impl;
 
 import com.colphacy.dao.ReviewDAO;
-import com.colphacy.dto.review.*;
+import com.colphacy.dto.review.ReviewAdminListViewDTO;
+import com.colphacy.dto.review.ReviewCustomerCreateDTO;
+import com.colphacy.dto.review.ReviewCustomerListViewDTO;
+import com.colphacy.dto.review.ReviewReplyAdminCreateDTO;
 import com.colphacy.exception.InvalidFieldsException;
 import com.colphacy.exception.RecordNotFoundException;
 import com.colphacy.mapper.ReviewMapper;
@@ -22,6 +25,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -125,7 +129,7 @@ public class ReviewServiceImpl implements ReviewService {
         replyReview.setParentReview(reviewOptional.get());
         replyReview.setProduct(reviewOptional.get().getProduct());
         replyReview.setCustomer(reviewOptional.get().getCustomer());
-        replyReview.setCreatedTime(ZonedDateTime.now());
+        replyReview.setCreatedTime(ZonedDateTime.now(ZoneOffset.UTC));
         replyReview.setEmployee(employee);
         reviewRepository.save(replyReview);
     }

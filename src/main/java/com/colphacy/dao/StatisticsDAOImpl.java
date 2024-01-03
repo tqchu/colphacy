@@ -10,6 +10,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -318,7 +319,7 @@ public class StatisticsDAOImpl implements StatisticsDAO {
                                  LEFT JOIN revenue r ON m.month = r.month
                                  ORDER BY m.month;
                             """;
-        ZonedDateTime now = ZonedDateTime.now();
+        ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
         int monthInYears = 12;
         if (year == now.getYear()) {
             monthInYears = now.getMonthValue();
@@ -375,7 +376,7 @@ public class StatisticsDAOImpl implements StatisticsDAO {
                                  ORDER BY d.day;
                             """;
         ZonedDateTime zonedDateTime = ZonedDateTime.of(year, month, 1, 0, 0, 0, 0, ZoneId.of(timeZoneStr));
-        ZonedDateTime now = ZonedDateTime.now();
+        ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
         int daysInMonth;
         if (month == now.getMonthValue() && year == now.getYear()) {
             daysInMonth = now.getDayOfMonth();
