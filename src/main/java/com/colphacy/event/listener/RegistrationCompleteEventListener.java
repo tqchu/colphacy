@@ -6,6 +6,7 @@ import com.colphacy.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -28,12 +29,15 @@ public class RegistrationCompleteEventListener implements ApplicationListener<Re
     private final JavaMailSender mailSender;
     private Customer customer;
 
+    @Value("${client-web-url}")
+    private String clientWebUrl;
+
     @Override
     public void onApplicationEvent(RegistrationCompleteEvent event) {
         customer = event.getCustomer();
         String verificationToken = UUID.randomUUID().toString();
         customerService.saveCustomerVerificationToken(customer, verificationToken);
-        String url = event.getApplicationUrl() + "/api/auth/verifyEmail?token=" + verificationToken;
+        String url = clientWebUrl + "verify-email/" + verificationToken;
         try {
             sendVerificationEmail(url);
         } catch (MessagingException | UnsupportedEncodingException e) {
