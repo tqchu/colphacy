@@ -56,6 +56,14 @@ public class Order {
     @NotNull
     private ZonedDateTime payTime = ZonedDateTime.now(ZoneOffset.UTC);
 
+    private CancelType cancelBy;
+
+    private boolean cancelReturn;
+
+    private ResolveType resolveType;
+
+    private ZonedDateTime resolveTime;
+
     public void addOrderItem(OrderItem orderItem) {
         orderItems.add(orderItem);
         orderItem.setOrder(this);

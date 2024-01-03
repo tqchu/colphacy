@@ -2,9 +2,7 @@ package com.colphacy.dto.order;
 
 import com.colphacy.dto.orderItem.OrderItemDTO;
 import com.colphacy.dto.receiver.ReceiverDTO;
-import com.colphacy.model.Branch;
-import com.colphacy.model.OrderStatus;
-import com.colphacy.model.PaymentMethod;
+import com.colphacy.model.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,4 +28,8 @@ public class OrderDTO {
     private ZonedDateTime payTime;
     private boolean paid;
     private String paymentLink;
+    private CancelType cancelBy;
+    private boolean cancelReturn;
+    private ResolveType resolveType;
+    private ZonedDateTime resolveTime;
 }

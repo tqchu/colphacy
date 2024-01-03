@@ -1,0 +1,1 @@
+ALTER TYPE resolve_type ADD VALUE 'PENDING';
