@@ -58,11 +58,11 @@ public class Order {
 
     private CancelType cancelBy;
 
-    private boolean cancelReturn;
+    private Boolean cancelReturn;
 
     private ResolveType resolveType;
 
-    private ZonedDateTime requestRefundTime;
+    private ZonedDateTime requestReturnTime;
 
     private ZonedDateTime resolveTime;
 

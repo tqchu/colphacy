@@ -300,7 +300,7 @@ public class OrderServiceImpl implements OrderService {
     public Order requestReturnOrder(Long id, Long customerId) {
         Order order = findOrderByIdAndCustomerId(id, customerId);
         if (order.getStatus() == OrderStatus.SHIPPING || order.getStatus() == OrderStatus.DELIVERED) {
-            order.setRequestRefundTime(ZonedDateTime.now(ZoneOffset.UTC));
+            order.setRequestReturnTime(ZonedDateTime.now(ZoneOffset.UTC));
             order.setStatus(OrderStatus.RETURNED);
             order.setResolveType(ResolveType.PENDING);
             return orderRepository.save(order);
