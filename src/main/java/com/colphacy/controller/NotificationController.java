@@ -46,12 +46,13 @@ public class NotificationController {
                                               @RequestParam(required = false, defaultValue = "0")
                                               @Size(min = 0, message = "Số bắt đầu phải là số không âm") int offset,
                                               @RequestParam(required = false)
-                                                  @Size(min = 1, message = "Số lượng giới hạn phải lớn hơn 0") Integer limit) {
+                                                  @Size(min = 1, message = "Số lượng giới hạn phải lớn hơn 0") Integer limit,
+                                              @RequestParam(required = false) Boolean isRead) {
         if (limit == null) {
             limit = defaultPageSize;
         }
         Employee employee = employeeService.getCurrentlyLoggedInEmployee(principal);
-        return notificationService.list(employee.getId(), offset, limit);
+        return notificationService.list(employee.getId(), offset, limit, isRead);
     }
 
     @Operation(summary = "Mark the notification as read", security = {@SecurityRequirement(name = "bearer-key")})

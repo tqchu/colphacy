@@ -10,7 +10,7 @@ public interface NotificationService {
 
     void publishNotification(NotificationDTO notification);
 
-    PageResponse<NotificationDTO> list(Long employeeId, int offset, Integer limit);
+    PageResponse<NotificationDTO> list(Long employeeId, int offset, Integer limit, Boolean isRead);
 
     void markTheNotificationAsRead(Long employeeId, Long notificationId);
 
