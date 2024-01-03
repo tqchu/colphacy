@@ -78,8 +78,6 @@ public class ChangeOrderStatusEventListener implements ApplicationListener<Chang
                 return "Đơn hàng #" + orderId + " đã giao hàng thành công";
             case CANCELLED:
                 return "Đơn hàng #" + orderId + " đã được hủy";
-            case COMPLETED:
-                return "Đơn hàng #" + orderId + " đã hoàn thành";
             default:
                 return null;
         }
@@ -97,8 +95,6 @@ public class ChangeOrderStatusEventListener implements ApplicationListener<Chang
                 return  "Đơn hàng <b>#" + orderId + "</b> của bạn đã được giao thành công</p>";
             case CANCELLED:
                 return  "Đơn hàng <b>#" + orderId + "</b> của bạn đã được hủy thành công</p>";
-            case COMPLETED:
-                return "Đơn hàng #" + orderId + " của bạn đã hoàn thành";
             default:
                 return null;
         }
