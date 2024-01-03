@@ -254,9 +254,8 @@ public class OrderServiceImpl implements OrderService {
                 criteria.setSortBy(OrderListSortField.DELIVER_TIME);
             } else if (criteria.getStatus() == OrderStatus.CANCELLED) {
                 criteria.setSortBy(OrderListSortField.CANCEL_TIME);
-            } else if (criteria.getStatus() == OrderStatus.COMPLETED) {
-                criteria.setSortBy(OrderListSortField.COMPLETE_TIME);
             }
+            // TODO: add for resolved type
         }
         if (criteria.getBranchId() != null) {
             branchService.findBranchDetailDTOById(criteria.getBranchId());
@@ -356,9 +355,8 @@ public class OrderServiceImpl implements OrderService {
                 criteria.setSortBy(OrderListSortField.DELIVER_TIME);
             } else if (criteria.getStatus() == OrderStatus.CANCELLED) {
                 criteria.setSortBy(OrderListSortField.CANCEL_TIME);
-            } else if (criteria.getStatus() == OrderStatus.COMPLETED) {
-                criteria.setSortBy(OrderListSortField.COMPLETE_TIME);
             }
+            // TODO: set for returned order
         }
         if (criteria.getBranchId() != null) {
             branchService.findBranchDetailDTOById(criteria.getBranchId());
@@ -395,9 +393,9 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Order completeOrder(Long id, Long customerId) {
         Order order = findOrderByIdAndCustomerId(id, customerId);
-        if (order.getStatus() == OrderStatus.SHIPPING || order.getStatus() == OrderStatus.DELIVERED) {
+        if (order.getStatus() == OrderStatus.SHIPPING) {
             order.setCompleteTime(ZonedDateTime.now());
-            order.setStatus(OrderStatus.COMPLETED);
+            order.setStatus(OrderStatus.DELIVERED);
             return orderRepository.save(order);
         } else {
             throw InvalidFieldsException.fromFieldError("error", "Không thể hoàn thành đơn hàng ở trạng thái này");

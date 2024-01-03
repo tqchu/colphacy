@@ -21,7 +21,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
                                              JOIN order_item oi ON o.id = oi.order_id
                                     WHERE o.customer_id = :customerId
                                       AND oi.product_id = :productId
-                                      AND o.status = 'COMPLETED'
+                                      AND o.status = 'DELIVERED'
                                       AND oi.is_reviewed is false
                                 )
                                 THEN true

@@ -108,7 +108,7 @@ public class OrderController {
         return orderService.findOrderDTOByIdAndCustomerId(id, customer.getId());
     }
 
-    @Operation(summary = "The customer confirms that the order has been completed", security = {@SecurityRequirement(name = "bearer-key")})
+    @Operation(summary = "The customer confirms that the order has been delivered", security = {@SecurityRequirement(name = "bearer-key")})
     @PutMapping("/customer/complete/{id}")
     public void completeOrder(@PathVariable Long id, Principal principal) {
         Customer customer = customerService.getCurrentlyLoggedInCustomer(principal);
