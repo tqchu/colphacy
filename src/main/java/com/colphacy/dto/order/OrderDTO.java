@@ -29,8 +29,8 @@ public class OrderDTO {
     private boolean paid;
     private String paymentLink;
     private CancelType cancelBy;
-    private boolean cancelReturn;
+    private Boolean cancelReturn;
     private ResolveType resolveType;
-    private ZonedDateTime requestRefundTime;
+    private ZonedDateTime requestReturnTime;
     private ZonedDateTime resolveTime;
 }
