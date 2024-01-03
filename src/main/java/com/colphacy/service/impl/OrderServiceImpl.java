@@ -195,7 +195,7 @@ public class OrderServiceImpl implements OrderService {
             order.setBranch(branch);
         }
 
-        ZonedDateTime now = ZonedDateTime.now();
+        ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
         if (orderDTO.getOrderTime() != null) {
 //            if (orderDTO.getOrderTime().isAfter(now)) {
 ////                throw InvalidFieldsException.fromFieldError("orderTime", "Thời gian mua hàng không hợp lệ");
@@ -297,17 +297,31 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public Order requestReturnOrder(Long id, Long customerId) {
+        Order order = findOrderByIdAndCustomerId(id, customerId);
+        if (order.getStatus() == OrderStatus.SHIPPING || order.getStatus() == OrderStatus.DELIVERED) {
+            order.setRequestRefundTime(ZonedDateTime.now(ZoneOffset.UTC));
+            order.setStatus(OrderStatus.RETURNED);
+            order.setResolveType(ResolveType.PENDING);
+            return orderRepository.save(order);
+        } else {
+            throw InvalidFieldsException.fromFieldError("error", "Không thể yêu cầu trả hàng đơn hàng ở trạng thái này");
+        }
+    }
+
+    @Override
     public Order updateOrder(OrderUpdateDTO orderDTO) {
         Order order = findOrderById(orderDTO.getId());
 
         if (orderDTO.getToStatus() == OrderStatus.CANCELLED && order.getStatus() != OrderStatus.PENDING) {
             throw InvalidFieldsException.fromFieldError("toStatus", "Không thể hủy đơn hàng ở trạng thái này");
         }
-        ZonedDateTime now = ZonedDateTime.now();
+        ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
         if (order.getStatus() == OrderStatus.PENDING) {
             if (orderDTO.getToStatus() == OrderStatus.CANCELLED) {
                 order.setCancelTime(now);
                 order.setStatus(OrderStatus.CANCELLED);
+                order.setCancelBy(CancelType.EMPLOYEE);
             } else {
                 order.setStatus(OrderStatus.CONFIRMED);
                 order.setConfirmTime(now);
@@ -329,8 +343,9 @@ public class OrderServiceImpl implements OrderService {
         if (order.getStatus() != OrderStatus.PENDING) {
             throw InvalidFieldsException.fromFieldError("error", "Không thể hủy đơn hàng ở trạng thái này");
         }
-        order.setCancelTime(ZonedDateTime.now());
+        order.setCancelTime(ZonedDateTime.now(ZoneOffset.UTC));
         order.setStatus(OrderStatus.CANCELLED);
+        order.setCancelBy(CancelType.CUSTOMER);
         return orderRepository.save(order);
     }
 
@@ -394,7 +409,7 @@ public class OrderServiceImpl implements OrderService {
     public Order completeOrder(Long id, Long customerId) {
         Order order = findOrderByIdAndCustomerId(id, customerId);
         if (order.getStatus() == OrderStatus.SHIPPING) {
-            order.setCompleteTime(ZonedDateTime.now());
+            order.setCompleteTime(ZonedDateTime.now(ZoneOffset.UTC));
             order.setStatus(OrderStatus.DELIVERED);
             return orderRepository.save(order);
         } else {

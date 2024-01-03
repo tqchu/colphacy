@@ -31,5 +31,6 @@ public class OrderDTO {
     private CancelType cancelBy;
     private boolean cancelReturn;
     private ResolveType resolveType;
+    private ZonedDateTime requestRefundTime;
     private ZonedDateTime resolveTime;
 }

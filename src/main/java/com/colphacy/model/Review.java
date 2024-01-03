@@ -9,6 +9,7 @@ import javax.persistence.*;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
 @Entity(name = "reviews")
@@ -22,7 +23,7 @@ public class Review {
     private Long id;
 
     private String content;
-    private ZonedDateTime createdTime = ZonedDateTime.now();
+    private ZonedDateTime createdTime = ZonedDateTime.now(ZoneOffset.UTC);
 
     @Min(1)
     @Max(5)

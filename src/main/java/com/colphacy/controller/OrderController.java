@@ -116,6 +116,14 @@ public class OrderController {
         publisher.publishEvent(new ChangeOrderStatusEvent(order.getCustomer(), order.getId(), order.getStatus()));
     }
 
+    @Operation(summary = "Customer returns or requests refund for an order", security = {@SecurityRequirement(name = "bearer-key")})
+    @PutMapping("/customer/return/{id}")
+    public void requestRefundReturnOrder(@PathVariable Long id, Principal principal) {
+        Customer customer = customerService.getCurrentlyLoggedInCustomer(principal);
+        Order order = orderService.requestReturnOrder(id, customer.getId());
+        publisher.publishEvent(new ChangeOrderStatusEvent(order.getCustomer(), order.getId(), order.getStatus()));
+    }
+
     @Operation(summary = "Handling payment returned VNPay", security = {@SecurityRequirement(name = "bearer-key")})
     @GetMapping("/payments/return")
     public RedirectView returnUrl(HttpServletRequest request) {
