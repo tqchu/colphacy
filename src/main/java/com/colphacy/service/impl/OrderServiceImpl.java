@@ -317,6 +317,7 @@ public class OrderServiceImpl implements OrderService {
             order.setRequestReturnTime(ZonedDateTime.now(ZoneOffset.UTC));
             order.setStatus(OrderStatus.RETURNED);
             order.setResolveType(ResolveType.PENDING);
+            order.setAdminConfirmDeliver(false);
             return orderRepository.save(order);
         } else {
             throw InvalidFieldsException.fromFieldError("error", "Không thể yêu cầu trả hàng đơn hàng ở trạng thái này");
