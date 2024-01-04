@@ -68,6 +68,9 @@ public class Order {
 
     private ZonedDateTime resolveTime;
 
+    private ZonedDateTime adminConfirmDeliverTime;
+
+    private boolean adminConfirmDeliver;
 
     public void addOrderItem(OrderItem orderItem) {
         orderItems.add(orderItem);
