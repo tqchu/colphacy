@@ -18,7 +18,7 @@ public interface OrderService {
 
     Order updateOrder(OrderUpdateDTO order);
 
-    Order cancelOrder(Long id, Long customerId);
+    Order cancelOrder(Long id, Customer customer);
 
     OrderDTO findOrderDTOById(Long id);
 
@@ -26,7 +26,7 @@ public interface OrderService {
 
     OrderDTO findOrderDTOByIdAndCustomerId(Long orderId, Long customerId);
 
-    Order completeOrder(Long id, Long customerId);
+    Order completeOrder(Long id, Customer customer);
 
     Integer handlePaymentReturn(HttpServletRequest request);
 
