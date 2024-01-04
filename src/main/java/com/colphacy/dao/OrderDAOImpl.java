@@ -103,7 +103,17 @@ public class OrderDAOImpl implements OrderDAO {
                            o.confirm_time           as confirm_time,
                            o.deliver_time           as deliver_time,
                            o.cancel_time            as cancel_time,
-                           SUM(od.price * quantity) as total
+                           SUM(od.price * quantity) as total,
+                           o.payment_method as payment_method,
+                           o.pay_time as pay_time,
+                           o.paid as paid,
+                           o.cancel_by as cancel_by,
+                           o.cancel_return as cancel_return,
+                           o.resolve_type as resolve_type,
+                           o.request_return_time as request_return_time,
+                           o.resolve_time as resolve_time,
+                           o.admin_confirm_deliver_time as admin_confirm_deliver_time,
+                           o.admin_confirm_deliver as admin_confirm_deliver
                     FROM orders o
                              JOIN order_item od ON o.id = od.order_id
                              JOIN customer c ON c.id = o.customer_id
@@ -118,7 +128,17 @@ public class OrderDAOImpl implements OrderDAO {
                            o.confirm_time           as confirm_time,
                            o.deliver_time           as deliver_time,
                            o.cancel_time            as cancel_time,
-                           SUM(od.price * quantity) as total
+                           SUM(od.price * quantity) as total,
+                           o.payment_method as payment_method,
+                           o.pay_time as pay_time,
+                           o.paid as paid,
+                           o.cancel_by as cancel_by,
+                           o.cancel_return as cancel_return,
+                           o.resolve_type as resolve_type,
+                           o.request_return_time as request_return_time,
+                           o.resolve_time as resolve_time,
+                           o.admin_confirm_deliver_time as admin_confirm_deliver_time,
+                           o.admin_confirm_deliver as admin_confirm_deliver
                     FROM orders o
                              JOIN order_item od ON o.id = od.order_id
                              JOIN customer c ON c.id = o.customer_id
@@ -196,7 +216,17 @@ public class OrderDAOImpl implements OrderDAO {
                        o.status                    as status,
                        COUNT(od.order_id)          as total_items,
                        SUM(od.price * od.quantity) as total,
-                       bool_or(od.is_reviewed) as is_reviewed
+                       bool_or(od.is_reviewed) as is_reviewed,
+                       o.payment_method as payment_method,
+                           o.pay_time as pay_time,
+                           o.paid as paid,
+                           o.cancel_by as cancel_by,
+                           o.cancel_return as cancel_return,
+                           o.resolve_type as resolve_type,
+                           o.request_return_time as request_return_time,
+                           o.resolve_time as resolve_time,
+                           o.admin_confirm_deliver_time as admin_confirm_deliver_time,
+                           o.admin_confirm_deliver as admin_confirm_deliver
                 FROM orders o
                          JOIN customer c ON c.id = o.customer_id AND customer_id = :customerId
                          JOIN order_item od

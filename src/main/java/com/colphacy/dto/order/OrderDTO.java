@@ -34,5 +34,5 @@ public class OrderDTO {
     private ZonedDateTime requestReturnTime;
     private ZonedDateTime resolveTime;
     private ZonedDateTime adminConfirmDeliverTime;
-    private boolean adminConfirmDeliver;
+    private Boolean adminConfirmDeliver;
 }

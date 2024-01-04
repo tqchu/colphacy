@@ -1,7 +1,9 @@
 package com.colphacy.dto.order;
 
+import com.colphacy.model.CancelType;
 import com.colphacy.model.OrderStatus;
 import com.colphacy.model.PaymentMethod;
+import com.colphacy.model.ResolveType;
 import lombok.Data;
 
 import java.time.ZonedDateTime;
@@ -29,4 +31,11 @@ public class OrderListViewCustomerDTO {
     private PaymentMethod paymentMethod;
     private ZonedDateTime payTime;
     private boolean paid;
+    private CancelType cancelBy;
+    private Boolean cancelReturn;
+    private ResolveType resolveType;
+    private ZonedDateTime requestReturnTime;
+    private ZonedDateTime resolveTime;
+    private ZonedDateTime adminConfirmDeliverTime;
+    private Boolean adminConfirmDeliver;
 }
