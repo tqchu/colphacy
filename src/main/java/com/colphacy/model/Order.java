@@ -70,7 +70,7 @@ public class Order {
 
     private ZonedDateTime adminConfirmDeliverTime;
 
-    private boolean adminConfirmDeliver;
+    private Boolean adminConfirmDeliver;
 
     public void addOrderItem(OrderItem orderItem) {
         orderItems.add(orderItem);
