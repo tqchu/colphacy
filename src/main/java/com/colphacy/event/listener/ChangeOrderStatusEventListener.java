@@ -68,6 +68,8 @@ public class ChangeOrderStatusEventListener implements ApplicationListener<Chang
 
     private String subjectEmail(Long orderId, OrderStatus status) {
         switch (status) {
+            case TO_PAY:
+                return "Đơn hàng #" + orderId + " đang chờ thanh toán";
             case PENDING:
                 return "Đơn hàng #" + orderId + " đang được chờ xác nhận";
             case CONFIRMED:
@@ -85,6 +87,8 @@ public class ChangeOrderStatusEventListener implements ApplicationListener<Chang
 
     private String emailContent(Long orderId, OrderStatus status) {
         switch (status) {
+            case TO_PAY:
+                return "Đơn hàng <b>#" + orderId + "</b> của bạn đã được đặt. Vui lòng thanh toán đơn hàng trong 3 giờ tới.</p>";
             case PENDING:
                 return  "Đơn hàng <b>#" + orderId + "</b> của bạn đang được chờ xác nhận </p>";
             case CONFIRMED:

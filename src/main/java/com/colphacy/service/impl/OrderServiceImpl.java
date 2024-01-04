@@ -148,38 +148,52 @@ public class OrderServiceImpl implements OrderService {
 
         // Send the notification immediately if method is ON_DELIVERY
         if (orderPurchaseDTO.getPaymentMethod() != PaymentMethod.ONLINE) {
-            // asynchronous add notifications for employee
-            // Query all employee
-            List<Employee> employees = employeeRepository.findEmployeeByOfABranch(order.getBranch().getId());
-
-            // Create a list to hold all the CompletableFuture objects
-            List<CompletableFuture<Void>> futures = new ArrayList<>();
-
-            for (Employee employee : employees) {
-                // Run each notification creation and save operation in a separate thread
-                CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                    Notification notification = new Notification();
-                    notification.setEmployee(employee);
-                    notification.setDescription("Khách hàng " + customer.getFullName() + " đã đặt đơn hàng " + order.getId() + ", hãy xem ngay");
-                    notification.setTitle("Có đơn hàng mới!");
-                    notification.setImage(orderIconUrl);
-                    notification.setUrl(orderManagementAdminWebUrl);
-                    notificationRepository.save(notification);
-                    notificationService.publishNotification(notificationMapper.notificationToNotificationDTO(notification));
-                });
-
-                // Add the CompletableFuture to the list
-                futures.add(future);
-            }
-
-            // Wait for all the CompletableFuture objects to complete
-            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+            sendPushNotifications(customer, order);
         }
         OrderDTO result = orderMapper.orderToOrderDTO(savedOrder);
         if (result.getPaymentMethod() == PaymentMethod.ONLINE) {
             result.setPaymentLink(getPaymentUrl(result, request));
         }
         return result;
+    }
+
+    private void sendPushNotifications(Customer customer, Order order) {
+        // asynchronous add notifications for employee
+        // Query all employee
+        List<Employee> employees = employeeRepository.findEmployeeByOfABranch(order.getBranch().getId());
+
+        // Create a list to hold all the CompletableFuture objects
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+
+        for (Employee employee : employees) {
+            // Run each notification creation and save operation in a separate thread
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                Notification notification = new Notification();
+                notification.setEmployee(employee);
+                switch (order.getStatus()) {
+                    case PENDING:
+                        notification.setDescription("Khách hàng " + customer.getFullName() + " đã đặt đơn hàng " + order.getId() + ", hãy xem ngay");
+                        notification.setTitle("Có đơn hàng mới!");
+                        break;
+                    case DELIVERED:
+                        notification.setDescription("Khách hàng " + customer.getFullName() + " đã nhận đơn hàng " + order.getId() + ", hãy xem ngay");
+                        notification.setTitle("Khách hàng đã nhận đơn hàng #" + order.getId() + "!");
+                        break;
+                }
+
+                notification.setImage(orderIconUrl);
+                // TODO: switch case for it
+                notification.setUrl(orderManagementAdminWebUrl);
+                notificationRepository.save(notification);
+                notificationService.publishNotification(notificationMapper.notificationToNotificationDTO(notification));
+            });
+
+            // Add the CompletableFuture to the list
+            futures.add(future);
+        }
+
+        // Wait for all the CompletableFuture objects to complete
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
     }
 
     @Transactional
@@ -337,8 +351,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Order cancelOrder(Long id, Long customerId) {
-        Order order = findOrderByIdAndCustomerId(id, customerId);
+    public Order cancelOrder(Long id, Customer customer) {
+        Order order = findOrderByIdAndCustomerId(id, customer.getId());
 
         if (order.getStatus() != OrderStatus.PENDING) {
             throw InvalidFieldsException.fromFieldError("error", "Không thể hủy đơn hàng ở trạng thái này");
@@ -346,6 +360,7 @@ public class OrderServiceImpl implements OrderService {
         order.setCancelTime(ZonedDateTime.now(ZoneOffset.UTC));
         order.setStatus(OrderStatus.CANCELLED);
         order.setCancelBy(CancelType.CUSTOMER);
+        sendPushNotifications(customer, order);
         return orderRepository.save(order);
     }
 
@@ -406,11 +421,12 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Order completeOrder(Long id, Long customerId) {
-        Order order = findOrderByIdAndCustomerId(id, customerId);
+    public Order completeOrder(Long id, Customer customer) {
+        Order order = findOrderByIdAndCustomerId(id, customer.getId());
         if (order.getStatus() == OrderStatus.SHIPPING) {
             order.setCompleteTime(ZonedDateTime.now(ZoneOffset.UTC));
             order.setStatus(OrderStatus.DELIVERED);
+            sendPushNotifications(customer, order);
             return orderRepository.save(order);
         } else {
             throw InvalidFieldsException.fromFieldError("error", "Không thể hoàn thành đơn hàng ở trạng thái này");

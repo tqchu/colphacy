@@ -91,7 +91,7 @@ public class OrderController {
     @PutMapping("/cancel/{id}")
     public void cancelOrder(@PathVariable Long id, Principal principal) {
         Customer customer = customerService.getCurrentlyLoggedInCustomer(principal);
-        Order order = orderService.cancelOrder(id, customer.getId());
+        Order order = orderService.cancelOrder(id, customer);
         publisher.publishEvent(new ChangeOrderStatusEvent(order.getCustomer(), order.getId(), order.getStatus()));
     }
 
@@ -112,7 +112,7 @@ public class OrderController {
     @PutMapping("/customer/complete/{id}")
     public void completeOrder(@PathVariable Long id, Principal principal) {
         Customer customer = customerService.getCurrentlyLoggedInCustomer(principal);
-        Order order = orderService.completeOrder(id, customer.getId());
+        Order order = orderService.completeOrder(id, customer);
         publisher.publishEvent(new ChangeOrderStatusEvent(order.getCustomer(), order.getId(), order.getStatus()));
     }
 
