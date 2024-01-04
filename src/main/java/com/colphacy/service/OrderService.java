@@ -35,4 +35,6 @@ public interface OrderService {
     String getPaymentUrl(Long id, HttpServletRequest request) throws UnsupportedEncodingException;
 
     Order requestReturnOrder(Long id, Long customerId);
+
+    Order resolveReturnRequests(Long id, boolean accepted);
 }
