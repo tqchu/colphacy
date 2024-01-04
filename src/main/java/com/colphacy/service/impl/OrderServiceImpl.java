@@ -324,6 +324,25 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public Order resolveReturnRequests(Long id, boolean accepted) {
+        Order order = findOrderById(id);
+
+        if (order.getStatus() == OrderStatus.RETURNED) {
+            if (!accepted) {
+                order.setResolveType(ResolveType.REFUSED);
+            } else {
+                if (order.getPaymentMethod() == PaymentMethod.ON_DELIVERY) {
+                    order.setResolveType(ResolveType.RETURN);
+                } else
+                    order.setResolveType(ResolveType.REFUND);
+            }
+        } else {
+            throw InvalidFieldsException.fromFieldError("error", "Yêu cầu không hợp lệ");
+        }
+        return orderRepository.save(order);
+    }
+
+    @Override
     public Order updateOrder(OrderUpdateDTO orderDTO) {
         Order order = findOrderById(orderDTO.getId());
 
@@ -344,8 +363,8 @@ public class OrderServiceImpl implements OrderService {
             order.setShipTime(now);
             order.setStatus(OrderStatus.SHIPPING);
         } else if (order.getStatus() == OrderStatus.SHIPPING) {
-            order.setDeliverTime(now);
-            order.setStatus(OrderStatus.DELIVERED);
+            order.setAdminConfirmDeliver(true);
+            order.setAdminConfirmDeliverTime(now);
         }
         return orderRepository.save(order);
     }
