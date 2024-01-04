@@ -56,10 +56,12 @@ public class Order {
     @NotNull
     private ZonedDateTime payTime = ZonedDateTime.now(ZoneOffset.UTC);
 
+    @Enumerated(EnumType.STRING)
     private CancelType cancelBy;
 
     private Boolean cancelReturn;
 
+    @Enumerated(EnumType.STRING)
     private ResolveType resolveType;
 
     private ZonedDateTime requestReturnTime;
