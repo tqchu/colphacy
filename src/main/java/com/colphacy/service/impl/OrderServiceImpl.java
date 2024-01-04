@@ -217,6 +217,7 @@ public class OrderServiceImpl implements OrderService {
             order.setOrderTime(orderDTO.getOrderTime());
         } else order.setOrderTime(now);
         order.setConfirmTime(now);
+        order.setPaymentMethod(PaymentMethod.ON_DELIVERY);
         order.setShipTime(now);
         order.setDeliverTime(now);
         List<ProductOrderItem> availableProducts = orderDAO.findAvailableProductsForABranch(orderDTO.getItems(), branch.getId());
@@ -337,6 +338,7 @@ public class OrderServiceImpl implements OrderService {
                 } else
                     order.setResolveType(ResolveType.REFUND);
             }
+            order.setResolveTime(ZonedDateTime.now(ZoneOffset.UTC));
         } else {
             throw InvalidFieldsException.fromFieldError("error", "Yêu cầu không hợp lệ");
         }
@@ -405,8 +407,9 @@ public class OrderServiceImpl implements OrderService {
                 criteria.setSortBy(OrderListSortField.DELIVER_TIME);
             } else if (criteria.getStatus() == OrderStatus.CANCELLED) {
                 criteria.setSortBy(OrderListSortField.CANCEL_TIME);
+            } else if (criteria.getStatus() == OrderStatus.RETURNED) {
+                criteria.setSortBy(OrderListSortField.REQUEST_RETURN_TIME);
             }
-            // TODO: set for returned order
         }
         if (criteria.getBranchId() != null) {
             branchService.findBranchDetailDTOById(criteria.getBranchId());
@@ -444,7 +447,7 @@ public class OrderServiceImpl implements OrderService {
     public Order completeOrder(Long id, Customer customer) {
         Order order = findOrderByIdAndCustomerId(id, customer.getId());
         if (order.getStatus() == OrderStatus.SHIPPING) {
-            order.setCompleteTime(ZonedDateTime.now(ZoneOffset.UTC));
+            order.setDeliverTime(ZonedDateTime.now(ZoneOffset.UTC));
             order.setStatus(OrderStatus.DELIVERED);
             sendPushNotifications(customer, order);
             return orderRepository.save(order);
