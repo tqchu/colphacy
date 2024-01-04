@@ -33,4 +33,6 @@ public class OrderDTO {
     private ResolveType resolveType;
     private ZonedDateTime requestReturnTime;
     private ZonedDateTime resolveTime;
+    private ZonedDateTime adminConfirmDeliverTime;
+    private boolean adminConfirmDeliver;
 }
