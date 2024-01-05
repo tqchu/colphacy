@@ -1,8 +1,12 @@
 package com.colphacy.dto.order;
 
+import com.colphacy.dto.branch.BranchDetailDTO;
 import com.colphacy.dto.orderItem.OrderItemDTO;
 import com.colphacy.dto.receiver.ReceiverDTO;
-import com.colphacy.model.*;
+import com.colphacy.model.CancelType;
+import com.colphacy.model.OrderStatus;
+import com.colphacy.model.PaymentMethod;
+import com.colphacy.model.ResolveType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,7 +27,7 @@ public class OrderDTO {
     private ZonedDateTime cancelTime;
     private OrderStatus status;
     private List<OrderItemDTO> orderItems;
-    private Branch branch;
+    private BranchDetailDTO branch;
     private PaymentMethod paymentMethod;
     private ZonedDateTime payTime;
     private boolean paid;
