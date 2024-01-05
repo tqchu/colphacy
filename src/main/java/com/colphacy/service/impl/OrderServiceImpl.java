@@ -401,7 +401,7 @@ public class OrderServiceImpl implements OrderService {
     public PageResponse<OrderListViewCustomerDTO> getPaginatedOrdersCustomer(OrderSearchCriteria criteria) {
         // Handle sort field
         if (criteria.getSortBy() != null && criteria.getSortBy().name().equalsIgnoreCase("time")) {
-            if (criteria.getStatus() == null || criteria.getStatus() == OrderStatus.PENDING) {
+            if (criteria.getStatus() == null || criteria.getStatus() == OrderStatus.PENDING || criteria.getStatus() == OrderStatus.TO_PAY) {
                 criteria.setSortBy(OrderListSortField.ORDER_TIME);
             } else if (criteria.getStatus() == OrderStatus.CONFIRMED) {
                 criteria.setSortBy(OrderListSortField.CONFIRM_TIME);
