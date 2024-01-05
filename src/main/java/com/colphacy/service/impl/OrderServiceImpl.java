@@ -273,6 +273,8 @@ public class OrderServiceImpl implements OrderService {
                 criteria.setSortBy(OrderListSortField.DELIVER_TIME);
             } else if (criteria.getStatus() == OrderStatus.CANCELLED) {
                 criteria.setSortBy(OrderListSortField.CANCEL_TIME);
+            } else if (criteria.getStatus() == OrderStatus.RETURNED) {
+                criteria.setSortBy(OrderListSortField.REQUEST_RETURN_TIME);
             }
             // TODO: add for resolved type
         }
