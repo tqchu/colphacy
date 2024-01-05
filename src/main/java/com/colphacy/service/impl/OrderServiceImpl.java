@@ -179,6 +179,10 @@ public class OrderServiceImpl implements OrderService {
                         notification.setDescription("Khách hàng " + customer.getFullName() + " đã nhận đơn hàng " + order.getId() + ", hãy xem ngay");
                         notification.setTitle("Khách hàng đã nhận đơn hàng #" + order.getId() + "!");
                         break;
+                    case CANCELLED:
+                        notification.setDescription("Khách hàng " + customer.getFullName() + " đã hủy đơn hàng " + order.getId());
+                        notification.setTitle("Khách hàng đã hủy đơn hàng #" + order.getId() + "!");
+                        break;
                 }
 
                 notification.setImage(orderIconUrl);
