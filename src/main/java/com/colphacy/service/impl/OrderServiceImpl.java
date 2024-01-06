@@ -382,7 +382,7 @@ public class OrderServiceImpl implements OrderService {
     public Order cancelOrder(Long id, Customer customer) {
         Order order = findOrderByIdAndCustomerId(id, customer.getId());
 
-        if (order.getStatus() != OrderStatus.PENDING) {
+        if (order.getStatus() != OrderStatus.PENDING && order.getStatus() != OrderStatus.TO_PAY) {
             throw InvalidFieldsException.fromFieldError("error", "Không thể hủy đơn hàng ở trạng thái này");
         }
         order.setCancelTime(ZonedDateTime.now(ZoneOffset.UTC));
